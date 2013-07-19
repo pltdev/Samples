@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\wrappers\SpokesWrapper.cs">
+    <Compile Include="..\..\..\wrappers\SpokesWrapper.cs">
       <Link>SpokesWrapper.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />

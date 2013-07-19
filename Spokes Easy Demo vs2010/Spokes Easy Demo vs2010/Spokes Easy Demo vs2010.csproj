@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.Plantronics">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Plantronics\PlantronicsURE\Interop.Plantronics.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Plantronics\PlantronicsURE\Interop.Plantronics.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
@@ -51,7 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\wrappers\SpokesWrapper.cs">
+    <Compile Include="..\..\wrappers\SpokesWrapper.cs">
       <Link>SpokesWrapper.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -27,7 +27,7 @@
     <ClInclude Include="MySpokesIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\wrappers\SpokesWrapper.h">
+    <ClInclude Include="..\..\wrappers\SpokesWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="MySpokesIntegration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\wrappers\SpokesWrapper.cpp">
+    <ClCompile Include="..\..\wrappers\SpokesWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
