@@ -1,0 +1,8 @@
+If you are using Java for your solution:
+Take a look in the Samples github repository
+under:
+https://github.com/pltdev/Samples/tree/master/Java%20Integration%20Sample%20with%20C%23%20Middleware
+
+This sample code allows a Java application to talk
+to the Plantronics headset via TCP/IP sockets and a C#
+Middleware (which in turn uses SpokesWrapper.cs).
