@@ -29,7 +29,7 @@ Comment blocks for both versions are cut and paste below.
  * 
  * The latest version of this file will also be maintained (and feel free to create your own Fork!) on Github, here:
  * 
- * https://github.com/lewiscollins/SpokesWrapper
+ * https://github.com/pltdev/Samples/tree/master/wrappers
  * 
  * Read more about Plantronics Spokes at the Plantronics Developer Connection web site:
  * 
@@ -267,7 +267,7 @@ Comment blocks for both versions are cut and paste below.
  * 
  * The latest version of this file will also be maintained (and feel free to create your own Fork!) on Github, here:
  * 
- * https://github.com/lewiscollins/SpokesWrapper
+ * https://github.com/pltdev/Samples/tree/master/wrappers
  * 
  * Read more about Plantronics Spokes at the Plantronics Developer Connection web site:
  * 
