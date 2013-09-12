@@ -4,6 +4,5 @@ var searchData=
   ['baseeventreceived',['BaseEventReceived',['../class_base_event_sink.html#a598887cd457840811af8025fe1f08fd7',1,'BaseEventSink']]],
   ['baseeventsink',['BaseEventSink',['../class_base_event_sink.html',1,'']]],
   ['basestatechanged',['BaseStateChanged',['../class_device_listener_event_sink.html#a3904ba172f44d213c21799e45f0f1488',1,'DeviceListenerEventSink']]],
-  ['branding_2ejs',['branding.js',['../branding_8js.html',1,'']]],
   ['buttonpressed',['ButtonPressed',['../class_device_event_sink.html#a5d79661dc81e002973382ee6211493cf',1,'DeviceEventSink']]]
 ];

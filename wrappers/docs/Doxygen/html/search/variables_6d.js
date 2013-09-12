@@ -31,7 +31,5 @@ var searchData=
   ['m_5fstrcallsource',['m_strCallSource',['../class_on_call_args.html#a0023f3cfb0d0339ae912b97c9b231916',1,'OnCallArgs::m_strCallSource()'],['../class_call_answered_args.html#aad71f1b19ed671f2e1934bcd52e2f1ef',1,'CallAnsweredArgs::m_strCallSource()'],['../class_call_ended_args.html#a9d5ee034bbf6dd1d63ae1fc407478725',1,'CallEndedArgs::m_strCallSource()']]],
   ['m_5fstrdevicename',['m_strDeviceName',['../class_attached_args.html#a8c403da586935dabeb50da854da31b85',1,'AttachedArgs::m_strDeviceName()'],['../class_spokes.html#ac92aecb99d6d38f7a7a88f22cbfb2ccf',1,'Spokes::m_strDeviceName()']]],
   ['m_5fstrmobilecallerid',['m_strMobileCallerId',['../class_mobile_caller_id_args.html#a35d995a217d46d07fc57254819798f21',1,'MobileCallerIdArgs']]],
-  ['m_5fstrserialnumber',['m_strSerialNumber',['../class_serial_number_args.html#a019e47fd45daa54aa56007a0c6adef2d',1,'SerialNumberArgs']]],
-  ['maxwidth',['maxWidth',['../_t_o_c_8js.html#ac3c886b4c38226f13c35bbd9b204755c',1,'TOC.js']]],
-  ['minwidth',['minWidth',['../_t_o_c_8js.html#aca25167367ee45d3a358a99a054dec8f',1,'TOC.js']]]
+  ['m_5fstrserialnumber',['m_strSerialNumber',['../class_serial_number_args.html#a019e47fd45daa54aa56007a0c6adef2d',1,'SerialNumberArgs']]]
 ];

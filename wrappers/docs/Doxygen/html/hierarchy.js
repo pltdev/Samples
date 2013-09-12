@@ -34,7 +34,6 @@ var hierarchy =
       [ "SessionManagerEventSync", "class_session_manager_event_sync.html", null ]
     ] ],
     [ "ISpokesEvents", "class_i_spokes_events.html", null ],
-    [ "Ranking", "class_ranking.html", null ],
     [ "Spokes", "class_spokes.html", null ],
     [ "SpokesDeviceCaps", "class_spokes_device_caps.html", null ],
     [ "SpokesMultiLineStateFlags", "struct_spokes_multi_line_state_flags.html", null ]

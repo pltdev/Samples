@@ -18,7 +18,6 @@ var annotated =
     [ "MuteChangedArgs", "class_mute_changed_args.html", "class_mute_changed_args" ],
     [ "OnCallArgs", "class_on_call_args.html", "class_on_call_args" ],
     [ "OnMobileCallArgs", "class_on_mobile_call_args.html", "class_on_mobile_call_args" ],
-    [ "Ranking", "class_ranking.html", "class_ranking" ],
     [ "SerialNumberArgs", "class_serial_number_args.html", "class_serial_number_args" ],
     [ "SessionEventSync", "class_session_event_sync.html", "class_session_event_sync" ],
     [ "SessionManagerEventSync", "class_session_manager_event_sync.html", "class_session_manager_event_sync" ],

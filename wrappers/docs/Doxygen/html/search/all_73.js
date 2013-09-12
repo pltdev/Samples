@@ -1,30 +1,15 @@
 var searchData=
 [
-  ['spokeswrapper',['SpokesWrapper',['../md__c_1__perforce-_new2013_plantronics__n_p_d_users_lcollins__samples_wrappers__r_e_a_d_m_e.html',1,'']]],
   ['s_5fcritsect',['s_critSect',['../class_spokes.html#affe82334d85d927e72acd0e509a52c85',1,'Spokes']]],
-  ['search',['Search',['../_search_help_8inc_8php.html#aa7c3bf2433d4f3071c1b39861ea9865a',1,'SearchHelp.inc.php']]],
-  ['searchhelp_2einc_2ephp',['SearchHelp.inc.php',['../_search_help_8inc_8php.html',1,'']]],
-  ['searchhelp_2ephp',['SearchHelp.php',['../_search_help_8php.html',1,'']]],
-  ['searchtextboxkeyup',['SearchTextboxKeyUp',['../branding_8js.html#a8e43f4c7ac158ec117ea13c458d9523e',1,'branding.js']]],
-  ['selectindexnode',['SelectIndexNode',['../_t_o_c_8js.html#a44422534d4118c76a1da91c9aa17b9a8',1,'TOC.js']]],
-  ['selectnode',['SelectNode',['../_t_o_c_8js.html#a0772beab11140fb6f82e315754842447',1,'TOC.js']]],
-  ['selectsearchnode',['SelectSearchNode',['../_t_o_c_8js.html#a2883e4632d005723d7cacc8a685a54b0',1,'TOC.js']]],
   ['serialnumberargs',['SerialNumberArgs',['../class_serial_number_args.html',1,'SerialNumberArgs'],['../class_serial_number_args.html#a5551ad9610fa8ea44ee482d3e9076d4c',1,'SerialNumberArgs::SerialNumberArgs()'],['../class_serial_number_args.html#a9aa2ec164376f2744df69bd3a4ced72f',1,'SerialNumberArgs::SerialNumberArgs(string serialnumber, SpokesSerialNumberTypes serialnumtype)']]],
   ['sessioneventsync',['SessionEventSync',['../class_session_event_sync.html',1,'']]],
   ['sessionmanagereventsync',['SessionManagerEventSync',['../class_session_manager_event_sync.html',1,'']]],
-  ['setcodesnippetcontainerlangcookie',['SetCodeSnippetContainerLangCookie',['../branding_8js.html#ad1817ba012dd66367ff6a0fba492f109',1,'branding.js']]],
-  ['setcookie',['SetCookie',['../branding_8js.html#a362a4719219700cc66d6b94e8c01a3b9',1,'branding.js']]],
-  ['setcurrentlang',['setCurrentLang',['../branding_8js.html#a651391e8beffff174468add37b1b3ac0',1,'branding.js']]],
   ['seteventhandler',['SetEventHandler',['../class_spokes.html#a4ddd9d08c2d8b9ef50656f53ca312f1e',1,'Spokes']]],
   ['setlineactive',['SetLineActive',['../class_spokes.html#a25dd88883cddc0417f69d9c14d5bf667',1,'Spokes']]],
   ['setlinehold',['SetLineHold',['../class_spokes.html#a4e24f9453db14401cd399c2843ff8590',1,'Spokes']]],
   ['setlogger',['SetLogger',['../class_spokes.html#ac2cb384542d5304da2c42949b638db16',1,'Spokes']]],
   ['setmute',['SetMute',['../class_spokes.html#ac025e42f448476cac4fdfeecb1dad651',1,'Spokes']]],
-  ['showdirectlink',['ShowDirectLink',['../_t_o_c_8js.html#aeeae88526942407da0361979a489aa05',1,'TOC.js']]],
-  ['showhideindex',['ShowHideIndex',['../_t_o_c_8js.html#a6f29b8efd9a96b8fc59b4f764a640c2c',1,'TOC.js']]],
-  ['showhidesearch',['ShowHideSearch',['../_t_o_c_8js.html#a9faf9f7688d2a9be9f0ddc6fed5f9eba',1,'TOC.js']]],
   ['smartpressed',['SmartPressed',['../class_device_event_sink.html#ac9c55ebf06a15eee6afa8e91ba2e8eba',1,'DeviceEventSink']]],
-  ['snippetidsets',['snippetIdSets',['../branding_8js.html#a1dd64292002adfd7a0dcfb8ec5e83784',1,'branding.js']]],
   ['spokes',['Spokes',['../class_spokes.html',1,'']]],
   ['spokes_5fattached',['Spokes_Attached',['../class_i_spokes_events.html#afdedd95a006ffaca6e179649d9fdf323',1,'ISpokesEvents::Spokes_Attached()'],['../_spokes_wrapper_8h.html#aa4336150c0098b9284349468be66cac1a1b6eab9b65ea74ee9ab65b1d6b92f415',1,'Spokes_Attached():&#160;SpokesWrapper.h']]],
   ['spokes_5fbase',['Spokes_Base',['../_spokes_wrapper_8h.html#a696877364c743ae1d71022b82fa5ceaaa512423bdb790f745f390a07c20abc76e',1,'SpokesWrapper.h']]],
@@ -72,6 +57,5 @@ var searchData=
   ['spokesserialnumbertypes',['SpokesSerialNumberTypes',['../_spokes_wrapper_8h.html#a696877364c743ae1d71022b82fa5ceaa',1,'SpokesWrapper.h']]],
   ['spokeswrapper_2ecpp',['SpokesWrapper.cpp',['../_spokes_wrapper_8cpp.html',1,'']]],
   ['spokeswrapper_2eh',['SpokesWrapper.h',['../_spokes_wrapper_8h.html',1,'']]],
-  ['suspending',['Suspending',['../class_session_manager_event_sync.html#a5fc5d10be2c4696e7b28797021d119ec',1,'SessionManagerEventSync']]],
-  ['synctoc',['SyncTOC',['../_t_o_c_8js.html#a89010ad25b3d22845e0ceffc713912cb',1,'TOC.js']]]
+  ['suspending',['Suspending',['../class_session_manager_event_sync.html#a5fc5d10be2c4696e7b28797021d119ec',1,'SessionManagerEventSync']]]
 ];

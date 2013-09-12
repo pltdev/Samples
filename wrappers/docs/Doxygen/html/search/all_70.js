@@ -1,11 +1,5 @@
 var searchData=
 [
-  ['pageextension',['pageExtension',['../_t_o_c_8js.html#a4bc022165387add7ba94529eb2f33c73',1,'TOC.js']]],
-  ['parsekeywords',['ParseKeywords',['../_search_help_8inc_8php.html#a37c59016381f024cd47abbb37b345e93',1,'SearchHelp.inc.php']]],
-  ['performsearch',['PerformSearch',['../_t_o_c_8js.html#aa100e87f956ac1b54eaed08b67d33979',1,'TOC.js']]],
-  ['populateindex',['PopulateIndex',['../_t_o_c_8js.html#ad2197222a8aa8a4646ce5d470e530eb7',1,'TOC.js']]],
-  ['preventeventbubbling',['preventEventBubbling',['../branding_8js.html#ae181be14b5bdf97313cf660a369326d4',1,'branding.js']]],
-  ['print',['Print',['../branding_8js.html#a5d67e6ed4c2257462426785222c5f39b',1,'branding.js']]],
   ['printdevice',['PrintDevice',['../_spokes_wrapper_8cpp.html#aee3edce6d0f3d30c3a70e0109455e313',1,'SpokesWrapper.cpp']]],
   ['printsession',['PrintSession',['../_spokes_wrapper_8cpp.html#a25ecbed1708fcd8b9b98e6ce9f111181',1,'SpokesWrapper.cpp']]],
   ['put_5fconferenceid',['put_ConferenceId',['../class_call.html#a156cc6b3ad8bb566e8b50f0fa1354058',1,'Call']]],

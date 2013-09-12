@@ -1,7 +1,6 @@
 var NAVTREE =
 [
   [ "Spokes Wrapper C++", "index.html", [
-    [ "SpokesWrapper", "md__c_1__perforce-_new2013_plantronics__n_p_d_users_lcollins__samples_wrappers__r_e_a_d_m_e.html", null ],
     [ "Classes", null, [
       [ "Class List", "annotated.html", "annotated" ],
       [ "Class Index", "classes.html", null ],
@@ -27,8 +26,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_fill_node_8php.html",
-"class_call_ended_args.html#af9c2b6918a9b8bf38e8a5c86a73bc1c2"
+"_spokes_wrapper_8cpp.html",
+"class_serial_number_args.html#adf0897f6950d30a1050d06f596cbdd8a"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

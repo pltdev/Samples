@@ -1,22 +1,11 @@
 var searchData=
 [
-  ['search',['Search',['../_search_help_8inc_8php.html#aa7c3bf2433d4f3071c1b39861ea9865a',1,'SearchHelp.inc.php']]],
-  ['searchtextboxkeyup',['SearchTextboxKeyUp',['../branding_8js.html#a8e43f4c7ac158ec117ea13c458d9523e',1,'branding.js']]],
-  ['selectindexnode',['SelectIndexNode',['../_t_o_c_8js.html#a44422534d4118c76a1da91c9aa17b9a8',1,'TOC.js']]],
-  ['selectnode',['SelectNode',['../_t_o_c_8js.html#a0772beab11140fb6f82e315754842447',1,'TOC.js']]],
-  ['selectsearchnode',['SelectSearchNode',['../_t_o_c_8js.html#a2883e4632d005723d7cacc8a685a54b0',1,'TOC.js']]],
   ['serialnumberargs',['SerialNumberArgs',['../class_serial_number_args.html#a5551ad9610fa8ea44ee482d3e9076d4c',1,'SerialNumberArgs::SerialNumberArgs()'],['../class_serial_number_args.html#a9aa2ec164376f2744df69bd3a4ced72f',1,'SerialNumberArgs::SerialNumberArgs(string serialnumber, SpokesSerialNumberTypes serialnumtype)']]],
-  ['setcodesnippetcontainerlangcookie',['SetCodeSnippetContainerLangCookie',['../branding_8js.html#ad1817ba012dd66367ff6a0fba492f109',1,'branding.js']]],
-  ['setcookie',['SetCookie',['../branding_8js.html#a362a4719219700cc66d6b94e8c01a3b9',1,'branding.js']]],
-  ['setcurrentlang',['setCurrentLang',['../branding_8js.html#a651391e8beffff174468add37b1b3ac0',1,'branding.js']]],
   ['seteventhandler',['SetEventHandler',['../class_spokes.html#a4ddd9d08c2d8b9ef50656f53ca312f1e',1,'Spokes']]],
   ['setlineactive',['SetLineActive',['../class_spokes.html#a25dd88883cddc0417f69d9c14d5bf667',1,'Spokes']]],
   ['setlinehold',['SetLineHold',['../class_spokes.html#a4e24f9453db14401cd399c2843ff8590',1,'Spokes']]],
   ['setlogger',['SetLogger',['../class_spokes.html#ac2cb384542d5304da2c42949b638db16',1,'Spokes']]],
   ['setmute',['SetMute',['../class_spokes.html#ac025e42f448476cac4fdfeecb1dad651',1,'Spokes']]],
-  ['showdirectlink',['ShowDirectLink',['../_t_o_c_8js.html#aeeae88526942407da0361979a489aa05',1,'TOC.js']]],
-  ['showhideindex',['ShowHideIndex',['../_t_o_c_8js.html#a6f29b8efd9a96b8fc59b4f764a640c2c',1,'TOC.js']]],
-  ['showhidesearch',['ShowHideSearch',['../_t_o_c_8js.html#a9faf9f7688d2a9be9f0ddc6fed5f9eba',1,'TOC.js']]],
   ['smartpressed',['SmartPressed',['../class_device_event_sink.html#ac9c55ebf06a15eee6afa8e91ba2e8eba',1,'DeviceEventSink']]],
   ['spokes_5fattached',['Spokes_Attached',['../class_i_spokes_events.html#afdedd95a006ffaca6e179649d9fdf323',1,'ISpokesEvents']]],
   ['spokes_5fbatterylevelchanged',['Spokes_BatteryLevelChanged',['../class_i_spokes_events.html#a739108cb4dbf56d18ae68487e7f617e7',1,'ISpokesEvents']]],
@@ -45,6 +34,5 @@ var searchData=
   ['spokes_5ftakenoff',['Spokes_TakenOff',['../class_i_spokes_events.html#a34ab141689f143cf1ed3384056728a20',1,'ISpokesEvents']]],
   ['spokes_5fundocked',['Spokes_UnDocked',['../class_i_spokes_events.html#a52d5b4580b20ba9fa237baca13301cf1',1,'ISpokesEvents']]],
   ['spokesdevicecaps',['SpokesDeviceCaps',['../class_spokes_device_caps.html#ac58e58af1f7d2b6720952a6c9ce490fa',1,'SpokesDeviceCaps::SpokesDeviceCaps()'],['../class_spokes_device_caps.html#a2f29985420375c7f488d03d252f9ad00',1,'SpokesDeviceCaps::SpokesDeviceCaps(bool hasProximity, bool hasCallerId, bool hasDocking, bool hasWearingSensor, bool hasMultiline, bool isWireless)']]],
-  ['suspending',['Suspending',['../class_session_manager_event_sync.html#a5fc5d10be2c4696e7b28797021d119ec',1,'SessionManagerEventSync']]],
-  ['synctoc',['SyncTOC',['../_t_o_c_8js.html#a89010ad25b3d22845e0ceffc713912cb',1,'TOC.js']]]
+  ['suspending',['Suspending',['../class_session_manager_event_sync.html#a5fc5d10be2c4696e7b28797021d119ec',1,'SessionManagerEventSync']]]
 ];
