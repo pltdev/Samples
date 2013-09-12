@@ -43,6 +43,17 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.6:
+ * Date: 12th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes: (thanks Olivier for the feedback)
+ *     - Added special case to identify devices C220 and C210 to correct the device capabilities
+ *       (see UpdateOtherDeviceCapabilities function).
+ *     - Added HoldCall and ResumeCall functions so softphone can tell Spokes when these actions
+ *       have occured in the softphone
+ *     - Added placeholder code for system suspend/resume events (not currently exposed through Spokes COM)
+ *
  * Version 1.0.5:
  * Date: 25th June 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
@@ -496,6 +507,8 @@ public:
 	virtual void Spokes_CapabilitiesChanged(EventArgs * e) { };
 	virtual void Spokes_MultiLineStateChanged(EventArgs * e) { };
 	virtual void Spokes_BatteryLevelChanged(EventArgs * e) { };
+	virtual void Spokes_SystemSuspending(EventArgs * e) { };
+	virtual void Spokes_SystemResuming(EventArgs * e) { };
 };
 
 // internal list of Spokes event types
@@ -524,7 +537,9 @@ enum SpokesEventType
 	Spokes_Detached,
 	Spokes_CapabilitiesChanged,
 	Spokes_MultiLineStateChanged,
-	Spokes_BatteryLevelChanged
+	Spokes_BatteryLevelChanged,
+	Spokes_SystemSuspending,
+	Spokes_SystemResuming
 };
 
 // forward definitions of Spokes globals
@@ -625,6 +640,18 @@ public:
 	/// </summary>
 	/// <param name="callid">The unique numeric id that defines which softphone call you answered.</param>
 	bool AnswerCall(int callid);
+
+	/// <summary>
+	/// Informs Spokes that your softphone user has resumed the given softphone call.
+	/// </summary>
+	/// <param name="callid">The unique numeric id that defines which softphone call you resumed.</param>
+	bool ResumeCall(int callid);
+
+	/// <summary>
+	/// Informs Spokes that your softphone user has held the given softphone call.
+	/// </summary>
+	/// <param name="callid">The unique numeric id that defines which softphone call you held.</param>
+	bool HoldCall(int callid);
 
 	/// <summary>
 	/// Allows your softphone application to inform Plantronics device about an outgoing call. Note: will automatically open audio/rf link to wireless device.

@@ -36,6 +36,17 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.6:
+ * Date: 12th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes: (thanks Olivier for the feedback)
+ *     - Added special case to identify devices C220 and C210 to correct the device capabilities
+ *       (see UpdateOtherDeviceCapabilities function).
+ *     - Added HoldCall and ResumeCall functions so softphone can tell Spokes when these actions
+ *       have occured in the softphone
+ *     - Added placeholder code for system suspend/resume events (not currently exposed through Spokes COM)
+ *
  * Version 1.0.5:
  * Date: 25th June 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
@@ -510,6 +521,7 @@ public:
 		return S_OK;
 
 	}
+
 	//TODO: this events are not exposed from Spokes COM level
 	STDMETHOD(Suspending)(VARIANT sender, struct _EventArgs *args)						
 	{
@@ -518,8 +530,12 @@ public:
 		tmpstrm << "SM Event: Suspending";		
 		outstr = tmpstrm.str();
 		Spokes::GetInstance()->DebugPrint(__FUNCTION__, outstr);
+
+		Spokes::GetInstance()->NotifyEvent(Spokes_SystemSuspending, EventArgs::Empty());
+
 		return S_OK;
 	}
+
 	STDMETHOD(Resuming)(VARIANT sender, struct _EventArgs *args)						
 	{
 		string outstr;
@@ -527,8 +543,12 @@ public:
 		tmpstrm << "SM Event: Resuming";			
 		outstr = tmpstrm.str();
 		Spokes::GetInstance()->DebugPrint(__FUNCTION__, outstr);
+
+		Spokes::GetInstance()->NotifyEvent(Spokes_SystemResuming, EventArgs::Empty());
+
 		return S_OK;
 	}
+
 	STDMETHOD(QueryConfigChange)(VARIANT sender, struct _EventArgs *args)				
 	{
 		string outstr;
@@ -538,7 +558,6 @@ public:
 		Spokes::GetInstance()->DebugPrint(__FUNCTION__, outstr);
 		return S_OK;
 	}
-
 
 	//empty dispatch
 	STDMETHOD(Invoke)(DISPID dispID,REFIID riid,LCID lcid,WORD wFlags,DISPPARAMS* pDispParams, VARIANT* pVarResult,EXCEPINFO* pExcepInfo,UINT* puArgErr) {return S_OK;}  
@@ -1656,6 +1675,12 @@ void Spokes::UpdateOtherDeviceCapabilities()
         m_SpokesDeviceCapabilities.m_bHasDocking = false;
         m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
     }
+	if (devname.find("C210")>-1 || devname.find("C220")>-1)
+    {
+        m_SpokesDeviceCapabilities.m_bIsWireless = false;
+        m_SpokesDeviceCapabilities.m_bHasDocking = false;
+        m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+    }
     if (devname.find("C710")>-1 || devname.find("C720")>-1)
     {
         m_SpokesDeviceCapabilities.m_bHasProximity = false;
@@ -1872,6 +1897,54 @@ bool Spokes::AnswerCall(int callid)
 		callObj->QueryInterface(__uuidof(ICall),(void **) &call); 
 
         success = SUCCEEDED(g_pCallCommand->AnsweredCall(call));
+    }
+	return success;
+}
+
+/// <summary>
+/// Informs Spokes that your softphone user has resumed the given softphone call.
+/// </summary>
+/// <param name="callid">The unique numeric id that defines which softphone call you resumed.</param>
+bool Spokes::ResumeCall(int callid)
+{
+	string outstr;
+	ostringstream tmpstrm;
+	tmpstrm << "INFO: ResumeCall call id=" << callid;
+	outstr = tmpstrm.str();
+	DebugPrint(__FUNCTION__, outstr);
+    bool success = false;
+	if (g_pCallCommand != NULL)
+    {
+		// Create Call
+		CComPtr<ICall> call;
+		CComObject<Call> *callObj = Call::GetCall(callid);
+		callObj->QueryInterface(__uuidof(ICall),(void **) &call); 
+
+		success = SUCCEEDED(g_pCallCommand->ResumeCall(call));
+    }
+	return success;
+}
+
+/// <summary>
+/// Informs Spokes that your softphone user has held the given softphone call.
+/// </summary>
+/// <param name="callid">The unique numeric id that defines which softphone call you held.</param>
+bool Spokes::HoldCall(int callid)
+{
+	string outstr;
+	ostringstream tmpstrm;
+	tmpstrm << "INFO: HoldCall call id=" << callid;
+	outstr = tmpstrm.str();
+	DebugPrint(__FUNCTION__, outstr);
+    bool success = false;
+	if (g_pCallCommand != NULL)
+    {
+		// Create Call
+		CComPtr<ICall> call;
+		CComObject<Call> *callObj = Call::GetCall(callid);
+		callObj->QueryInterface(__uuidof(ICall),(void **) &call); 
+
+		success = SUCCEEDED(g_pCallCommand->HoldCall(call));
     }
 	return success;
 }
