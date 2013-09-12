@@ -545,6 +545,12 @@ enum SpokesEventType
 // forward definitions of Spokes globals
 extern CComPtr<IDevice> g_pActiveDevice;
 
+/// <summary>
+/// Defines a Spokes object which you can use to communicate with Plantronics devices.
+/// Cannot instantiate directly. To obtain singleton call Spokes.Instance.
+/// Note: using singleton model to avoid possibility of multiple instantiation
+/// as specified in: http://msdn.microsoft.com/en-us/library/ff650316.aspx
+/// </summary>
 class Spokes
 {
 public:

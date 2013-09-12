@@ -1,0 +1,28 @@
+var annotated =
+[
+    [ "AttachedArgs", "class_attached_args.html", "class_attached_args" ],
+    [ "BaseEventSink", "class_base_event_sink.html", "class_base_event_sink" ],
+    [ "Call", "class_call.html", "class_call" ],
+    [ "CallAnsweredArgs", "class_call_answered_args.html", "class_call_answered_args" ],
+    [ "CallContact", "class_call_contact.html", "class_call_contact" ],
+    [ "CallEndedArgs", "class_call_ended_args.html", "class_call_ended_args" ],
+    [ "DeviceEventExtSink", "class_device_event_ext_sink.html", "class_device_event_ext_sink" ],
+    [ "DeviceEventSink", "class_device_event_sink.html", "class_device_event_sink" ],
+    [ "DeviceListenerEventSink", "class_device_listener_event_sink.html", "class_device_listener_event_sink" ],
+    [ "EventArgs", "class_event_args.html", "class_event_args" ],
+    [ "IDebugLogger", "class_i_debug_logger.html", "class_i_debug_logger" ],
+    [ "ISpokesEvents", "class_i_spokes_events.html", "class_i_spokes_events" ],
+    [ "LineActiveChangedArgs", "class_line_active_changed_args.html", "class_line_active_changed_args" ],
+    [ "MobileCallerIdArgs", "class_mobile_caller_id_args.html", "class_mobile_caller_id_args" ],
+    [ "MultiLineStateArgs", "class_multi_line_state_args.html", "class_multi_line_state_args" ],
+    [ "MuteChangedArgs", "class_mute_changed_args.html", "class_mute_changed_args" ],
+    [ "OnCallArgs", "class_on_call_args.html", "class_on_call_args" ],
+    [ "OnMobileCallArgs", "class_on_mobile_call_args.html", "class_on_mobile_call_args" ],
+    [ "Ranking", "class_ranking.html", "class_ranking" ],
+    [ "SerialNumberArgs", "class_serial_number_args.html", "class_serial_number_args" ],
+    [ "SessionEventSync", "class_session_event_sync.html", "class_session_event_sync" ],
+    [ "SessionManagerEventSync", "class_session_manager_event_sync.html", "class_session_manager_event_sync" ],
+    [ "Spokes", "class_spokes.html", "class_spokes" ],
+    [ "SpokesDeviceCaps", "class_spokes_device_caps.html", "class_spokes_device_caps" ],
+    [ "SpokesMultiLineStateFlags", "struct_spokes_multi_line_state_flags.html", "struct_spokes_multi_line_state_flags" ]
+];
