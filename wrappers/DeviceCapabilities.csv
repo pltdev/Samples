@@ -1,0 +1,111 @@
+#Spokes Wrapper Device Capabilities List,,,,,,,,
+,,,,,,,,
+#ProductId,#DeviceName,HasProximity,HasMobCallerId,HasMobCallState,HasDocking,HasWearingSensor,HasMultiline,IsWireless
+410,BellRinger,No,No,No,No,No,No,No
+411,Hydra,No,No,No,Yes,No,Yes,Yes
+DA45,DA45,Yes,No,No,No,No,No,No
+620,Calisto Pro,No,No,No,No,No,No,Yes
+AB12,Yeti,No,No,No,Yes,No,No,Yes
+AC01,Poseidon,No,No,Yes,Yes,No,Yes,Yes
+AC11,Poseidon,No,No,Yes,Yes,No,Yes,Yes
+412,Hydra,No,No,No,Yes,No,Yes,Yes
+4254,BlueMax,No,No,No,No,No,No,Yes
+715,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+716,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+717,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+718,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+413,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+414,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+415,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+416,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+417,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+418,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+419,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+ca00,Calisto 800,No,No,No,No,No,No,No
+ca01,Calisto 800,No,No,No,No,No,No,No
+AE11,Calisto 240,No,No,No,No,No,No,No
+AE01,Calisto 240,No,No,No,No,No,No,No
+CA03,Calisto 620 Series,No,Yes,Yes,No,No,No,No
+10A,C700 Series,No,Yes,Yes,No,Yes,No,No
+10B,C700 Series,No,Yes,Yes,No,Yes,No,No
+10C,C700 Series,No,Yes,Yes,No,Yes,No,No
+10D,C700 Series,No,Yes,Yes,No,Yes,No,No
+AD03,MDA200,No,No,No,No,No,No,No
+AB01,Yeti,No,No,No,Yes,No,No,Yes
+AB11,Yeti,No,No,No,Yes,No,No,Yes
+AB02,Yeti,No,No,No,Yes,No,No,Yes
+C00E,C300 Series,No,No,No,No,No,No,No
+C00F,C300 Series,No,No,No,No,No,No,No
+C01E,C300 Series,No,No,No,No,No,No,No
+C01F,C300 Series,No,No,No,No,No,No,No
+C022,C300 Series,No,No,No,No,No,No,No
+C023,C300 Series,No,No,No,No,No,No,No
+C024,C300 Series,No,No,No,No,No,No,No
+C025,C300 Series,No,No,No,No,No,No,No
+C026,C300 Series,No,No,No,No,No,No,No
+C027,C300 Series,No,No,No,No,No,No,No
+C028,C300 Series,No,No,No,No,No,No,No
+C029,C300 Series,No,No,No,No,No,No,No
+C015,C500 Series,No,No,No,No,Yes,No,No
+C016,C500 Series,No,No,No,No,Yes,No,No
+C017,C500 Series,No,No,No,No,Yes,No,No
+C018,C500 Series,No,No,No,No,Yes,No,No
+C019,C500 Series,No,No,No,No,Yes,No,No
+C01A,C500 Series,No,No,No,No,Yes,No,No
+C01B,C500 Series,No,No,No,No,Yes,No,No
+C01C,C500 Series,No,No,No,No,Yes,No,No
+AE11,Calisto P240,No,No,No,No,No,No,No
+AE01,Calisto P240,No,No,No,No,No,No,No
+AE10,Calisto P240,No,No,No,No,No,No,No
+C00E,C300 Series,No,No,No,No,No,No,No
+C01E,C300 Series,No,No,No,No,No,No,No
+C00F,C300 Series,No,No,No,No,No,No,No
+C01F,C300 Series,No,No,No,No,No,No,No
+C022,C300 Series,No,No,No,No,No,No,No
+C023,C300 Series,No,No,No,No,No,No,No
+C024,C300 Series,No,No,No,No,No,No,No
+C025,C300 Series,No,No,No,No,No,No,No
+C026,C300 Series,No,No,No,No,No,No,No
+C027,C300 Series,No,No,No,No,No,No,No
+C028,C300 Series,No,No,No,No,No,No,No
+C029,C300 Series,No,No,No,No,No,No,No
+AC01,Savi W7xx,No,No,Yes,Yes,No,Yes,Yes
+AC11,Savi W7xx,No,No,Yes,Yes,No,Yes,Yes
+AD02,MDA200,No,No,No,No,No,No,No
+AD03,MDA200,No,No,No,No,No,No,No
+AB01,D100,No,No,No,Yes,No,No,Yes
+CA03,Calisto 620 Series,No,Yes,Yes,No,No,No,No
+CA01,Calisto 800 Series,No,No,No,No,No,No,No
+AB02,D100,No,No,No,Yes,No,No,Yes
+AB11,D100,No,No,No,Yes,No,No,Yes
+AB12,D100,No,No,No,Yes,No,No,Yes
+113,Voyager Legend Standard US,Yes,Yes,Yes,Yes,Yes,No,Yes
+114,Voyager Legend Verizon,Yes,Yes,Yes,Yes,Yes,No,Yes
+115,Voyager Legend Rest of World,Yes,Yes,Yes,Yes,Yes,No,Yes
+413,BT300 UC USB Dongle Stop Ship,Yes,Yes,Yes,Yes,Yes,No,Yes
+414,BT300M OC USB Dongle Stop Ship,Yes,Yes,Yes,Yes,Yes,No,Yes
+415,BT300 UC USB Dongle,Yes,Yes,Yes,Yes,Yes,No,Yes
+416,BT300M OC USB Dongle,Yes,Yes,Yes,Yes,Yes,No,Yes
+417,R3 UC USB Dongle,No,Yes,Yes,No,No,No,Yes
+418,R3 OC USB Dongle,No,Yes,Yes,No,No,No,Yes
+10C,Blackwire C710 Headset,No,Yes,Yes,No,Yes,No,No
+10D,Blackwire C710-M Headset,No,Yes,Yes,No,Yes,No,No
+10A,Blackwire C720 Headset,No,Yes,Yes,No,Yes,No,No
+10B,Blackwire C710-M Headset,No,Yes,Yes,No,Yes,No,No
+6,Savor M1100 Original,No,No,No,No,No,No,No
+100,Savor M1100 Verizon Headset,No,No,No,No,No,No,No
+101,Savor M1100 Rest of World Headset,No,No,No,No,No,No,No
+104,Savor M1100 Standard US,No,No,No,No,No,No,No
+10E,Savor M1100 BMW,No,No,No,No,No,No,No
+107,Voyager Pro Standard US,Yes,Yes,Yes,Yes,Yes,No,Yes
+106,Voyager Pro UC,Yes,Yes,Yes,Yes,Yes,No,Yes
+108,Voyager Pro HD Verizon,Yes,Yes,Yes,Yes,Yes,No,Yes
+109,Voyager Pro HD Rest of World,Yes,Yes,Yes,Yes,Yes,No,Yes
+C015,C510 Series,No,No,No,No,Yes,No,No
+C016,C510 Series,No,No,No,No,Yes,No,No
+C017,C520 Series,No,No,No,No,Yes,No,No
+C018,C520 Series,No,No,No,No,Yes,No,No
+C019,C510 Series,No,No,No,No,Yes,No,No
+C01A,C510 Series,No,No,No,No,Yes,No,No
+C01B,C520 Series,No,No,No,No,Yes,No,No
+C01C,C520 Series,No,No,No,No,Yes,No,No

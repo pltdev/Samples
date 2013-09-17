@@ -43,6 +43,16 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.7:
+ * Date: 17th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added knowledge of the Plantronics device capabilities through
+ *       deployment of supplementary file: "DeviceCapabilities.csv"
+ *       This file should be placed in the working directory of the calling
+ *       application.
+ *
  * Version 1.0.6:
  * Date: 12th Sept 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
@@ -109,11 +119,13 @@ class SpokesDeviceCaps
 {
 public:
     bool m_bHasProximity;
-    bool m_bHasCallerId;
+    bool m_bHasMobCallerId;
+	bool m_bHasMobCallState;
     bool m_bHasDocking;
     bool m_bHasWearingSensor;
     bool m_bHasMultiline;
     bool m_bIsWireless;
+	string m_strProductId;
 
 	// default constructor
 	SpokesDeviceCaps() { };
@@ -121,19 +133,21 @@ public:
     /// <summary>
     /// Constructor: pass in boolean values for whether it has the given device capabilities or not
     /// </summary>
-    SpokesDeviceCaps(bool hasProximity, bool hasCallerId, bool hasDocking, bool hasWearingSensor, bool hasMultiline, bool isWireless)
+    SpokesDeviceCaps(bool hasProximity, bool hasMobCallerId, bool hasMobCallState, bool hasDocking, bool hasWearingSensor, bool hasMultiline, bool isWireless)
     {
-        Init(hasProximity, hasCallerId, hasDocking, hasWearingSensor, hasMultiline, isWireless);
+        Init(hasProximity, hasMobCallerId, hasMobCallState, hasDocking, hasWearingSensor, hasMultiline, isWireless);
     }
 
-    void Init(bool hasProximity, bool hasCallerId, bool hasDocking, bool hasWearingSensor, bool hasMultiline, bool isWireless)
+    void Init(bool hasProximity, bool hasMobCallerId, bool hasMobCallState, bool hasDocking, bool hasWearingSensor, bool hasMultiline, bool isWireless)
     {
         m_bHasProximity = hasProximity;
-        m_bHasCallerId = hasCallerId;
+        m_bHasMobCallerId = hasMobCallerId;
+        m_bHasMobCallState = hasMobCallState;
         m_bHasDocking = hasDocking;
         m_bHasWearingSensor = hasWearingSensor;
         m_bHasMultiline = hasMultiline;
         m_bIsWireless = isWireless;
+		m_strProductId = "";
     }
 
     /// <summary>
@@ -573,6 +587,12 @@ private:
 
     SpokesMultiLineStateFlags m_ActiveHeldFlags;
 
+	vector<SpokesDeviceCaps> m_AllDeviceCapabilities;
+
+	void PreLoadAllDeviceCapabilities();
+
+	SpokesDeviceCaps GetMyDeviceCapabilities();
+
 	bool GetActiveAndHeldStates();
 
 	bool GetHoldStates();
@@ -707,7 +727,7 @@ public:
     /// A property containing flags that indicate the capabilities of the attached Plantronics device (if any).
     /// </summary>
     SpokesDeviceCaps m_SpokesDeviceCapabilities;
-
+		
     /// <summary>
     /// Returns boolean to indicate whether there is currently a Plantronics device attached to the PC or not.
     /// </summary>
@@ -733,4 +753,3 @@ public:
     /// <returns>A BatteryLevel structure containing information about the battery level.</returns>
     BatteryLevel GetBatteryLevel();
 };
-

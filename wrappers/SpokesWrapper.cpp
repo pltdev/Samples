@@ -36,6 +36,16 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.7:
+ * Date: 17th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added knowledge of the Plantronics device capabilities through
+ *       deployment of supplementary file: "DeviceCapabilities.csv"
+ *       This file should be placed in the working directory of the calling
+ *       application.
+ *
  * Version 1.0.6:
  * Date: 12th Sept 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
@@ -326,7 +336,8 @@ string SpokesDeviceCaps::ToString()
 	ostringstream tmpstrm;
 
 	tmpstrm << "Proximity = " << m_bHasProximity << endl
-		<< "Mobile Caller Id = " << m_bHasCallerId << endl
+		<< "Mobile Caller Id = " << m_bHasMobCallerId << endl
+		<< "Mobile Call State = " << m_bHasMobCallState << endl
 		<< "Dockable = " << m_bHasDocking << endl
 		<< "Wearing Sensor = " << m_bHasWearingSensor << endl
 		<< "Multiline = " << m_bHasMultiline << endl
@@ -1330,7 +1341,7 @@ void AttachDevice()
 	if( g_pActiveDevice != NULL)
 	{
         // LC assume minimum first set of device capabilities...
-		Spokes::GetInstance()->m_SpokesDeviceCapabilities.Init(false, false, true, true, false, true);
+		Spokes::GetInstance()->m_SpokesDeviceCapabilities.Init(false, false, false, false, false, false, false);
 		Spokes::GetInstance()->NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 
 		SerialNumberArgs * sn = new SerialNumberArgs("", Spokes_Base);
@@ -1355,7 +1366,7 @@ void AttachDevice()
 
 		string outstr;
 		ostringstream tmpstrm;
-		tmpstrm << "ATTACHED = %s" << csStr;
+		tmpstrm << "ATTACHED = " << csStr;
 		outstr = tmpstrm.str();
 		Spokes::GetInstance()->DebugPrint(__FUNCTION__, outstr);
 		outstr = tmpstrm.str();
@@ -1519,6 +1530,136 @@ Spokes::Spokes(void)
     m_bMobileIncoming = false; // mobile call direction flag
     m_bVoipIncoming = false; // mobile call direction flag
 	m_strDeviceName = "";
+
+	PreLoadAllDeviceCapabilities();
+}
+
+SpokesDeviceCaps Spokes::GetMyDeviceCapabilities()
+{
+	SpokesDeviceCaps retval;
+	retval.m_strProductId="";
+	char prodidstr[10];
+
+	if (g_pActiveDevice!=NULL && m_AllDeviceCapabilities.size()>0)
+	{
+		long productId;
+		g_pActiveDevice->get_ProductID(&productId);
+		sprintf_s(prodidstr, "%x", productId);
+		string prodidstring = prodidstr;
+		std::transform(prodidstring.begin(), prodidstring.end(),prodidstring.begin(), ::toupper);
+
+		for (int i = 0;i<m_AllDeviceCapabilities.size();i++)
+		{
+			if (m_AllDeviceCapabilities[i].m_strProductId.compare(prodidstring)==0)
+			{
+				// we got a match of our product!
+				DebugPrint(__FUNCTION__, "INFO: Got a match of our Plantronics device in DeviceCapabilities.csv:");
+				DebugPrint(__FUNCTION__, prodidstr);
+				retval.m_strProductId = prodidstr;
+				retval.m_bHasProximity = m_AllDeviceCapabilities[i].m_bHasProximity;
+				retval.m_bHasMobCallerId = m_AllDeviceCapabilities[i].m_bHasMobCallerId;
+				retval.m_bHasMobCallState = m_AllDeviceCapabilities[i].m_bHasMobCallState;
+				retval.m_bHasDocking = m_AllDeviceCapabilities[i].m_bHasDocking;
+				retval.m_bHasWearingSensor = m_AllDeviceCapabilities[i].m_bHasWearingSensor;
+				retval.m_bHasMultiline = m_AllDeviceCapabilities[i].m_bHasMultiline;
+				retval.m_bIsWireless = m_AllDeviceCapabilities[i].m_bIsWireless;
+			}
+		}
+	}
+	return retval;
+}
+
+void Spokes::PreLoadAllDeviceCapabilities()
+{
+	ifstream in_stream;
+
+	string line;
+
+	SpokesDeviceCaps devicecaps;
+
+	try 
+	{
+		in_stream.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
+
+		in_stream.open("DeviceCapabilities.csv");
+
+		while(!in_stream.eof())
+		{
+			try
+			{
+				std::getline(in_stream, line);
+
+				if (line.length()>0)
+				{
+					if (line.substr(0,1).compare("#")!=0 && line.substr(0,1).compare(",")!=0)
+					{
+
+						// not a comment line or empty line (with only commas)
+						
+						char *next_token;
+						char *p = strtok_s((char*)line.c_str(), ",", &next_token);
+						int i = 0;
+						string token;
+						while (p) {
+							//printf ("Token: %s\n", p);
+							token = p;
+							switch(i)
+							{
+							case 0:
+								devicecaps.m_strProductId = p;
+								std::transform(devicecaps.m_strProductId.begin(), devicecaps.m_strProductId.end(),devicecaps.m_strProductId.begin(), ::toupper);
+								break;
+							case 1:
+								// no action - this is the device name we don't need
+								break;
+							case 2:
+								devicecaps.m_bHasProximity = token.compare("Yes")==0 ? true : false;
+								break;
+							case 3:
+								devicecaps.m_bHasMobCallerId = token.compare("Yes")==0 ? true : false;
+								break;
+							case 4:
+								devicecaps.m_bHasMobCallState = token.compare("Yes")==0 ? true : false;
+								break;
+							case 5:
+								devicecaps.m_bHasDocking = token.compare("Yes")==0 ? true : false;
+								break;
+							case 6:
+								devicecaps.m_bHasWearingSensor = token.compare("Yes")==0 ? true : false;
+								break;
+							case 7:
+								devicecaps.m_bHasMultiline = token.compare("Yes")==0 ? true : false;
+								break;
+							case 8:
+								devicecaps.m_bIsWireless = token.compare("Yes")==0 ? true : false;
+
+								// now, add the devicecaps to our list:
+								m_AllDeviceCapabilities.push_back(devicecaps);
+
+								break;
+							}
+
+							p = strtok_s(NULL, ",", &next_token);
+							i++;
+						}
+						
+						//DebugPrint(__FUNCTION__, "got some tokens");
+
+
+					}
+				}
+				//devicecaps
+			}
+			catch(std::ifstream::failure e) {
+				// it's ok, probably just reached end of file, see: http://stackoverflow.com/questions/11807804/stdgetline-throwing-when-it-hits-eof
+			}
+		}
+		in_stream.close();
+	}
+	catch(std::ifstream::failure e) {
+		//std::cerr << "Exception opening/reading/closing file\n";
+		DebugPrint(__FUNCTION__, "Exception reading DeviceCapabilities.csv. Does this file exist in current working directory?");
+	}
 }
 
 Spokes * Spokes::GetInstance()
@@ -1562,7 +1703,7 @@ bool Spokes::Connect(const char * appName)
 {
 	if (m_bIsConnected) return true;
 
-    m_SpokesDeviceCapabilities.Init(false, false, false, false, false, false); // we don't yet know what the capabilities are
+    m_SpokesDeviceCapabilities.Init(false, false, false, false, false, false, false); // we don't yet know what the capabilities are
 	NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
     bool success = false;
 
@@ -1665,40 +1806,72 @@ void Spokes::Disconnect()
 // hard coded other device caps, beside caller id
 void Spokes::UpdateOtherDeviceCapabilities()
 {
-	// LC temporarily hard-code some device capabilities
-    // e.g. fact that Blackwire C710/C720 do not support proximity, docking and is not wireless
-	string devname = m_strDeviceName;
-	std::transform(devname.begin(), devname.end(),devname.begin(), ::toupper);
-	if (devname.find("BLACKWIRE")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bIsWireless = false;
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
-    }
-	if (devname.find("C210")>-1 || devname.find("C220")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bIsWireless = false;
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
-    }
-    if (devname.find("C710")>-1 || devname.find("C720")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bHasProximity = false;
-        m_SpokesDeviceCapabilities.m_bHasCallerId = false;
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = true;
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-        m_SpokesDeviceCapabilities.m_bIsWireless = false;
-    }
-    // LC new - if using vpro or vlegend then disable docking feature...
-    if (devname.find("BT300")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-    }
-    if (devname.find("SAVI 7")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
-        m_SpokesDeviceCapabilities.m_bHasMultiline = true;
-    }
+	// NEW if DeviceCapabilities.csv file exists in your app's current working directory with a list of device
+	// features in the following format (one device per line):
+	// ProductId,DeviceName,HasProximity,HasMobCallerId,HasMobCallState,HasDocking,HasWearingSensor,HasMultiline,IsWireless
+	// Then use those capabilities for current active device
+	//
+
+	// Is the m_AllDeviceCapabilities vector populated? And is my device id in there?
+	SpokesDeviceCaps myDeviceCapabilities = GetMyDeviceCapabilities();
+
+	if (myDeviceCapabilities.m_strProductId.length()>0)
+	{
+		// we have found device in the DeviceCapabilities.csv file
+		m_SpokesDeviceCapabilities.m_bHasProximity = myDeviceCapabilities.m_bHasProximity;
+		m_SpokesDeviceCapabilities.m_bHasMobCallerId = myDeviceCapabilities.m_bHasMobCallerId;
+		m_SpokesDeviceCapabilities.m_bHasMobCallState = myDeviceCapabilities.m_bHasMobCallState;
+		m_SpokesDeviceCapabilities.m_bHasDocking = myDeviceCapabilities.m_bHasDocking;
+		m_SpokesDeviceCapabilities.m_bHasWearingSensor = myDeviceCapabilities.m_bHasWearingSensor;
+		m_SpokesDeviceCapabilities.m_bHasMultiline = myDeviceCapabilities.m_bHasMultiline;
+		m_SpokesDeviceCapabilities.m_bIsWireless = myDeviceCapabilities.m_bIsWireless;
+	}
+	else
+	{
+		// OK, the Spokes Wrapper user maybe doesn't have the DeviceCapabilities.csv file
+		// deployed in app's working directory. Falling back to old hard-coded capabilities
+		// (which don't cover the whole product range
+		DebugPrint(__FUNCTION__, "INFO: Did not find product in DeviceCapabilities.csv or DeviceCapabilities.csv not present for device:");
+		DebugPrint(__FUNCTION__, m_strDeviceName);
+		DebugPrint(__FUNCTION__, "INFO: Will assume minimum capabilities, unless overridden by hard-coded capabilities in UpdateOtherDeviceCapabilities function.");
+
+		// LC temporarily hard-code some device capabilities
+		// e.g. fact that Blackwire C710/C720 do not support proximity, docking and is not wireless
+		string devname = m_strDeviceName;
+		std::transform(devname.begin(), devname.end(),devname.begin(), ::toupper);
+		if (devname.find("BLACKWIRE")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bIsWireless = false;
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+		}
+		if (devname.find("C210")>-1 || devname.find("C220")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bIsWireless = false;
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+		}
+		if (devname.find("C710")>-1 || devname.find("C720")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bHasProximity = false;
+			m_SpokesDeviceCapabilities.m_bHasMobCallerId = true;
+			m_SpokesDeviceCapabilities.m_bHasMobCallState = true;
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = true;
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+			m_SpokesDeviceCapabilities.m_bIsWireless = false;
+		}
+		// LC new - if using vpro or vlegend then disable docking feature...
+		if (devname.find("BT300")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+		}
+		if (devname.find("SAVI 7")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+			m_SpokesDeviceCapabilities.m_bHasMultiline = true;
+		}
+	}
+
 	NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 }
 
@@ -2240,20 +2413,23 @@ void Spokes::GetInitialMobileCallStatus()
 				tmpHasCallerId = false; // Blackwire 700 range does not support caller id feature
 			}
 
-			m_SpokesDeviceCapabilities.m_bHasCallerId = tmpHasCallerId; // set whether device supports caller id feature
+			m_SpokesDeviceCapabilities.m_bHasMobCallerId = tmpHasCallerId; // set whether device supports caller id feature
+			m_SpokesDeviceCapabilities.m_bHasMobCallState = tmpHasCallerId; // set whether device supports caller id feature
 			NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 		}
 		else
 		{
 			DebugPrint(__FUNCTION__, "Spokes: INFO: Problem occured getting mobile call status");
-			m_SpokesDeviceCapabilities.m_bHasCallerId = false;
+			m_SpokesDeviceCapabilities.m_bHasMobCallerId = false;
+			m_SpokesDeviceCapabilities.m_bHasMobCallState = false;
 			NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 		}
 	}
 	else
 	{
 		DebugPrint(__FUNCTION__, "Spokes: Error, unable to get mobile status. atd command is null.");
-		m_SpokesDeviceCapabilities.m_bHasCallerId = false; // device does not support caller id feature
+		m_SpokesDeviceCapabilities.m_bHasMobCallerId = false; // device does not support caller id feature
+		m_SpokesDeviceCapabilities.m_bHasMobCallState = false; // device does not support caller id feature
 		NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 	}
 }

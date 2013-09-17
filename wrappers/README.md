@@ -277,6 +277,27 @@ Comment blocks for both versions are cut and paste below.
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.7:
+ * Date: 17th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added knowledge of the Plantronics device capabilities through
+ *       deployment of supplementary file: "DeviceCapabilities.csv"
+ *       This file should be placed in the working directory of the calling
+ *       application.
+ *
+ * Version 1.0.6:
+ * Date: 12th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes: (thanks Olivier for the feedback)
+ *     - Added special case to identify devices C220 and C210 to correct the device capabilities
+ *       (see UpdateOtherDeviceCapabilities function).
+ *     - Added HoldCall and ResumeCall functions so softphone can tell Spokes when these actions
+ *       have occured in the softphone
+ *     - Added placeholder code for system suspend/resume events (not currently exposed through Spokes COM)
+ *
  * Version 1.0.5:
  * Date: 25th June 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
