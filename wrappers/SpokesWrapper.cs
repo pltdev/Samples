@@ -39,6 +39,24 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.24:
+ * Date: 17th Sept 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added knowledge of the Plantronics device capabilities through
+ *       deployment of supplementary file: "DeviceCapabilities.csv"
+ *       This file should be placed in the working directory of the calling
+ *       application.
+ *
+ * Version 1.0.23:
+ * Date: 28th June 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added new IsSpokesInstalled convenience function. You can optionally call this before
+ *       calling the Spokes.Instance.Connect method to check if Spokes is installed.
+ *
  * Version 1.0.22:
  * Date: 28th June 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
@@ -261,25 +279,27 @@ namespace Plantronics.UC.SpokesWrapper
     public struct SpokesDeviceCaps
     {
         public bool HasProximity;
-        public bool HasCallerId; // means mobile caller id and mobile call state
+        public bool HasMobCallerId; // means mobile caller id and mobile call state
         public bool HasMobCallState; // a subset of mobile caller id, just the mobile call state
         public bool HasDocking;
         public bool HasWearingSensor;
         public bool HasMultiline;
         public bool IsWireless;
+        public string ProductId;
 
         /// <summary>
         /// Constructor: pass in boolean values for whether it has the given device capabilities or not
         /// </summary>
-        public SpokesDeviceCaps(bool HasProximity, bool HasCallerId, bool HasDocking, bool HasWearingSensor, bool HasMultiline, bool IsWireless, bool HasMobCallState)
+        public SpokesDeviceCaps(bool HasProximity, bool HasMobCallerId, bool HasMobCallState, bool HasDocking, bool HasWearingSensor, bool HasMultiline, bool IsWireless)
         {
             this.HasProximity = HasProximity;
-            this.HasCallerId = HasCallerId;
+            this.HasMobCallerId = HasMobCallerId;
             this.HasMobCallState = HasMobCallState;
             this.HasDocking = HasDocking;
             this.HasWearingSensor = HasWearingSensor;
             this.HasMultiline = HasMultiline;
             this.IsWireless = IsWireless;
+            this.ProductId = "";
         }
 
         /// <summary>
@@ -288,7 +308,7 @@ namespace Plantronics.UC.SpokesWrapper
         public override string ToString()
         {
             return "Proximity = " + HasProximity + "\r\n" +
-                "Mobile Caller Id = " + HasCallerId + "\r\n" +
+                "Mobile Caller Id = " + HasMobCallerId + "\r\n" +
                 "Mobile Caller State = " + HasMobCallState + "\r\n" +
                 "Dockable = " + HasDocking + "\r\n" +
                 "Wearing Sensor = " + HasWearingSensor + "\r\n" +
@@ -594,12 +614,121 @@ namespace Plantronics.UC.SpokesWrapper
         private static volatile Spokes instance;
         private static object syncRoot = new Object();
 
+        private List<SpokesDeviceCaps> m_AllDeviceCapabilities;
+
         /// <summary>
         /// Default constructor, cannot be called directly. To obtain singleton call Spokes.Instance.
         /// </summary>
         private Spokes()
         {
             m_debuglog = null;
+
+            PreLoadAllDeviceCapabilities();
+        }
+
+        private SpokesDeviceCaps GetMyDeviceCapabilities()
+        {
+	        SpokesDeviceCaps retval = new SpokesDeviceCaps();
+            retval.ProductId="";
+            string prodidstr;
+            
+            if (m_activeDevice!=null && m_AllDeviceCapabilities.Count()>0)
+            {
+                prodidstr = string.Format("{0:X}", m_activeDevice.ProductID).ToUpper();
+
+                foreach (SpokesDeviceCaps caps in m_AllDeviceCapabilities)
+                {
+                    if (caps.ProductId.CompareTo(prodidstr)==0)
+                    {
+                        // we got a match of our product!
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Got a match of our Plantronics device in DeviceCapabilities.csv:");
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name, prodidstr);
+                        retval = caps;
+                        break;
+                    }
+                }
+            }
+	        return retval;
+        }
+
+        private void PreLoadAllDeviceCapabilities()
+        {
+	        string line;
+
+	        SpokesDeviceCaps devicecaps;
+            m_AllDeviceCapabilities = new List<SpokesDeviceCaps>();
+
+	        try 
+	        {
+                System.IO.StreamReader in_stream = 
+                   new System.IO.StreamReader("DeviceCapabilities.csv");
+
+		        while((line = in_stream.ReadLine()) != null)
+                {
+				        if (line.Length>0)
+				        {
+					        if (line.Substring(0,1).CompareTo("#")!=0 && line.Substring(0,1).CompareTo(",")!=0)
+					        {
+						        // not a comment line or empty line (with only commas)
+
+                                devicecaps = new SpokesDeviceCaps();
+                                string[] words = line.Split(',');
+
+						        int i = 0;
+                                string token = "";
+
+                                foreach (string word in words)
+	                            {
+                                    token = word.ToUpper();
+                                    switch(i)
+							        {
+							        case 0:
+								        devicecaps.ProductId = word;
+								        break;
+							        case 1:
+								        // no action - this is the device name we don't need
+								        break;
+							        case 2:
+								        devicecaps.HasProximity = token.CompareTo("YES")==0 ? true : false;
+								        break;
+							        case 3:
+                                        devicecaps.HasMobCallerId = token.CompareTo("YES") == 0 ? true : false;
+								        break;
+							        case 4:
+                                        devicecaps.HasMobCallState = token.CompareTo("YES") == 0 ? true : false;
+								        break;
+							        case 5:
+                                        devicecaps.HasDocking = token.CompareTo("YES") == 0 ? true : false;
+								        break;
+							        case 6:
+                                        devicecaps.HasWearingSensor = token.CompareTo("YES") == 0 ? true : false;
+								        break;
+							        case 7:
+                                        devicecaps.HasMultiline = token.CompareTo("YES") == 0 ? true : false;
+								        break;
+							        case 8:
+                                        devicecaps.IsWireless = token.CompareTo("YES") == 0 ? true : false;
+
+								        // now, add the devicecaps to our list:
+								        m_AllDeviceCapabilities.Add(devicecaps);
+
+								        break;
+							        }
+
+                                    i++;
+                                }
+
+						        //DebugPrint(__FUNCTION__, "got some tokens");
+					        }
+				        }
+				        //devicecaps
+		        }
+		        in_stream.Close();
+	        }
+	        catch(Exception e) {
+		        //std::cerr << "Exception opening/reading/closing file\n";
+		        DebugPrint(MethodInfo.GetCurrentMethod().Name, "Exception reading DeviceCapabilities.csv. Does this file exist in current working directory?\r\n"+e.ToString());
+	        }
         }
 
         /// <summary>
@@ -661,6 +790,17 @@ namespace Plantronics.UC.SpokesWrapper
             get
             {
                 return (m_activeDevice != null);
+            }
+        }
+
+        /// <summary>
+        /// Returns a reference to the currently active Plantronics call control device attached to the PC (if any).
+        /// </summary>
+        public IDevice GetDevice
+        {
+            get
+            {
+                return m_activeDevice;
             }
         }
 
@@ -1253,9 +1393,10 @@ namespace Plantronics.UC.SpokesWrapper
                     success = true;
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
                 success = false;
+                throw new Exception("Failed to connect to Spokes", e);
             }
             return success;
         }
@@ -1267,6 +1408,8 @@ namespace Plantronics.UC.SpokesWrapper
         public void Disconnect()
         {
             DetachDevice();
+            try
+            {
 
             if (m_comSession != null)
             {
@@ -1291,6 +1434,11 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 Marshal.ReleaseComObject(m_sessionComManager);
                 m_sessionComManager = null;
+            }
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Exception caught in disconnect: " + e.ToString());
             }
         }
 
@@ -1685,7 +1833,7 @@ namespace Plantronics.UC.SpokesWrapper
                     }
                 }
             }
-            catch (Exception e) { }
+            catch (Exception) { }
             return level;
         }
 
@@ -1780,12 +1928,19 @@ namespace Plantronics.UC.SpokesWrapper
         // attach to device events
         private void AttachDevice()
         {
-            m_activeDevice = m_comSession.ActiveDevice;
+            try
+            {
+                m_activeDevice = m_comSession.ActiveDevice;
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Exception caught attaching to device: "+e.ToString());
+            }
             if (m_activeDevice != null)
             {
                 // LC assume minimum first set of device capabilities...
                 DeviceCapabilities =
-                    new SpokesDeviceCaps(false, false, true, true, false, true, false);
+                    new SpokesDeviceCaps(false, false, false, false, false, false, false);
                 OnCapabilitiesChanged(EventArgs.Empty);
 
                 OnSerialNumber(new SerialNumberArgs("", SerialNumberTypes.Base));
@@ -2044,38 +2199,79 @@ namespace Plantronics.UC.SpokesWrapper
         // hard coded other device caps, beside caller id
         private void UpdateOtherDeviceCapabilities()
         {
-            // LC temporarily hard-code some device capabilities
-            // e.g. fact that Blackwire C710/C720 do not support proximity, docking and is not wireless
-            string devname = m_devicename;
-            if (devname != null)
+	        // NEW if DeviceCapabilities.csv file exists in your app's current working directory with a list of device
+	        // features in the following format (one device per line):
+	        // ProductId,DeviceName,HasProximity,HasMobCallerId,HasMobCallState,HasDocking,HasWearingSensor,HasMultiline,IsWireless
+	        // Then use those capabilities for current active device
+	        //
+
+	        // Is the m_AllDeviceCapabilities vector populated? And is my device id in there?
+	        SpokesDeviceCaps myDeviceCapabilities = GetMyDeviceCapabilities();
+
+            if (myDeviceCapabilities.ProductId.Length > 0)
             {
-                devname = devname.ToUpper();
-                if (devname.Contains("BLACKWIRE"))
+                // we have found device in the DeviceCapabilities.csv file
+                DeviceCapabilities.HasProximity = myDeviceCapabilities.HasProximity;
+                DeviceCapabilities.HasMobCallerId = myDeviceCapabilities.HasMobCallerId;
+                DeviceCapabilities.HasMobCallState = myDeviceCapabilities.HasMobCallState;
+                DeviceCapabilities.HasDocking = myDeviceCapabilities.HasDocking;
+                DeviceCapabilities.HasWearingSensor = myDeviceCapabilities.HasWearingSensor;
+                DeviceCapabilities.HasMultiline = myDeviceCapabilities.HasMultiline;
+                DeviceCapabilities.IsWireless = myDeviceCapabilities.IsWireless;
+            }
+            else
+            {
+                // OK, the Spokes Wrapper user maybe doesn't have the DeviceCapabilities.csv file
+                // deployed in app's working directory. Falling back to old hard-coded capabilities
+                // (which don't cover the whole product range
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Did not find product in DeviceCapabilities.csv or DeviceCapabilities.csv not present for device:");
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, m_devicename);
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Will assume minimum capabilities, unless overridden by hard-coded capabilities in UpdateOtherDeviceCapabilities function.");
+
+                // LC temporarily hard-code some device capabilities
+                // e.g. fact that Blackwire C710/C720 do not support proximity, docking and is not wireless
+                string devname = m_devicename;
+                if (devname != null)
                 {
-                    DeviceCapabilities.IsWireless = false;
-                    DeviceCapabilities.HasDocking = false;
-                    DeviceCapabilities.HasWearingSensor = false;
-                }
-                if (devname.Contains("C710") || devname.Contains("C720"))
-                {
-                    DeviceCapabilities.HasProximity = false;
-                    DeviceCapabilities.HasCallerId = false;
-                    DeviceCapabilities.HasWearingSensor = true;
-                    DeviceCapabilities.HasDocking = false;
-                    DeviceCapabilities.IsWireless = false;
-                }
-                // LC new - if using vpro or vlegend then disable docking feature...
-                if (devname.Contains("BT300"))
-                {
-                    DeviceCapabilities.HasDocking = true; // updated, legend does have docking
-                }
-                if (devname.Contains("SAVI 7"))
-                {
-                    DeviceCapabilities.HasWearingSensor = false;
-                    DeviceCapabilities.HasMultiline = true;
-                    DeviceCapabilities.HasMobCallState = true;
+                    devname = devname.ToUpper();
+                    // TODO: Overtime keep this code up-to-date with ALL our current products!!!
+                    // TODO: Future plan automatically work out device features based on HID Usages
+                    // (for now I think hard-coded works quite well)
+                    if (devname.Contains("BLACKWIRE"))
+                    {
+                        DeviceCapabilities.IsWireless = false;
+                        DeviceCapabilities.HasDocking = false;
+                        DeviceCapabilities.HasWearingSensor = false;
+                    }
+                    if (devname.Contains("C710") || devname.Contains("C720"))
+                    {
+                        DeviceCapabilities.HasProximity = false;
+                        DeviceCapabilities.HasMobCallerId = false;
+                        DeviceCapabilities.HasWearingSensor = true;
+                        DeviceCapabilities.HasDocking = false;
+                        DeviceCapabilities.IsWireless = false;
+                    }
+                    // LC new - if using vpro or vlegend then disable docking feature...
+                    if (devname.Contains("BT300"))
+                    {
+                        DeviceCapabilities.HasProximity = true;
+                        DeviceCapabilities.HasMobCallerId = true;
+                        DeviceCapabilities.HasMobCallState = true;
+                        DeviceCapabilities.HasWearingSensor = true;
+                        DeviceCapabilities.HasDocking = true; // updated, legend does have docking
+                        DeviceCapabilities.IsWireless = true;
+                    }
+                    if (devname.Contains("SAVI 7"))
+                    {
+                        DeviceCapabilities.HasWearingSensor = false;
+                        DeviceCapabilities.HasMultiline = true;
+                        DeviceCapabilities.HasMobCallState = true;
+                        DeviceCapabilities.HasDocking = true;
+                        DeviceCapabilities.IsWireless = true;
+                    }
                 }
             }
+
             OnCapabilitiesChanged(EventArgs.Empty);
         }
 
@@ -2348,20 +2544,20 @@ namespace Plantronics.UC.SpokesWrapper
                         }
                     }
 
-                    DeviceCapabilities.HasCallerId = tmpHasCallerId; // set whether device supports caller id feature
+                    DeviceCapabilities.HasMobCallerId = tmpHasCallerId; // set whether device supports caller id feature
                     OnCapabilitiesChanged(EventArgs.Empty);
                 }
                 catch (System.Exception e)
                 {
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: Exception occured getting mobile call status\r\nException = " + e.ToString());
-                    DeviceCapabilities.HasCallerId = false;
+                    DeviceCapabilities.HasMobCallerId = false;
                     OnCapabilitiesChanged(EventArgs.Empty);
                 }
             }
             else
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error, unable to get mobile status. atd command is null.");
-                DeviceCapabilities.HasCallerId = false; // device does not support caller id feature
+                DeviceCapabilities.HasMobCallerId = false; // device does not support caller id feature
                 OnCapabilitiesChanged(EventArgs.Empty);
             }
         }
