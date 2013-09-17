@@ -717,7 +717,7 @@ ROMEO
             // Enable or disable the GUI features depending on connected device's capabilities: 
             SetWearingStateGUIEnabled(m_spokes.DeviceCapabilities.HasWearingSensor);
             SetProximityStateGUIEnabled(m_spokes.DeviceCapabilities.HasProximity);
-            SetMobileCallerGUIEnabled(m_spokes.DeviceCapabilities.HasCallerId, m_spokes.DeviceCapabilities.HasMobCallState);
+            SetMobileCallerGUIEnabled(m_spokes.DeviceCapabilities.HasMobCallerId, m_spokes.DeviceCapabilities.HasMobCallState);
             SetMobileCallControlGUIEnabled(MobileCallState.Idle);
             SetDockedGUIEnabled(m_spokes.DeviceCapabilities.HasDocking);
             SetMultiLineStateGUIEnabled(m_spokes.DeviceCapabilities.HasMultiline);
@@ -1027,7 +1027,7 @@ ROMEO
                 switch (state)
                 {
                     case MobileCallState.Idle:
-                        mobileDialBtn.Enabled = m_spokes.DeviceCapabilities.HasCallerId;
+                        mobileDialBtn.Enabled = m_spokes.DeviceCapabilities.HasMobCallerId;
                         mobileDialBtn.Text = "Dial";
                         mobileEndBtn.Enabled = false;
                         mobileEndBtn.Text = "End";
