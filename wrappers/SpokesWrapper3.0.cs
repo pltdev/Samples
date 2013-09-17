@@ -39,6 +39,14 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.1:
+ * Date: 13th Sept 2013
+ * Compatible with Spokes SDK version(s): 3.1.85589.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added GetDevice member function to return current active Plantronics call control
+ *       device (if any)
+ * 
  * Version 1.1.0:
  * Date: 19th Mar 2013
  * Compatible with Spokes SDK version(s): 3.0.24886.0
@@ -585,6 +593,17 @@ namespace Plantronics.UC.SpokesWrapper
             get
             {
                 return (m_activeDevice != null);
+            }
+        }
+
+        /// <summary>
+        /// Returns a reference to the currently active Plantronics call control device attached to the PC (if any).
+        /// </summary>
+        public COMDevice GetDevice
+        {
+            get
+            {
+                return m_activeDevice;
             }
         }
 
@@ -1193,9 +1212,10 @@ namespace Plantronics.UC.SpokesWrapper
                     success = true;
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
                 success = false;
+                throw new Exception("Failed to connect to Spokes", e);
             }
             return success;
         }
