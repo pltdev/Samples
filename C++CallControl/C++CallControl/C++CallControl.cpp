@@ -6,7 +6,6 @@
 
 #include "MySpokesIntegration.h"
 
-
 bool quit = false;
 int mycallid = 0;
 
@@ -74,7 +73,7 @@ void CommandLoop()
 			if( input == "holdcall") wcout << "holdcall not implemented" << endl; // Spokes::GetInstance()->HoldCall(mycallid);  // NOT IMPLEMENTED
 			else if( input == "endcall")		Spokes::GetInstance()->EndCall(mycallid);
 			else if (input == "answeredcall" )	Spokes::GetInstance()->AnswerCall(mycallid);
-			else if( input == "resumecall") wcout << "resumecall not implemented" << endl; // Spokes::GetInstance()->ResumeCall(mycallid);  // NOT IMPLEMENTED
+			else if( input == "resumecall") Spokes::GetInstance()->ResumeCall(mycallid);  // NOT IMPLEMENTED
 			else if( input == "setconferenceid") wcout << "setconferenceid not implemented" << endl; // Spokes::GetInstance()->SetConferenceId(mycallid);  // NOT IMPLEMENTED
 		}
 		else if (input == "incoming" || input == "outgoing" )

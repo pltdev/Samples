@@ -19,4 +19,8 @@
 #include <sstream>
 #include <algorithm>
 #include <iomanip>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
 using namespace std;

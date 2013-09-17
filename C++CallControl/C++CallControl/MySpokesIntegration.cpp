@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MySpokesIntegration.h"
 
+extern int mycallid;
+
 MySpokesIntegration::MySpokesIntegration(void)
 {
 	m_spokes = Spokes::GetInstance();
@@ -147,6 +149,21 @@ void MySpokesIntegration::Spokes_CapabilitiesChanged(EventArgs * e)
 void MySpokesIntegration::Spokes_MultiLineStateChanged(EventArgs * e)
 {
 	DebugPrint(__FUNCTION__, ">>> MultiLine State Changed.");
+	delete e;
+}
+
+void MySpokesIntegration::Spokes_SystemSuspending(EventArgs * e)
+{
+	DebugPrint(__FUNCTION__, ">>> System Suspending!");
+	delete e;
+
+	DebugPrint(__FUNCTION__, ">>> END the call quick (if one in progress)");
+	Spokes::GetInstance()->EndCall(mycallid);
+}
+
+void MySpokesIntegration::Spokes_SystemResuming(EventArgs * e)
+{
+	DebugPrint(__FUNCTION__, ">>> System Resuming!");
 	delete e;
 }
 

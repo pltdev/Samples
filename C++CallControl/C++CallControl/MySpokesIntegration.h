@@ -32,6 +32,8 @@ public:
 	virtual void Spokes_Detached(EventArgs * e);
 	virtual void Spokes_CapabilitiesChanged(EventArgs * e);
 	virtual void Spokes_MultiLineStateChanged(EventArgs * e);
+	virtual void Spokes_SystemSuspending(EventArgs * e);
+	virtual void Spokes_SystemResuming(EventArgs * e);
 
 	virtual void DebugPrint(string methodname, string str);
 };
