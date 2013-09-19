@@ -41,6 +41,15 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.5:
+ * Date: 18th Sept 2013
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Removed un-needed call to ConnectAudioLinkToDevice(true) when call has been
+ *       answered, and ConnectAudioLinkToDevice(false) when call has ended.
+ *       (For IncomingCall/OutGoingCall/AnswerCall functions, Spokes already does this
+ *        for you)
+ * 
  * Version 1.1.0.4:
  * Date: 19th July 2013
  * Changed by: Lewis Collins
@@ -547,7 +556,7 @@ namespace Spokes_Easy_Demo
             // if this was My Softphone's call then activate the audio link to headset
             if (e.CallId > 0 && e.CallSource.CompareTo(APP_NAME) == 0)
             {
-                m_spokes.ConnectAudioLinkToDevice(true);
+                //m_spokes.ConnectAudioLinkToDevice(true);
                 SimulatePhoneAudio();
                 m_spokes.SetMute(false);
             }
@@ -647,7 +656,7 @@ ROMEO
             {
                 m_dummyspeechaudio.SpeakAsyncCancelAll();
                 m_spokes.SetMute(false);
-                m_spokes.ConnectAudioLinkToDevice(false);
+                //m_spokes.ConnectAudioLinkToDevice(false);
             }
             else
                 LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Ignoring spurious call event, call id: " + e.CallId + ", call source = " + e.CallSource);

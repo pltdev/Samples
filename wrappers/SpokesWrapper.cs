@@ -39,6 +39,14 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.24b:
+ * Date: 19th Sept 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added missing AnswerCall function to allow softphone to let Spokes know
+ *       when user answered incoming call using softphone GUI.
+ *
  * Version 1.0.24:
  * Date: 17th Sept 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
@@ -2646,6 +2654,27 @@ namespace Plantronics.UC.SpokesWrapper
                     CallCOM call = new CallCOM() { Id = callid };
                     m_comSession.CallCommand.OutgoingCall(call, contact, AudioRoute.AudioRoute_ToHeadset);
                     ConnectAudioLinkToDevice(true);
+                    success = true;
+                }
+            }
+            catch (Exception) { success = false; }
+            return success;
+        }
+
+        /// <summary>
+        /// Informs Spokes that user answered an incoming (ringing) softphone call using your softphone GUI
+        /// </summary>
+        /// <param name="callid">The unique numeric id that defines which softphone call was answered.</param>
+        /// <returns>Boolean indicating if the command was called succesfully or not.</returns>
+        public bool AnswerCall(int callid)
+        {
+            bool success = false;
+            try
+            {
+                if (m_comSession != null)
+                {
+                    CallCOM call = new CallCOM() { Id = callid };
+                    m_comSession.CallCommand.AnsweredCall(call);
                     success = true;
                 }
             }
