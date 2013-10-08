@@ -39,6 +39,18 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.25:
+ * Date: 8th Oct 2013
+ * Compatible with Spokes SDK version(s): 3.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding a callid argument value to the OnCall event so apps can know
+ *       id of call that has started.
+ *     - Commented out some duplicate Spokes event cases that were resulting
+ *       in double Spokes events being received by apps.
+ *     - Adding special case for hardcoded product id of Innovation Concept 1
+ *       device.
+ *
  * Version 1.5.24:
  * Date: 17th Sept 2013
  * Compatible with Spokes SDK version(s): 3.1.85759.0
@@ -314,12 +326,14 @@ namespace Plantronics.UC.SpokesWrapper
         public string CallSource;
         public bool Incoming;
         public OnCallCallState State;
+        public int CallId { get; set; }
 
-        public OnCallArgs(string source, bool isIncoming, OnCallCallState state)
+        public OnCallArgs(string source, bool isIncoming, OnCallCallState state, int callid)
         {
             CallSource = source;
             Incoming = isIncoming;
             State = state;
+            CallId = callid;
         }
     }
 
@@ -1420,7 +1434,7 @@ namespace Plantronics.UC.SpokesWrapper
                     m_voipIncoming = true;
                     // Getting here indicates user is ON A CALL!
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Calling activity detected!" + e.ToString());
-                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.Ringing));
+                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.Ringing, e.call.Id));
                     break;
                 case CallState.CallState_MobileCallRinging:
                     m_mobIncoming = true;
@@ -1435,7 +1449,7 @@ namespace Plantronics.UC.SpokesWrapper
                 case CallState.CallState_AcceptCall:
                 case CallState.CallState_CallInProgress:                    
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Call was ansswered/in progress!" + e.ToString());
-                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall));
+                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall, e.call.Id));
                     OnCallAnswered(new CallAnsweredArgs(e.call.Id, e.CallSource));
                     break;
                 case CallState.CallState_HoldCall:
@@ -1444,7 +1458,7 @@ namespace Plantronics.UC.SpokesWrapper
                 case CallState.CallState_TransferToSpeaker:
                     // Getting here indicates user is ON A CALL!
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Calling activity detected!" + e.ToString());
-                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall));
+                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall, e.call.Id));
                     break;
                 case CallState.CallState_MobileCallEnded:
                     m_mobIncoming = false;
@@ -2148,54 +2162,57 @@ namespace Plantronics.UC.SpokesWrapper
         {
             switch (e.HeadsetState)
             {
-                case DeviceHeadsetState.HeadsetState_Don:
-                    OnPutOn(new WearingStateArgs(true, false));
-                    break;
-                case DeviceHeadsetState.HeadsetState_Doff:
-                    OnTakenOff(new WearingStateArgs(false, false));
-                    break;
+                // LC commenting out - already handling DeviceListener Don/Doff
+                // this was a duplication!
+                //case DeviceHeadsetState.HeadsetState_Don:
+                //    OnPutOn(new WearingStateArgs(true, false));
+                //    break;
+                //case DeviceHeadsetState.HeadsetState_Doff:
+                //    OnTakenOff(new WearingStateArgs(false, false));
+                //    break;
                 case DeviceHeadsetState.HeadsetState_Proximity:
                     switch (e.Proximity)
                     {
-                        case DeviceProximity.Proximity_Near:
-                            OnNear(EventArgs.Empty);
-                            break;
-                        case DeviceProximity.Proximity_Far:
-                            OnFar(EventArgs.Empty);
-                            break;
-                        case DeviceProximity.Proximity_ProximityDisabled:
-                            // Note: intepret this event as that the mobile phone has gone out of Bluetooth
-                            // range and is no longer paired to the headset.
-                            // Lock the PC, but immediately re-enable proximity
-                            OnProximityDisabled(EventArgs.Empty);
-                            // Immediately re-enable proximity
-                            RegisterForProximity(true);
-                            break;
-                        case DeviceProximity.Proximity_ProximityEnabled:
-                            OnProximityEnabled(EventArgs.Empty);
-                            break;
-                        case DeviceProximity.Proximity_ProximityUnknown:
-                            OnProximityUnknown(EventArgs.Empty);
-                            break;
+                        // NOTE: commenting out duplicate events (also in DeviceListener handler)
+                        //case DeviceProximity.Proximity_Near:
+                        //    OnNear(EventArgs.Empty);
+                        //    break;
+                        //case DeviceProximity.Proximity_Far:
+                        //    OnFar(EventArgs.Empty);
+                        //    break;
+                        //case DeviceProximity.Proximity_ProximityDisabled:
+                        //    // Note: intepret this event as that the mobile phone has gone out of Bluetooth
+                        //    // range and is no longer paired to the headset.
+                        //    // Lock the PC, but immediately re-enable proximity
+                        //    OnProximityDisabled(EventArgs.Empty);
+                        //    // Immediately re-enable proximity
+                        //    RegisterForProximity(true);
+                        //    break;
+                        //case DeviceProximity.Proximity_ProximityEnabled:
+                        //    OnProximityEnabled(EventArgs.Empty);
+                        //    break;
+                        //case DeviceProximity.Proximity_ProximityUnknown:
+                        //    OnProximityUnknown(EventArgs.Empty);
+                        //    break;
                     }
                     break;
-                case DeviceHeadsetState.HeadsetState_InRange:
-                    OnInRange(EventArgs.Empty);
-                    // Immediately re-enable proximity
-                    RegisterForProximity(true);
-                    // Request headset serial number (maybe user paired with another?)
-                    RequestSingleSerialNumber(SerialNumberTypes.Headset);
-                    break;
-                case DeviceHeadsetState.HeadsetState_OutofRange:
-                    OnOutOfRange(EventArgs.Empty);
-                    OnSerialNumber(new SerialNumberArgs("", SerialNumberTypes.Headset));
-                    break;
-                case DeviceHeadsetState.HeadsetState_Docked:
-                    OnDocked(new DockedStateArgs(true, false));
-                    break;
-                case DeviceHeadsetState.HeadsetState_UnDocked:
-                    OnUnDocked(new DockedStateArgs(false, false));
-                    break;
+                //case DeviceHeadsetState.HeadsetState_InRange:
+                //    OnInRange(EventArgs.Empty);
+                //    // Immediately re-enable proximity
+                //    RegisterForProximity(true);
+                //    // Request headset serial number (maybe user paired with another?)
+                //    RequestSingleSerialNumber(SerialNumberTypes.Headset);
+                //    break;
+                //case DeviceHeadsetState.HeadsetState_OutofRange:
+                //    OnOutOfRange(EventArgs.Empty);
+                //    OnSerialNumber(new SerialNumberArgs("", SerialNumberTypes.Headset));
+                //    break;
+                //case DeviceHeadsetState.HeadsetState_Docked:
+                //    OnDocked(new DockedStateArgs(true, false));
+                //    break;
+                //case DeviceHeadsetState.HeadsetState_UnDocked:
+                //    OnUnDocked(new DockedStateArgs(false, false));
+                //    break;
                 //case DeviceHeadsetState.HeadsetState_MuteON:
                 //    OnMuteChanged(new MuteChangedArgs(true));
                 //    break;
@@ -2275,7 +2292,7 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: We have an ACTIVE call!");
 
-                OnOnCall(new OnCallArgs("", false, OnCallCallState.OnCall)); // for now just say we are on a call
+                OnOnCall(new OnCallArgs("", false, OnCallCallState.OnCall, 0)); // for now just say we are on a call
 
                 // TODO Raise a TT - the ICallInfo interface is NOT exposed via Spokes SDK .NET API!
                 //Collection<ICallInfo> calls = (Collection<ICall>)m_sessionComManager.CallManagerState.GetCalls;
@@ -2331,6 +2348,16 @@ namespace Plantronics.UC.SpokesWrapper
                 DeviceCapabilities.HasWearingSensor = myDeviceCapabilities.HasWearingSensor;
                 DeviceCapabilities.HasMultiline = myDeviceCapabilities.HasMultiline;
                 DeviceCapabilities.IsWireless = myDeviceCapabilities.IsWireless;
+            }
+            else if (m_activeDevice!=null && m_activeDevice.ProductId == 126)
+            {
+                // special case - PLT Labs Concept 1 head tracking headset...
+                DeviceCapabilities.HasProximity = true;
+                DeviceCapabilities.HasMobCallerId = true;
+                DeviceCapabilities.HasMobCallState = true;
+                DeviceCapabilities.HasWearingSensor = true;
+                DeviceCapabilities.HasDocking = true; // updated, legend does have docking
+                DeviceCapabilities.IsWireless = true;
             }
             else
             {
