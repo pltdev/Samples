@@ -39,6 +39,14 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.25:
+ * Date: 10th Oct 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added missing callid member from OnCallArgs so we can know id
+ *       of calls in other softphones etc
+ *
  * Version 1.0.24b:
  * Date: 19th Sept 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
@@ -409,12 +417,14 @@ namespace Plantronics.UC.SpokesWrapper
     /// </summary>
     public class OnCallArgs : EventArgs
     {
+        public int CallId { get; set; }
         public string CallSource;
         public bool Incoming;
         public OnCallCallState State;
 
-        public OnCallArgs(string source, bool isIncoming, OnCallCallState state)
+        public OnCallArgs(int callid, string source, bool isIncoming, OnCallCallState state)
         {
+            CallId = callid;
             CallSource = source;
             Incoming = isIncoming;
             State = state;
@@ -1480,7 +1490,7 @@ namespace Plantronics.UC.SpokesWrapper
                     m_voipIncoming = true;
                     // Getting here indicates user is ON A CALL!
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Calling activity detected!" + e.ToString());
-                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.Ringing));
+                    OnOnCall(new OnCallArgs(e.CallId.Id, e.CallSource, m_voipIncoming, OnCallCallState.Ringing));
                     break;
                 case CallState.CallState_MobileCallRinging:
                     m_mobIncoming = true;
@@ -1495,7 +1505,7 @@ namespace Plantronics.UC.SpokesWrapper
                 case CallState.CallState_AcceptCall:
                 case CallState.CallState_CallInProgress:                    
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Call was ansswered/in progress!" + e.ToString());
-                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall));
+                    OnOnCall(new OnCallArgs(e.CallId.Id, e.CallSource, m_voipIncoming, OnCallCallState.OnCall));
                     OnCallAnswered(new CallAnsweredArgs(e.CallId.Id, e.CallSource));
                     break;
                 case CallState.CallState_HoldCall:
@@ -1504,7 +1514,7 @@ namespace Plantronics.UC.SpokesWrapper
                 case CallState.CallState_TransferToSpeaker:
                     // Getting here indicates user is ON A CALL!
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Calling activity detected!" + e.ToString());
-                    OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall));
+                    OnOnCall(new OnCallArgs(e.CallId.Id, e.CallSource, m_voipIncoming, OnCallCallState.OnCall));
                     break;
                 case CallState.CallState_MobileCallEnded:
                     m_mobIncoming = false;
@@ -2170,7 +2180,7 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: We have an ACTIVE call!");
 
-                OnOnCall(new OnCallArgs("", false, OnCallCallState.OnCall)); // for now just say we are on a call
+                OnOnCall(new OnCallArgs(0, "", false, OnCallCallState.OnCall)); // for now just say we are on a call
 
                 // TODO Raise a TT - the ICallInfo interface is NOT exposed via Spokes SDK .NET API!
                 //Collection<ICallInfo> calls = (Collection<ICall>)m_sessionComManager.CallManagerState.GetCalls;
