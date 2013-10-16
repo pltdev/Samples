@@ -12,6 +12,9 @@ using namespace Plantronics_Device_Common;
 
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
