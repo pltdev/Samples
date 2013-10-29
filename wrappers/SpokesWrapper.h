@@ -618,7 +618,7 @@ private:
 public:
 	void NotifyEvent(SpokesEventType e_type, EventArgs * e);
 
-	bool Connect(const char * appName = "COM Session");
+	bool Connect(const char * appName = "COM Session", bool forceconnect = false);
 
 	void Disconnect();
 
@@ -746,6 +746,10 @@ public:
 	string m_strDeviceName;
 
     void DebugPrint(string methodname, string message);
+
+	bool IsSpokesComSessionManagerClassRegistered(int spokesMajorVersion);
+
+	bool IsSpokesInstalled(int spokesMajorVersion = 2);
 
 	// battery level
 

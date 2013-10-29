@@ -1699,8 +1699,14 @@ void Spokes::SetEventHandler(ISpokesEvents * eventsHandler)
     m_pSpokesEventsHandler = eventsHandler;
 }
 
-bool Spokes::Connect(const char * appName)
+bool Spokes::Connect(const char * appName, bool forceconnect)
 {
+    if (!IsSpokesInstalled() && forceconnect==false)
+    {
+		DebugPrint(__FUNCTION__, "FATAL ERROR: cannot connect if Spokes COMSessionManager/SessionCOMManager class is not registered! Spokes not installed (or wrong major version installed for this Spokes Wrapper)!");
+        return false; // cannot connect if Spokes COM SessionManager class is not registered! Spokes not installed!
+    }
+
 	if (m_bIsConnected) return true;
 
     m_SpokesDeviceCapabilities.Init(false, false, false, false, false, false, false); // we don't yet know what the capabilities are
@@ -2633,4 +2639,111 @@ void Spokes::DebugPrint(string methodname, string message)
 {
 	if (m_pDebugLog!=NULL)
 		m_pDebugLog->DebugPrint(methodname, message);
+}
+
+LONG GetStringRegKey(HKEY hKey, const std::wstring &strValueName, std::wstring &strValue, const std::wstring &strDefaultValue)
+{
+	strValue = strDefaultValue;
+	WCHAR szBuffer[512];
+	DWORD dwBufferSize = sizeof(szBuffer);
+	ULONG nError;
+	nError = RegQueryValueExW(hKey, strValueName.c_str(), 0, NULL, (LPBYTE) szBuffer, &dwBufferSize);
+	if (ERROR_SUCCESS == nError)
+	{
+		strValue = szBuffer;
+	}
+	return nError;
+}
+
+bool Spokes::IsSpokesComSessionManagerClassRegistered(int spokesMajorVersion)
+{
+	bool foundCOMSessionManagerKey = false;
+
+	//DebugPrint(MethodInfo.GetCurrentMethod().Name, "About to look see if Spokes SessionManager is in registry");
+	try
+	{
+		// reg keys of interest...
+		string Spokes2xKeyName = "Plantronics.UC.Common.SessionComManager\\CLSID";
+		string Spokes3xKeyName = "Plantronics.COMSessionManager\\CLSID";
+		wstring Spokes2xSubKeyName = L"{F9E7AE8D-31E2-4968-BA53-3CC5E5A3100A}";
+		wstring Spokes3xSubKeyName = L"{750B4A16-1338-4DB0-85BB-C6C89E4CB9AC}";
+
+		// open them all...
+		HKEY Spokes2xKey;
+		HKEY Spokes3xKey;
+		LONG lRes2x = RegOpenKeyExW(HKEY_CLASSES_ROOT, L"Plantronics.UC.Common.SessionComManager\\CLSID", 0, KEY_READ, &Spokes2xKey);
+		bool b2xExistsAndSuccess(lRes2x == ERROR_SUCCESS);
+		bool b2xDoesNotExistsSpecifically(lRes2x == ERROR_FILE_NOT_FOUND);
+		LONG lRes3x = RegOpenKeyExW(HKEY_CLASSES_ROOT, L"Plantronics.COMSessionManager\\CLSID", 0, KEY_READ, &Spokes3xKey);
+		bool b3xExistsAndSuccess(lRes3x == ERROR_SUCCESS);
+		bool b3xDoesNotExistsSpecifically(lRes3x == ERROR_FILE_NOT_FOUND);
+
+		std::wstring str2xKeyDefaultValue;
+		GetStringRegKey(Spokes2xKey, L"", str2xKeyDefaultValue, L"bad2x");
+		std::wstring str3xKeyDefaultValue;
+		GetStringRegKey(Spokes3xKey, L"", str3xKeyDefaultValue, L"bad3x");
+
+		// check if default value == Spokes2xSubKeyName / Spokes3xSubKeyName
+
+		string outstr;
+		ostringstream tmpstrm;
+		tmpstrm << "About to check if Spokes is installed, Major Version = " << spokesMajorVersion << ".x";
+		outstr = tmpstrm.str();
+		DebugPrint(__FUNCTION__, outstr);
+
+		switch (spokesMajorVersion)
+		{
+		case 2:
+			// is Spokes 2x installed?
+			if (b2xExistsAndSuccess)
+			{
+				// did we find Spokes 2x SessionCOMManager key?
+				if (str2xKeyDefaultValue.compare(Spokes2xSubKeyName)==0)
+					foundCOMSessionManagerKey = true;
+				RegCloseKey(Spokes2xKey);
+			}
+			break;
+		case 3:
+			// is Spokes 3x installed?
+			if (b3xExistsAndSuccess)
+			{
+				// did we find Spokes 3x SessionCOMManager key?
+				if (str3xKeyDefaultValue.compare(Spokes3xSubKeyName) == 0)
+					foundCOMSessionManagerKey = true;
+				RegCloseKey(Spokes3xKey);
+			}
+			break;
+		default:
+			string outstr;
+			ostringstream tmpstrm;
+			tmpstrm << "Attempt to check for unknown Spokes Major Version: " << spokesMajorVersion;
+			outstr = tmpstrm.str();
+			DebugPrint(__FUNCTION__, outstr);
+			break;
+		}
+	}
+	catch (exception& e)
+	{
+		string outstr;
+		ostringstream tmpstrm;
+		tmpstrm << "An exception was caught while looking to see if Spokes SessionManager is in registry.\r\nException = " << e.what();
+		outstr = tmpstrm.str();
+		DebugPrint(__FUNCTION__, outstr);
+	}
+
+	return foundCOMSessionManagerKey;
+}
+
+/// <summary>
+/// This method returns a boolean to indicate if the Spokes software runtime is currently installed on the system.
+/// If the return value is false then any subsequent attempt to call Spokes.Instance.Connect("My App") will fail
+/// because it means that Spokes is not installed so there is no out of proc COM Service for your app to connect to.
+/// Note: Is also called by default at start of Connect method, so it is not necessary to call this directly from
+/// your app, but you have the option.
+/// Note: current version of this function is designed for Spokes 2.x and 3.x. For future major releases would need updating
+/// in IsSpokesComSessionManagerClassRegistered private function below.
+/// </summary>
+bool Spokes::IsSpokesInstalled(int spokesMajorVersion)     // TODO: always insert the CORRECT major version for this Spokes Wrapper version here!
+{
+	return IsSpokesComSessionManagerClassRegistered(spokesMajorVersion);
 }
