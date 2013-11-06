@@ -46,6 +46,14 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.8:
+ * Date: 29th Oct 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added new IsSpokesInstalled convenience function. You can optionally call this before
+ *       calling the Spokes Wrapper Connect function to check if Spokes is installed.
+ *
  * Version 1.0.7:
  * Date: 17th Sept 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
