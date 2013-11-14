@@ -41,6 +41,26 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.6:
+ * Date: 14th Nov 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - For DA45 (Krona firmware) product added simulated support for 
+ *       proximity based on Krona's InRange/OutOfRange QD events
+ *       (Note: no way currently to query initial InRange/OutOfRange QD state
+ *        of headset. Also occasionally seen first QD disconnect does not
+ *        produce an event.)
+ *
+ * Version 1.1.0.5:
+ * Date: 18th Sept 2013
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Removed un-needed call to ConnectAudioLinkToDevice(true) when call has been
+ *       answered, and ConnectAudioLinkToDevice(false) when call has ended.
+ *       (For IncomingCall/OutGoingCall/AnswerCall functions, Spokes already does this
+ *        for you)
+ * 
  * Version 1.1.0.4:
  * Date: 19th July 2013
  * Changed by: Lewis Collins
@@ -459,7 +479,7 @@ namespace Spokes_Easy_Demo
         {
             LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Device is in range");
             UpdateDeviceStatusGUIItem(proximityStateLbl, "In Range");
-            UpdateDevicePictureBox(proximityPictureBox, Properties.Resources.proximity_unknown);
+            UpdateDevicePictureBox(proximityPictureBox, Properties.Resources.proximity_near);
 
             AnimateBackgroundColor(proximityPictureBox, Color.FromArgb(0, 51, 102));
         }
@@ -554,7 +574,7 @@ namespace Spokes_Easy_Demo
             // if this was My Softphone's call then activate the audio link to headset
             if (e.CallId > 0 && e.CallSource.CompareTo(APP_NAME) == 0)
             {
-                m_spokes.ConnectAudioLinkToDevice(true);
+                //m_spokes.ConnectAudioLinkToDevice(true);
                 SimulatePhoneAudio();
                 m_spokes.SetMute(false);
             }
@@ -654,7 +674,7 @@ ROMEO
             {
                 m_dummyspeechaudio.SpeakAsyncCancelAll();
                 m_spokes.SetMute(false);
-                m_spokes.ConnectAudioLinkToDevice(false);
+                //m_spokes.ConnectAudioLinkToDevice(false);
             }
             else
                 LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Ignoring spurious call event, call id: " + e.CallId + ", call source = " + e.CallSource);
@@ -706,6 +726,9 @@ ROMEO
             m_productname = e.m_device.ProductName;
 
             AnimateBackgroundColor(deviceStatusLabel, Color.FromArgb(0, 51, 102));
+
+            if (IsDA45()) UpdateDeviceStatusGUIItem(proximityStateLbl, "In Range"); // TODO for now assume in range on attach of DA45, no way to query initial state
+            else UpdateDeviceStatusGUIItem(proximityStateLbl, "Unknown");
         }
 
         void spokes_DeviceDetached(object sender, EventArgs e)
@@ -723,7 +746,7 @@ ROMEO
 
             // Enable or disable the GUI features depending on connected device's capabilities: 
             SetWearingStateGUIEnabled(m_spokes.DeviceCapabilities.HasWearingSensor);
-            SetProximityStateGUIEnabled(m_spokes.DeviceCapabilities.HasProximity);
+            SetProximityStateGUIEnabled(m_spokes.DeviceCapabilities.HasProximity || IsDA45());
             SetMobileCallerGUIEnabled(m_spokes.DeviceCapabilities.HasMobCallerId, m_spokes.DeviceCapabilities.HasMobCallState);
             SetMobileCallControlGUIEnabled(MobileCallState.Idle);
             SetDockedGUIEnabled(m_spokes.DeviceCapabilities.HasDocking);
@@ -735,6 +758,12 @@ ROMEO
             SetCallControlStateGUIEnabled(m_spokes.HasDevice);
 
             SetEnable(requestHeadsetSerialBtn, m_spokes.HasDevice);
+        }
+
+        private static bool IsDA45()
+        {
+            if (Spokes.m_devicename==null) return false;
+            return Spokes.m_devicename.Contains("DA45");
         }
 
         private void SetCallControlStateGUIEnabled(bool enable)
@@ -992,7 +1021,7 @@ ROMEO
             SetEnable(proximityStateLbl, hasProximity);
             SetEnable(proxHdrLbl, hasProximity);
             SetEnable(proximityPictureBox, hasProximity,
-                !hasProximity ? Properties.Resources.proximity_grey : null);
+                !hasProximity ? Properties.Resources.proximity_grey : !IsDA45() ? null : Properties.Resources.proximity_near);
         }
 
         private void SetWearingStateGUIEnabled(bool hasWearingSensor)

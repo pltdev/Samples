@@ -41,6 +41,17 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.6:
+ * Date: 14th Nov 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - For DA45 (Krona firmware) product added simulated support for 
+ *       proximity based on Krona's InRange/OutOfRange QD events
+ *       (Note: no way currently to query initial InRange/OutOfRange QD state
+ *        of headset. Also occasionally seen first QD disconnect does not
+ *        produce an event.)
+ *
  * Version 1.1.0.5:
  * Date: 18th Sept 2013
  * Changed by: Lewis Collins
@@ -278,54 +289,61 @@ namespace Spokes_Easy_Demo
 
             m_spokes.SetLogger(this); // tell spokes to log debug output to me using DebugLogger interface
 
-            // Sign up for Plantronics events of interest...
+            if (!m_spokes.IsSpokesInstalled(2))
+            {
+                MessageBox.Show("Sorry, this application demo requires Spokes 2.8 to be installed. Please exit, install Spokes 2.8, then run again.", "Spokes EZ Demo for Spokes 2.8");
+            }
+            else
+            {
+                // Sign up for Plantronics events of interest...
 
-            // Wearing sensor:
-            m_spokes.PutOn += spokes_DevicePutOn;
-            m_spokes.TakenOff += spokes_DeviceTakenOff;
+                // Wearing sensor:
+                m_spokes.PutOn += spokes_DevicePutOn;
+                m_spokes.TakenOff += spokes_DeviceTakenOff;
 
-            // Proximity:
-            m_spokes.Near += spokes_Near;
-            m_spokes.Far += spokes_Far;
-            m_spokes.InRange += spokes_InRange;
-            m_spokes.OutOfRange += spokes_OutOfRange;
-            m_spokes.Docked += spokes_Docked;
-            m_spokes.UnDocked += spokes_UnDocked;
+                // Proximity:
+                m_spokes.Near += spokes_Near;
+                m_spokes.Far += spokes_Far;
+                m_spokes.InRange += spokes_InRange;
+                m_spokes.OutOfRange += spokes_OutOfRange;
+                m_spokes.Docked += spokes_Docked;
+                m_spokes.UnDocked += spokes_UnDocked;
 
-            // Mobile caller id:
-            m_spokes.MobileCallerId += spokes_MobileCallerId;
-            m_spokes.OnMobileCall += m_spokes_OnMobileCall;
-            m_spokes.NotOnMobileCall += m_spokes_NotOnMobileCall;
+                // Mobile caller id:
+                m_spokes.MobileCallerId += spokes_MobileCallerId;
+                m_spokes.OnMobileCall += m_spokes_OnMobileCall;
+                m_spokes.NotOnMobileCall += m_spokes_NotOnMobileCall;
 
-            // Serial Number:
-            m_spokes.SerialNumber += spokes_SerialNumber;
+                // Serial Number:
+                m_spokes.SerialNumber += spokes_SerialNumber;
 
-            // Call control:
-            m_spokes.CallAnswered += spokes_CallAnswered;
-            m_spokes.CallEnded += spokes_CallEnded;
-            m_spokes.CallSwitched += spokes_CallSwitched;
-            m_spokes.OnCall += spokes_OnCall;
-            m_spokes.NotOnCall += spokes_NotOnCall;
-            m_spokes.MuteChanged += spokes_DeviceMuteChanged;
-            m_spokes.CallRequested += m_spokes_CallRequested;
+                // Call control:
+                m_spokes.CallAnswered += spokes_CallAnswered;
+                m_spokes.CallEnded += spokes_CallEnded;
+                m_spokes.CallSwitched += spokes_CallSwitched;
+                m_spokes.OnCall += spokes_OnCall;
+                m_spokes.NotOnCall += spokes_NotOnCall;
+                m_spokes.MuteChanged += spokes_DeviceMuteChanged;
+                m_spokes.CallRequested += m_spokes_CallRequested;
 
-            // Device attach/detach:
-            m_spokes.Attached += spokes_DeviceAttached;
-            m_spokes.Detached += spokes_DeviceDetached;
-            m_spokes.CapabilitiesChanged += spokes_DeviceCapabilitiesChanged;
+                // Device attach/detach:
+                m_spokes.Attached += spokes_DeviceAttached;
+                m_spokes.Detached += spokes_DeviceDetached;
+                m_spokes.CapabilitiesChanged += spokes_DeviceCapabilitiesChanged;
 
-            // Multiline:
-            m_spokes.MultiLineStateChanged += m_spokes_MultiLineStateChanged;
+                // Multiline:
+                m_spokes.MultiLineStateChanged += m_spokes_MultiLineStateChanged;
 
-            // Button presses
-            m_spokes.ButtonPress += m_spokes_ButtonPress;
-            m_spokes.BaseButtonPress += m_spokes_BaseButtonPress;
+                // Button presses
+                m_spokes.ButtonPress += m_spokes_ButtonPress;
+                m_spokes.BaseButtonPress += m_spokes_BaseButtonPress;
 
-            Show();
-            Update();
+                Show();
+                Update();
 
-            // Now connect to attached device, if any
-            m_spokes.Connect(APP_NAME);
+                // Now connect to attached device, if any
+                m_spokes.Connect(APP_NAME);
+            }
         }
 
         void m_spokes_BaseButtonPress(object sender, BaseButtonPressArgs e)
@@ -461,7 +479,7 @@ namespace Spokes_Easy_Demo
         {
             LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Device is in range");
             UpdateDeviceStatusGUIItem(proximityStateLbl, "In Range");
-            UpdateDevicePictureBox(proximityPictureBox, Properties.Resources.proximity_unknown);
+            UpdateDevicePictureBox(proximityPictureBox, Properties.Resources.proximity_near);
 
             AnimateBackgroundColor(proximityPictureBox, Color.FromArgb(0, 51, 102));
         }
@@ -708,6 +726,9 @@ ROMEO
             m_productname = e.m_device.ProductName;
 
             AnimateBackgroundColor(deviceStatusLabel, Color.FromArgb(0, 51, 102));
+
+            if (IsDA45()) UpdateDeviceStatusGUIItem(proximityStateLbl, "In Range"); // TODO for now assume in range on attach of DA45, no way to query initial state
+            else UpdateDeviceStatusGUIItem(proximityStateLbl, "Unknown");
         }
 
         void spokes_DeviceDetached(object sender, EventArgs e)
@@ -725,7 +746,7 @@ ROMEO
 
             // Enable or disable the GUI features depending on connected device's capabilities: 
             SetWearingStateGUIEnabled(m_spokes.DeviceCapabilities.HasWearingSensor);
-            SetProximityStateGUIEnabled(m_spokes.DeviceCapabilities.HasProximity);
+            SetProximityStateGUIEnabled(m_spokes.DeviceCapabilities.HasProximity || IsDA45());
             SetMobileCallerGUIEnabled(m_spokes.DeviceCapabilities.HasMobCallerId, m_spokes.DeviceCapabilities.HasMobCallState);
             SetMobileCallControlGUIEnabled(MobileCallState.Idle);
             SetDockedGUIEnabled(m_spokes.DeviceCapabilities.HasDocking);
@@ -737,6 +758,12 @@ ROMEO
             SetCallControlStateGUIEnabled(m_spokes.HasDevice);
 
             SetEnable(requestHeadsetSerialBtn, m_spokes.HasDevice);
+        }
+
+        private static bool IsDA45()
+        {
+            if (Spokes.m_devicename==null) return false;
+            return Spokes.m_devicename.Contains("DA45");
         }
 
         private void SetCallControlStateGUIEnabled(bool enable)
@@ -994,7 +1021,7 @@ ROMEO
             SetEnable(proximityStateLbl, hasProximity);
             SetEnable(proxHdrLbl, hasProximity);
             SetEnable(proximityPictureBox, hasProximity,
-                !hasProximity ? Properties.Resources.proximity_grey : null);
+                !hasProximity ? Properties.Resources.proximity_grey : !IsDA45() ? null : Properties.Resources.proximity_near);
         }
 
         private void SetWearingStateGUIEnabled(bool hasWearingSensor)

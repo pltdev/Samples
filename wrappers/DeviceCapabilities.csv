@@ -3,7 +3,7 @@
 #ProductId,#DeviceName,HasProximity,HasMobCallerId,HasMobCallState,HasDocking,HasWearingSensor,HasMultiline,IsWireless
 410,BellRinger,No,No,No,No,No,No,No
 411,Hydra,No,No,No,Yes,No,Yes,Yes
-DA45,DA45,Yes,No,No,No,No,No,No
+DA45,DA45,Yes,No,No,No,No,No,Yes
 620,Calisto Pro,No,No,No,No,No,No,Yes
 AB12,Yeti,No,No,No,Yes,No,No,Yes
 AC01,Poseidon,No,No,Yes,Yes,No,Yes,Yes
@@ -109,3 +109,4 @@ C019,C510 Series,No,No,No,No,Yes,No,No
 C01A,C510 Series,No,No,No,No,Yes,No,No
 C01B,C520 Series,No,No,No,No,Yes,No,No
 C01C,C520 Series,No,No,No,No,Yes,No,No
+AA05,DA45,Yes,No,No,No,No,No,Yes

@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Interop.Plantronics;
 using System.Collections.ObjectModel;
 using System.Threading;
+using Interop.Plantronics;
 
 /*******
  * 
@@ -39,6 +39,14 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.26:
+ * Date: 14th Nov 2013
+ * Compatible with Spokes SDK version(s): 3.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Fixing the reading of headset and base serial numbers - making
+ *       work same way as Spokes3GCOMSample sample code.
+ *
  * Version 1.5.25:
  * Date: 8th Oct 2013
  * Compatible with Spokes SDK version(s): 3.x
@@ -394,7 +402,7 @@ namespace Plantronics.UC.SpokesWrapper
 
         public SerialNumberArgs(string serialnumber, SerialNumberTypes serialnumtype)
         {
-            SerialNumber = serialnumber;
+            SerialNumber = serialnumber.ToUpper();
             SerialNumberType = serialnumtype;
         }
     }
@@ -1209,6 +1217,7 @@ namespace Plantronics.UC.SpokesWrapper
         //private int m_battlevEventCount = 0;
         private bool m_firstlegenddockcheck = true; // will become false after first check of Legend docked state (via charging events)
         private bool m_ignorenextundockedevent = false;
+        public string m_baseserial = "";
         //private bool m_ignorenextbattlevevent = false;
 
         /// <summary>
@@ -1413,11 +1422,17 @@ namespace Plantronics.UC.SpokesWrapper
             if (e.DeviceState == DeviceChangeState.DeviceState_Removed && m_activeDevice != null) // && string.Compare(e.DevicePath, m_activeDevice.DevicePath, true) == 0)
             {
                 DetachDevice();
-                AttachDevice();
-
+                AttachDevice(); // attach next available device (if any)
             }
-            else if (e.DeviceState == DeviceChangeState.DeviceState_Added && m_activeDevice == null)
+            else if (e.DeviceState == DeviceChangeState.DeviceState_Added)
             {
+                // if we previously had an attached device, first unattach it:
+                if (m_activeDevice != null)
+                {
+                    DetachDevice();
+                    m_activeDevice = null;
+                }
+
                 // if device is plugged, and we don't have "Active device", just attach to it
                 AttachDevice();
             }
@@ -1603,18 +1618,12 @@ namespace Plantronics.UC.SpokesWrapper
                 case DeviceBaseStateChange.BaseStateChange_AudioLocationChanged:
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("BaseStateChanged: AudioLocationChanged"));
                     break;
-                // LC add handler for basestate change serial number
-                // We should be able to extract serial number at this point
-                case DeviceBaseStateChange.BaseStateChange_SerialNumber:
-                    DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("BaseStateChanged: SerialNumber"));
-                    ReadSerialNumber(SerialNumberTypes.Base);
-                    break;
             }
         }
 
         void m_deviceListenerEvents_HandlerMethods(COMDeviceListenerEventArgs e)
         {
-            DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Received Spokes Event: " + e.ToString());
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Received Spokes Event: " + e.DeviceEventType.ToString());
 
             switch (e.DeviceEventType)
             {
@@ -1725,13 +1734,7 @@ namespace Plantronics.UC.SpokesWrapper
                         case DeviceHeadsetStateChange.HeadsetStateChange_MonoOFF:
                             OnLineActiveChanged(new LineActiveChangedArgs(false));
                             break;
-                        // LC add handler for headsetstate change serial number
-                        // We should be able to extract serial number at this point
-                        case DeviceHeadsetStateChange.HeadsetStateChange_SerialNumber:
-                            DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("HeadsetStateChanged: SerialNumber"));
-                            ReadSerialNumber(SerialNumberTypes.Headset);
-                            break;
-                        default:
+                       default:
                             break;
                     }
                     break;
@@ -1746,28 +1749,35 @@ namespace Plantronics.UC.SpokesWrapper
             bool isdocked = false;
             if (m_activeDevice != null && m_activeDevice.ProductName.ToUpper().Contains("BT300"))
             {
-                if (m_hostCommandExt != null)
+                try
                 {
-                    switch (m_hostCommandExt.BatteryInfo.ChargingStatus)
+                    if (m_hostCommandExt != null)
                     {
-                        case DeviceChargingStatus.BTChargingStatus_ConnectedAndChargeError:
-                        case DeviceChargingStatus.BTChargingStatus_ConnectedAndFastCharging:
-                        case DeviceChargingStatus.BTChargingStatus_ConnectedAndTrickleCharging:
-                        case DeviceChargingStatus.BTChargingStatus_ConnectedNotCharging:
-                            // charging, so send docked event (for legend)
-                            DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("BT300 received charger connected status: assume Legend is docked!"));
-                            // only send to app the docked value if it is different to m_lastdocked (i.e. if it has changed)
-                            if (IsFirstLegendDockedCheck() || !m_lastdocked) OnDocked(new DockedStateArgs(true, getinitialstate));
-                            isdocked = true;
-                            break;
-                        case DeviceChargingStatus.BTChargingStatus_NotBatteryPowered:
-                        case DeviceChargingStatus.BTChargingStatus_NotConnected:
-                        case DeviceChargingStatus.BTChargingStatus_Unknown:
-                            // only send to app the docked value if it is different to m_lastdocked (i.e. if it has changed)
-                            if (IsFirstLegendDockedCheck() || m_lastdocked) OnUnDocked(new DockedStateArgs(false, getinitialstate));
-                            isdocked = false;
-                            break;
+                        switch (m_hostCommandExt.BatteryInfo.ChargingStatus)
+                        {
+                            case DeviceChargingStatus.BTChargingStatus_ConnectedAndChargeError:
+                            case DeviceChargingStatus.BTChargingStatus_ConnectedAndFastCharging:
+                            case DeviceChargingStatus.BTChargingStatus_ConnectedAndTrickleCharging:
+                            case DeviceChargingStatus.BTChargingStatus_ConnectedNotCharging:
+                                // charging, so send docked event (for legend)
+                                DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("BT300 received charger connected status: assume Legend is docked!"));
+                                // only send to app the docked value if it is different to m_lastdocked (i.e. if it has changed)
+                                if (IsFirstLegendDockedCheck() || !m_lastdocked) OnDocked(new DockedStateArgs(true, getinitialstate));
+                                isdocked = true;
+                                break;
+                            case DeviceChargingStatus.BTChargingStatus_NotBatteryPowered:
+                            case DeviceChargingStatus.BTChargingStatus_NotConnected:
+                            case DeviceChargingStatus.BTChargingStatus_Unknown:
+                                // only send to app the docked value if it is different to m_lastdocked (i.e. if it has changed)
+                                if (IsFirstLegendDockedCheck() || m_lastdocked) OnUnDocked(new DockedStateArgs(false, getinitialstate));
+                                isdocked = false;
+                                break;
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught: " + e.ToString());
                 }
             }
             return isdocked;
@@ -1800,52 +1810,6 @@ namespace Plantronics.UC.SpokesWrapper
             }
             catch (Exception) { }
             return level;
-        }
-
-        private void ReadSerialNumber(SerialNumberTypes serialNumberType)
-        {
-            DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: About to read out serial number for: " + serialNumberType);
-            try
-            {
-                object serial;
-                byte[] serialbuf = new byte[16]; // temp storage for the guid
-                if (m_hostCommandExt != null)
-                {
-                    switch (serialNumberType)
-                    {
-                        case SerialNumberTypes.Headset:
-                            serial = m_hostCommandExt.GetSerialNumber(COMDeviceType.DeviceType_Headset);
-                            if (serialbuf[0] != 0)
-                            {
-                                string serialStr = byteArrayToString(serialbuf);
-                                //Console.WriteLine(string.Format("Headset serial number: {0}", serialStr));
-                                OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Headset));
-                            }
-                            else
-                            {
-                                DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("FAILED TO READ SERIAL from HeadsetStateChanged: SerialNumber event / m_hostCommandExt.GetSerialNumber_2(DeviceType.DeviceType_Headset, serialbuf);"));
-                            }
-                            break;
-                        case SerialNumberTypes.Base:
-                            serial = m_hostCommandExt.GetSerialNumber(COMDeviceType.DeviceType_Base);
-                            if (serialbuf[0] != 0)
-                            {
-                                string serialStr = byteArrayToString(serialbuf);
-                                //Console.WriteLine(string.Format("Base serial number: {0}", serialStr));
-                                OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Base));
-                            }
-                            else
-                            {
-                                DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("FAILED TO READ SERIAL from BaseStateChanged: SerialNumber event / m_hostCommandExt.GetSerialNumber_2(DeviceType.DeviceType_Base, serialbuf);"));
-                            }
-                            break;
-                    }
-                }
-            }
-            catch (System.Exception)
-            {
-                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: serial number may not be supported on your device.");
-            }
         }
 
         //        #region DeviceListener events
@@ -1931,6 +1895,8 @@ namespace Plantronics.UC.SpokesWrapper
                     m_devicename = "Could not determine device name";
                 }
 
+                m_baseserial = m_activeDevice.SerialNumber;
+
                 m_lastdocked = false;
                 //m_battlevEventCount = 0;
 
@@ -2002,6 +1968,8 @@ namespace Plantronics.UC.SpokesWrapper
 
                 // trigger user's event handler
                 OnAttached(new AttachedArgs(m_activeDevice));
+
+                OnSerialNumber(new SerialNumberArgs(m_baseserial, SerialNumberTypes.Base));
 
                 // now poll for current state (proximity, mobile call status, donned status, mute status)
                 GetInitialDeviceState();
@@ -2143,16 +2111,9 @@ namespace Plantronics.UC.SpokesWrapper
                 // LC add handler for basestate change serial number
                 // We should be able to extract serial number at this point
                 case BaseEventTypeExt.BaseEventTypeExt_SerialNumber:
-                    try
-                    {
-                        string serialStr = byteArrayToString((byte[])((object[])e.SerialNumber)[0]);
-                        //Console.WriteLine(string.Format("Base serial number: {0}", serialStr));
-                        OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Base));
-                    }
-                    catch (Exception exc)
-                    {
-                        DebugPrint(MethodInfo.GetCurrentMethod().Name, "ERROR: Failed to decode base serial\r\n" + exc.ToString());
-                    }
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("be_BaseEventReceived: SerialNumber"));
+                    string serialStr = byteArrayToString(e.SerialNumber);
+                    OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Base));
                     break;
             }
         }
@@ -2162,90 +2123,16 @@ namespace Plantronics.UC.SpokesWrapper
         {
             switch (e.HeadsetState)
             {
-                // LC commenting out - already handling DeviceListener Don/Doff
-                // this was a duplication!
-                //case DeviceHeadsetState.HeadsetState_Don:
-                //    OnPutOn(new WearingStateArgs(true, false));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_Doff:
-                //    OnTakenOff(new WearingStateArgs(false, false));
-                //    break;
-                case DeviceHeadsetState.HeadsetState_Proximity:
-                    switch (e.Proximity)
-                    {
-                        // NOTE: commenting out duplicate events (also in DeviceListener handler)
-                        //case DeviceProximity.Proximity_Near:
-                        //    OnNear(EventArgs.Empty);
-                        //    break;
-                        //case DeviceProximity.Proximity_Far:
-                        //    OnFar(EventArgs.Empty);
-                        //    break;
-                        //case DeviceProximity.Proximity_ProximityDisabled:
-                        //    // Note: intepret this event as that the mobile phone has gone out of Bluetooth
-                        //    // range and is no longer paired to the headset.
-                        //    // Lock the PC, but immediately re-enable proximity
-                        //    OnProximityDisabled(EventArgs.Empty);
-                        //    // Immediately re-enable proximity
-                        //    RegisterForProximity(true);
-                        //    break;
-                        //case DeviceProximity.Proximity_ProximityEnabled:
-                        //    OnProximityEnabled(EventArgs.Empty);
-                        //    break;
-                        //case DeviceProximity.Proximity_ProximityUnknown:
-                        //    OnProximityUnknown(EventArgs.Empty);
-                        //    break;
-                    }
-                    break;
-                //case DeviceHeadsetState.HeadsetState_InRange:
-                //    OnInRange(EventArgs.Empty);
-                //    // Immediately re-enable proximity
-                //    RegisterForProximity(true);
-                //    // Request headset serial number (maybe user paired with another?)
-                //    RequestSingleSerialNumber(SerialNumberTypes.Headset);
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_OutofRange:
-                //    OnOutOfRange(EventArgs.Empty);
-                //    OnSerialNumber(new SerialNumberArgs("", SerialNumberTypes.Headset));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_Docked:
-                //    OnDocked(new DockedStateArgs(true, false));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_UnDocked:
-                //    OnUnDocked(new DockedStateArgs(false, false));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_MuteON:
-                //    OnMuteChanged(new MuteChangedArgs(true));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_MuteOFF:
-                //    OnMuteChanged(new MuteChangedArgs(false));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_MonoON:
-                //    OnLineActiveChanged(new LineActiveChangedArgs(true));
-                //    break;
-                //case DeviceHeadsetState.HeadsetState_MonoOFF:
-                //    OnLineActiveChanged(new LineActiveChangedArgs(false));
-                //    break;
                 // LC add handler for headsetstate change serial number
                 // We should be able to extract serial number at this point
                 case DeviceHeadsetState.HeadsetState_SerialNumber:
-                    DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("HeadsetStateChanged: SerialNumber"));
-                    ReadSerialNumber(SerialNumberTypes.Headset);
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("eex_HeadsetStateChanged: SerialNumber"));
+                    string serialStr = byteArrayToString(e.SerialNumber);
+                    OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Headset));
                     break;
                 default:
                     break;
             }
-
-            if (e.HeadsetState == DeviceHeadsetState.HeadsetState_SerialNumber)
-            {
-                DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("HeadsetStateChanged: SerialNumber"));
-                ReadSerialNumber(SerialNumberTypes.Headset);
-            }
-            //if (e.SerialNumber != null && e.SerialNumber[0] != 0)
-            //{
-            //    string serialStr = byteArrayToString(e.SerialNumber);
-            //    //Console.WriteLine(string.Format("Headset serial number: {0}", serialStr));
-            //    OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Headset));
-            //}
         }
 
         // NEW, Nemanja's code to get the serial ID's !
@@ -2475,6 +2362,7 @@ namespace Plantronics.UC.SpokesWrapper
                 // LC Device was disconnected, remove capability data
                 DeviceCapabilities = new SpokesDeviceCaps(false, false, false, false, false, false, false); // no device = no capabilities!
                 m_devicename = "";
+                m_baseserial = "";
                 OnCapabilitiesChanged(EventArgs.Empty);
 
                 m_lastdocked = false;
@@ -2486,6 +2374,7 @@ namespace Plantronics.UC.SpokesWrapper
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: DetachedEventHandler from device");
             }
             m_devicename = "";
+            m_baseserial = "";
         }
 
         private void RegisterForProximity(bool register)
@@ -2514,8 +2403,10 @@ namespace Plantronics.UC.SpokesWrapper
             catch (System.Exception)
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: proximity may not be supported on your device.");
-                // uh-oh proximity may not be supported... disable it as option in GUI
-                DeviceCapabilities.HasProximity = false;
+                // uh-oh proximity may not be supported... disable it as option in GUI (only if we have not
+                // loaded all device capabilities database
+                if (m_AllDeviceCapabilities.Count==0)
+                    DeviceCapabilities.HasProximity = false;
                 OnCapabilitiesChanged(EventArgs.Empty);
             }
         }
@@ -2837,10 +2728,10 @@ namespace Plantronics.UC.SpokesWrapper
                     switch (serialNumberType)
                     {
                         case SerialNumberTypes.Headset:
-                            m_hostCommandExt.GetSerialNumber(COMDeviceType.DeviceType_Headset);
+                            m_hostCommandExt.RequestSerialNumber(COMDeviceType.DeviceType_Headset);
                             break;
                         case SerialNumberTypes.Base:
-                            m_hostCommandExt.GetSerialNumber(COMDeviceType.DeviceType_Base);
+                            m_hostCommandExt.RequestSerialNumber(COMDeviceType.DeviceType_Base);
                             break;
                     }
                 }
