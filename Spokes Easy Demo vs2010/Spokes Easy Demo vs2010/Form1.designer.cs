@@ -127,9 +127,9 @@
             this.label2.Font = new System.Drawing.Font("Calibri", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(21, 27);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(28, 14);
+            this.label2.Size = new System.Drawing.Size(76, 14);
             this.label2.TabIndex = 3;
-            this.label2.Text = "Call:";
+            this.label2.Text = "Call Direction:";
             // 
             // contactCombo
             // 
@@ -501,7 +501,7 @@
             // 
             // deskLineHeldPictureBox
             // 
-            this.deskLineHeldPictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.status_idle;
+            this.deskLineHeldPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("deskLineHeldPictureBox.Image")));
             this.deskLineHeldPictureBox.Location = new System.Drawing.Point(248, 231);
             this.deskLineHeldPictureBox.Name = "deskLineHeldPictureBox";
             this.deskLineHeldPictureBox.Size = new System.Drawing.Size(16, 16);
@@ -511,7 +511,7 @@
             // 
             // mobLineHeldPictureBox
             // 
-            this.mobLineHeldPictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.status_idle;
+            this.mobLineHeldPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("mobLineHeldPictureBox.Image")));
             this.mobLineHeldPictureBox.Location = new System.Drawing.Point(248, 201);
             this.mobLineHeldPictureBox.Name = "mobLineHeldPictureBox";
             this.mobLineHeldPictureBox.Size = new System.Drawing.Size(16, 16);
@@ -520,7 +520,7 @@
             // 
             // pcLineHeldPictureBox
             // 
-            this.pcLineHeldPictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.status_idle;
+            this.pcLineHeldPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("pcLineHeldPictureBox.Image")));
             this.pcLineHeldPictureBox.Location = new System.Drawing.Point(248, 171);
             this.pcLineHeldPictureBox.Name = "pcLineHeldPictureBox";
             this.pcLineHeldPictureBox.Size = new System.Drawing.Size(16, 16);
@@ -529,7 +529,7 @@
             // 
             // deskLineActivePictureBox
             // 
-            this.deskLineActivePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.status_idle;
+            this.deskLineActivePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("deskLineActivePictureBox.Image")));
             this.deskLineActivePictureBox.Location = new System.Drawing.Point(143, 231);
             this.deskLineActivePictureBox.Name = "deskLineActivePictureBox";
             this.deskLineActivePictureBox.Size = new System.Drawing.Size(16, 16);
@@ -539,7 +539,7 @@
             // 
             // mobLineActivePictureBox
             // 
-            this.mobLineActivePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.status_idle;
+            this.mobLineActivePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("mobLineActivePictureBox.Image")));
             this.mobLineActivePictureBox.Location = new System.Drawing.Point(143, 201);
             this.mobLineActivePictureBox.Name = "mobLineActivePictureBox";
             this.mobLineActivePictureBox.Size = new System.Drawing.Size(16, 16);
@@ -548,7 +548,7 @@
             // 
             // pcLineActivePictureBox
             // 
-            this.pcLineActivePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.status_idle;
+            this.pcLineActivePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("pcLineActivePictureBox.Image")));
             this.pcLineActivePictureBox.Location = new System.Drawing.Point(143, 171);
             this.pcLineActivePictureBox.Name = "pcLineActivePictureBox";
             this.pcLineActivePictureBox.Size = new System.Drawing.Size(16, 16);
@@ -557,7 +557,7 @@
             // 
             // muteStatePictureBox
             // 
-            this.muteStatePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.mute_notMuted;
+            this.muteStatePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("muteStatePictureBox.Image")));
             this.muteStatePictureBox.Location = new System.Drawing.Point(350, 468);
             this.muteStatePictureBox.Name = "muteStatePictureBox";
             this.muteStatePictureBox.Size = new System.Drawing.Size(127, 127);
@@ -566,7 +566,7 @@
             // 
             // callStatePictureBox
             // 
-            this.callStatePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.call_idle;
+            this.callStatePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("callStatePictureBox.Image")));
             this.callStatePictureBox.Location = new System.Drawing.Point(193, 468);
             this.callStatePictureBox.Name = "callStatePictureBox";
             this.callStatePictureBox.Size = new System.Drawing.Size(127, 127);
@@ -575,7 +575,7 @@
             // 
             // mobileStatePictureBox
             // 
-            this.mobileStatePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.mobile_idle;
+            this.mobileStatePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("mobileStatePictureBox.Image")));
             this.mobileStatePictureBox.Location = new System.Drawing.Point(36, 468);
             this.mobileStatePictureBox.Name = "mobileStatePictureBox";
             this.mobileStatePictureBox.Size = new System.Drawing.Size(127, 127);
@@ -584,7 +584,7 @@
             // 
             // dockedPictureBox
             // 
-            this.dockedPictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.dock_undocked;
+            this.dockedPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("dockedPictureBox.Image")));
             this.dockedPictureBox.Location = new System.Drawing.Point(350, 275);
             this.dockedPictureBox.Name = "dockedPictureBox";
             this.dockedPictureBox.Size = new System.Drawing.Size(127, 127);
@@ -593,7 +593,7 @@
             // 
             // proximityPictureBox
             // 
-            this.proximityPictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.proximity_unknown;
+            this.proximityPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("proximityPictureBox.Image")));
             this.proximityPictureBox.Location = new System.Drawing.Point(193, 275);
             this.proximityPictureBox.Name = "proximityPictureBox";
             this.proximityPictureBox.Size = new System.Drawing.Size(127, 127);
@@ -602,7 +602,7 @@
             // 
             // wearingStatePictureBox
             // 
-            this.wearingStatePictureBox.Image = global::Spokes_Easy_Demo.Properties.Resources.wearing_doff;
+            this.wearingStatePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("wearingStatePictureBox.Image")));
             this.wearingStatePictureBox.Location = new System.Drawing.Point(36, 275);
             this.wearingStatePictureBox.Name = "wearingStatePictureBox";
             this.wearingStatePictureBox.Size = new System.Drawing.Size(127, 127);
@@ -916,9 +916,9 @@
             this.label1.Font = new System.Drawing.Font("Calibri", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(21, 56);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(38, 14);
+            this.label1.Size = new System.Drawing.Size(47, 14);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Caller:";
+            this.label1.Text = "Contact:";
             // 
             // Form1
             // 

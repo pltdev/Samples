@@ -39,6 +39,14 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.26:
+ * Date: 29th Jan 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added HoldCall and ResumeCall functions to inform Spokes
+ *       of the state of multiple calls in your softphone queue
+ *
  * Version 1.0.25:
  * Date: 10th Oct 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.24304.0
@@ -2685,6 +2693,48 @@ namespace Plantronics.UC.SpokesWrapper
                 {
                     CallCOM call = new CallCOM() { Id = callid };
                     m_comSession.CallCommand.AnsweredCall(call);
+                    success = true;
+                }
+            }
+            catch (Exception) { success = false; }
+            return success;
+        }
+
+        /// <summary>
+        /// Informs Spokes that user and/or softphone placed a call on hold
+        /// </summary>
+        /// <param name="callid">The unique numeric id that defines which softphone call was placed on hold.</param>
+        /// <returns>Boolean indicating if the command was called succesfully or not.</returns>
+        public bool HoldCall(int callid)
+        {
+            bool success = false;
+            try
+            {
+                if (m_comSession != null)
+                {
+                    CallCOM call = new CallCOM() { Id = callid };
+                    m_comSession.CallCommand.HoldCall(call);
+                    success = true;
+                }
+            }
+            catch (Exception) { success = false; }
+            return success;
+        }
+
+        /// <summary>
+        /// Informs Spokes that user and/or softphone resumed a call from hold
+        /// </summary>
+        /// <param name="callid">The unique numeric id that defines which softphone call was resumed.</param>
+        /// <returns>Boolean indicating if the command was called succesfully or not.</returns>
+        public bool ResumeCall(int callid)
+        {
+            bool success = false;
+            try
+            {
+                if (m_comSession != null)
+                {
+                    CallCOM call = new CallCOM() { Id = callid };
+                    m_comSession.CallCommand.ResumeCall(call);
                     success = true;
                 }
             }

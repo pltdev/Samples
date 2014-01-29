@@ -9,7 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Plantronics.UC.SpokesWrapper; // Spokes .NET interop
-using System.Speech.Synthesis; // used for simulated phone audio
+using System.Speech.Synthesis;
+using System.Collections.ObjectModel; // used for simulated phone audio
 
 /*******
  * 
@@ -41,6 +42,16 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.7:
+ * Date: 29th Jan 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Put back in calls to ConnectAudioLinkToDevice, as best
+ *       practice is always to bring link up programatically on
+ *       call answered, and always close it on call ended (even
+ *       though Spokes may already do this for you).
+ *
  * Version 1.1.0.6:
  * Date: 14th Nov 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
@@ -133,6 +144,7 @@ namespace Spokes_Easy_Demo
         delegate void SetMobileCallControlGUIEnableCallback(MobileCallState state);
         delegate void UpdateMultiLineButtonTextsCallback(MultiLineStateArgs e);
         delegate void SetPictureBoxColorCallback(Control pbox, Color col);
+        delegate void SetDDCallerIDCallback(CallRequestedArgs e);
         #endregion
 
         Timer wearingpicboxtimer;
@@ -140,6 +152,10 @@ namespace Spokes_Easy_Demo
         private MultiLineStateArgs m_lastMultiLineState;
         private bool m_debugmode = false;
         private bool m_onmobcall = false;
+
+        // display devices - todo move this to wrapper
+        Interop.Plantronics.IDisplayDeviceListener m_ddListener = null;
+        Interop.Plantronics.IDisplayDeviceCall m_ddCall1 = null;
 
         // New animation timer list for highlighting background color of properties that change!
         // idea: at expire time restore the background color of the picture box (then remove this from the list)
@@ -341,6 +357,9 @@ namespace Spokes_Easy_Demo
                 Show();
                 Update();
 
+                //// Set Spokes to use our app as default softphone!
+                //m_spokes.SetSpokesDefaultSoftphone(APP_NAME);
+
                 // Now connect to attached device, if any
                 m_spokes.Connect(APP_NAME);
             }
@@ -358,46 +377,102 @@ namespace Spokes_Easy_Demo
 
         void m_spokes_CallRequested(object sender, CallRequestedArgs e)
         {
-            // user has dialled using a Plantronics Dialpad device!
-            // In response to this event my softphone should establish out
-            // outgoing call using the contact info provided...
-            if (e.m_contact.Phone.Length > 0)
-            {
-                // user dialled a number on their calisto...
-                LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to number: " + e.m_contact.Phone);
-                m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.Phone);
-            }
-            else if (e.m_contact.MobilePhone.Length > 0)
-            {
-                // user dialled a mobile number on their calisto...
-                LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to mobile number: " + e.m_contact.MobilePhone);
-                m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.MobilePhone);
-            }
-            else if (e.m_contact.HomePhone.Length > 0)
-            {
-                // user dialled a home number on their calisto...
-                LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to home number: " + e.m_contact.HomePhone);
-                m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.HomePhone);
-            }
-            else if (e.m_contact.FriendlyName.Length > 0)
-            {
-                // user dialled a contact name on their calisto...
-                LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to contact name: " + e.m_contact.FriendlyName);
-                m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.FriendlyName);
-            }
-            else if (e.m_contact.SipUri.Length > 0)
-            {
-                // user dialled a SipUri on their calisto...
-                LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to SipUri: " + e.m_contact.SipUri);
-                m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.SipUri);
-            }
-            else if (e.m_contact.Email.Length > 0)
-            {
-                // user dialled an Email on their calisto...
-                LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to Email: " + e.m_contact.Email);
-                m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.Email);
-            }
+            //ProcessCallRequested(e); work in progress
         }
+
+        // work in progress
+        //private void ProcessCallRequested(CallRequestedArgs e)
+        //{
+        //    LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> ProcessCallRequested: " + e.m_contact.Phone);
+        //    //m_spokes.InsertCall(GetNewCallId(), e.m_contact.Phone);           
+        //    //LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Got passed OutgoingCall: " + e.m_contact.Phone);
+        //    if (callIdTextbox.InvokeRequired)
+        //    {
+        //        SetDDCallerIDCallback d = new SetDDCallerIDCallback(ProcessCallRequested);
+        //        this.Invoke(d, new object[] { e });
+        //    }
+        //    else
+        //    {
+        //        // user has dialled using a Plantronics Dialpad device!
+        //        // In response to this event my softphone should establish out
+        //        // outgoing call using the contact info provided...
+        //        if (e.m_contact.Phone.Length > 0)
+        //        {
+        //            // user dialled a number on their calisto...
+        //            LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to number: " + e.m_contact.Phone);
+        //            //m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.Phone);
+        //            //m_spokes.AnswerCall(GetNewCallId()); //, e.m_contact.Phone);
+        //            //m_spokes.ConnectAudioLinkToDevice(true);
+        //            callDirectionCombo.SelectedIndex = 1; // outgoing
+        //            contactCombo.Items.Add(e.m_contact.Phone);
+
+        //            SimulateDisplayDeviceCall();
+
+        //            SimulatePhoneAudio();
+        //        }
+        //        //else if (e.m_contact.MobilePhone.Length > 0)
+        //        //{
+        //        //    // user dialled a mobile number on their calisto...
+        //        //    LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to mobile number: " + e.m_contact.MobilePhone);
+        //        //    m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.MobilePhone);
+        //        //    callDirectionCombo.SelectedIndex = 1; // outgoing
+        //        //    contactCombo.Items.Add(e.m_contact.MobilePhone);
+        //        //}
+        //        //else if (e.m_contact.HomePhone.Length > 0)
+        //        //{
+        //        //    // user dialled a home number on their calisto...
+        //        //    LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to home number: " + e.m_contact.HomePhone);
+        //        //    m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.HomePhone);
+        //        //    callDirectionCombo.SelectedIndex = 1; // outgoing
+        //        //    contactCombo.Items.Add(e.m_contact.HomePhone);
+        //        //}
+        //        //else if (e.m_contact.FriendlyName.Length > 0)
+        //        //{
+        //        //    // user dialled a contact name on their calisto...
+        //        //    LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to contact name: " + e.m_contact.FriendlyName);
+        //        //    m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.FriendlyName);
+        //        //    callDirectionCombo.SelectedIndex = 1; // outgoing
+        //        //    contactCombo.Items.Add(e.m_contact.FriendlyName);
+        //        //}
+        //        //else if (e.m_contact.SipUri.Length > 0)
+        //        //{
+        //        //    // user dialled a SipUri on their calisto...
+        //        //    LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to SipUri: " + e.m_contact.SipUri);
+        //        //    m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.SipUri);
+        //        //    callDirectionCombo.SelectedIndex = 1; // outgoing
+        //        //    contactCombo.Items.Add(e.m_contact.SipUri);
+        //        //}
+        //        //else if (e.m_contact.Email.Length > 0)
+        //        //{
+        //        //    // user dialled an Email on their calisto...
+        //        //    LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Making Outgoing call to Email: " + e.m_contact.Email);
+        //        //    m_spokes.OutgoingCall(GetNewCallId(), e.m_contact.Email);
+        //        //    callDirectionCombo.SelectedIndex = 1; // outgoing
+        //        //    contactCombo.Items.Add(e.m_contact.Email);
+        //        //}
+        //    }
+        //}
+
+        //private void SimulateDisplayDeviceCall()
+        //{
+        //    Interop.Plantronics.IDisplayDeviceCall m_ddCall1;
+        //    // simulate an incoming call then send it to the DisplayDevice
+        //    try
+        //    {
+        //        //m_ddCall1.CallId = GetNewCallId();
+        //        // configure Call1 accordingly(Incoming)
+        //        //m_ddCall1.CallState = Interop.Plantronics.DDCallState.DDCallState_Outgoing;
+        //        //Collection<Interop.Plantronics.IDisplayDeviceCall> ddCalls = new Collection<Interop.Plantronics.IDisplayDeviceCall>();
+        //        // VERIFY the logic inside the IF block. Process Call2 if there is a parallel activity.
+        //        //ddCalls.Add(m_ddCall1);
+        //        //m_ddListener = m_spokes.GetDevice.DeviceListener as Interop.Plantronics.IDisplayDeviceListener;
+        //        //m_ddListener..SetMultiCallState(ddCalls);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message, "Call1 Incoming");
+        //    }
+        //}
 
         void spokes_DevicePutOn(object sender, EventArgs e)
         {
@@ -574,7 +649,7 @@ namespace Spokes_Easy_Demo
             // if this was My Softphone's call then activate the audio link to headset
             if (e.CallId > 0 && e.CallSource.CompareTo(APP_NAME) == 0)
             {
-                //m_spokes.ConnectAudioLinkToDevice(true);
+                m_spokes.ConnectAudioLinkToDevice(true);
                 SimulatePhoneAudio();
                 m_spokes.SetMute(false);
             }
@@ -674,7 +749,7 @@ ROMEO
             {
                 m_dummyspeechaudio.SpeakAsyncCancelAll();
                 m_spokes.SetMute(false);
-                //m_spokes.ConnectAudioLinkToDevice(false);
+                m_spokes.ConnectAudioLinkToDevice(false);
             }
             else
                 LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Ignoring spurious call event, call id: " + e.CallId + ", call source = " + e.CallSource);
@@ -908,8 +983,21 @@ ROMEO
         private int GetNewCallId()
         {
             m_callId++;
-            callIdTextbox.Text = m_callId.ToString();
+            UpdateCallIdGUI(callIdTextbox, m_callId.ToString());
             return m_callId;
+        }
+
+        private void UpdateCallIdGUI(Control mycontrol, string text)
+        {
+            if (mycontrol.InvokeRequired)
+            {
+                UpdateLabelCallback d = new UpdateLabelCallback(UpdateCallIdGUI);
+                this.Invoke(d, new object[] { mycontrol, text });
+            }
+            else
+            {
+                mycontrol.Text = text;
+            }
         }
 
         #region GUI Helper Methods
