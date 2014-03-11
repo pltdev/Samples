@@ -124,11 +124,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="Properties\Settings.Designer.cs" />
-    <Compile Include="Properties\Settings1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="EventsLogForm.resx">
       <DependentUpon>EventsLogForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -138,15 +133,11 @@
     <EmbeddedResource Include="Properties\Resources.resx" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\wrappers\DeviceCapabilities.csv">
+    <Content Include="..\..\wrappers\DeviceCapabilities.csv">
       <Link>DeviceCapabilities.csv</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="App.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
-    </None>
     <None Include="Spokes Easy Demo for Spokes 3.0_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
