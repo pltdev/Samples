@@ -5,6 +5,7 @@ Module Module1
     'Make a friend of Spokes object so we can receive it's events
     Friend WithEvents MySpokes As Spokes
 
+    <MTAThread()>
     Sub Main()
         'Grab the Spokes make instance
         MySpokes = Spokes.Instance
