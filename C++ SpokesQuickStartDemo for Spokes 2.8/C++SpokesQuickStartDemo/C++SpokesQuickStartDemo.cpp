@@ -37,7 +37,7 @@ public:
 int _tmain(int argc, _TCHAR* argv[])
 {
 	MySpokesIntegration * mySpokesIntegration = new MySpokesIntegration();
-	Spokes::GetInstance()->Connect("Spokes Wearing Sensor Native Sample"); // do this after instantiation of MySpokesIntegration (i.e. not in constructor)
+	Spokes::GetInstance()->Connect("Spokes Quick Start"); // do this after instantiation of MySpokesIntegration (i.e. not in constructor)
 												  // so that C++ can sort out its virtual method tables else we won't receive Spokes events
 
 	cout << "Press enter to quit..." << endl;
