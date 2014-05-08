@@ -21,6 +21,8 @@ AC11,Poseidon,No,No,Yes,Yes,No,Yes,Yes
 417,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
 418,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
 419,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+2FE,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
+2FF,Bluetooth Adapter,Yes,Yes,Yes,Yes,Yes,No,Yes
 ca00,Calisto 800,No,No,No,No,No,No,No
 ca01,Calisto 800,No,No,No,No,No,No,No
 AE11,Calisto 240,No,No,No,No,No,No,No
