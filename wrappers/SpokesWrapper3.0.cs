@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.27:
+ * Date: 18th Aug 2014
+ * Compatible with Spokes SDK version(s): 3.x
+ * Tested with Hub version: 3.0.50718.1966
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - The missing "AnswerCall" method was added to this version.
+ * 
  * Version 1.5.26:
  * Date: 14th Nov 2013
  * Compatible with Spokes SDK version(s): 3.x
@@ -1870,6 +1878,7 @@ namespace Plantronics.UC.SpokesWrapper
             catch (Exception e)
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Exception caught attaching to device: "+e.ToString());
+                m_activeDevice = null;
             }
             if (m_activeDevice != null)
             {
@@ -2707,6 +2716,29 @@ namespace Plantronics.UC.SpokesWrapper
                     CallCOM call = new CallCOM(); // { Id = callid };
                     call.SetId(callid);
                     m_comSession.GetCallCommand().TerminateCall(call);
+                    success = true;
+                }
+            }
+            catch (Exception) { success = false; }
+            return success;
+        }
+
+        /// <summary>
+        /// Informs Spokes that user has answered an incoming (ringing) softphone call,
+        /// for example with a softphone GUI.
+        /// </summary>
+        /// <param name="callid">The unique numeric id that defines which softphone call you want to end.</param>
+        /// <returns>Boolean indicating if the command was called succesfully or not.</returns>
+        public bool AnswerCall(int callid)
+        {
+            bool success = false;
+            try
+            {
+                if (m_comSession != null)
+                {
+                    CallCOM call = new CallCOM(); // { Id = callid };
+                    call.SetId(callid);
+                    m_comSession.GetCallCommand().AnsweredCall(call);
                     success = true;
                 }
             }
