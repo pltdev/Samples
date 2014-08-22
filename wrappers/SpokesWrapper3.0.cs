@@ -39,6 +39,22 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.28:
+ * Date: 22nd Aug 2014
+ * Compatible with Spokes SDK version(s): 3.x
+ * Tested with Hub version: 3.0.50718.1966
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding missing hold call/resume call functions
+ *
+ * Version 1.5.28:
+ * Date: 19th Aug 2014
+ * Compatible with Spokes SDK version(s): 3.x
+ * Tested with Hub version: 3.0.50718.1966
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Fixed error in the initial docked/undocked state detection.
+ *
  * Version 1.5.27:
  * Date: 18th Aug 2014
  * Compatible with Spokes SDK version(s): 3.x
@@ -2483,7 +2499,7 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 if (m_hostCommandExt != null)
                 {
-                    docked = m_hostCommandExt.HeadsetDocked;
+                    m_lastdocked = m_hostCommandExt.HeadsetDocked;
                     docked = m_lastdocked;
                     if (docked) OnDocked(new DockedStateArgs(true, true));
                     else OnUnDocked(new DockedStateArgs(false, true));
@@ -2739,6 +2755,52 @@ namespace Plantronics.UC.SpokesWrapper
                     CallCOM call = new CallCOM(); // { Id = callid };
                     call.SetId(callid);
                     m_comSession.GetCallCommand().AnsweredCall(call);
+                    success = true;
+                }
+            }
+            catch (Exception) { success = false; }
+            return success;
+        }
+
+        /// <summary>
+        /// Informs Spokes that user has placed a softphone call on hold,
+        /// for example with a softphone GUI.
+        /// </summary>
+        /// <param name="callid">The unique numeric id that defines which softphone call you want to end.</param>
+        /// <returns>Boolean indicating if the command was called succesfully or not.</returns>
+        public bool HoldCall(int callid)
+        {
+            bool success = false;
+            try
+            {
+                if (m_comSession != null)
+                {
+                    CallCOM call = new CallCOM(); // { Id = callid };
+                    call.SetId(callid);
+                    m_comSession.GetCallCommand().HoldCall(call);
+                    success = true;
+                }
+            }
+            catch (Exception) { success = false; }
+            return success;
+        }
+
+        /// <summary>
+        /// Informs Spokes that user has resumed a softphone call that was previously on hold,
+        /// for example with a softphone GUI.
+        /// </summary>
+        /// <param name="callid">The unique numeric id that defines which softphone call you want to end.</param>
+        /// <returns>Boolean indicating if the command was called succesfully or not.</returns>
+        public bool ResumeCall(int callid)
+        {
+            bool success = false;
+            try
+            {
+                if (m_comSession != null)
+                {
+                    CallCOM call = new CallCOM(); // { Id = callid };
+                    call.SetId(callid);
+                    m_comSession.GetCallCommand().ResumeCall(call);
                     success = true;
                 }
             }
