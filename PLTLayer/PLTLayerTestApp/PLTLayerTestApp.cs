@@ -20,6 +20,13 @@ using Plantronics.EZ.API;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.1:
+ * Date: 26th August 2014
+ * Compatible with Plantronics Hub version(s): 3.0.50718.1966
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Minor fixes to mobile call control convenience function
+ *
  * Version 1.0.0.0:
  * Date: 22nd August 2014
  * Compatible with Plantronics Hub version(s): 3.0.50718.1966
@@ -565,9 +572,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
             contactname = GetUserInput("Enter contact name (string)\r\nor press Enter to skip : ");
         }
 
-        private static void ReadNumberToDial(ref string mobilenum)
+        private static void ReadNumberToDial(ref string numbertodial)
         {
-            mobilenum = GetUserInput("Enter mobile to dial (string) : ");
+            numbertodial = GetUserInput("Enter number to dial (string) : ");
         }
         #endregion
     }
