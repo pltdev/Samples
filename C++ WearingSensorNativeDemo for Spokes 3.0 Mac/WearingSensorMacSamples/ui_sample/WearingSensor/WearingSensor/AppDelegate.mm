@@ -1,7 +1,11 @@
-// SpokesNativeSample.cpp : Defines the entry point for the console application.
+//
+//  AppDelegate.m
+//  WearingSensor
+//
+//  Copyright (c) 2014 Plantronics Inc. All rights reserved.
 //
 
-//#include "stdafx.h"
+#import "AppDelegate.h"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -10,6 +14,9 @@ using namespace std;
 
 #include "Spokes3G.h"
 #include "cpp/query_cast.h"
+
+
+
 
 // create sink for receiving device listener events
 class DeviceListenerEventSink : public IDeviceListenerCallback
@@ -28,6 +35,8 @@ public:
 			case HS_STATE_CHANGE_DOFF:
 				wcout << "Headset is not worn" << endl;
 				break;
+            default:
+                break;
 		}
 	}
     virtual void onBaseButtonPressed(DeviceListenerEventArgs const &args) { }
@@ -35,20 +44,30 @@ public:
     virtual void onATDStateChanged(DeviceListenerEventArgs const &args) { }
 };
 
-int main(int argc, const char * argv[])
-//int _tmain(int argc, _TCHAR* argv[])
+@interface AppDelegate()
 {
-    //InitSpokesRuntime();
+    ISessionManager* sessionManager;
+    ISession* session;
+    IDevice* activeDevice;
+    DeviceListenerEventSink* deviceCallback;
+}
+
+@end
+
+@implementation AppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
+{
+    // Insert code here to initialize your application
+
+    InitSpokesRuntime();
 
 	// create session manager
-	ISessionManager *sessionManager = nullptr;
 	if( SM_RESULT_SUCCESS == getSessionManager(&sessionManager) )
 	{
 		// create session
-		ISession* session = nullptr;
 		if( SM_RESULT_SUCCESS == sessionManager->registerSession( L"Spokes Wearing Sensor Native Sample", &session ) )
 		{
-			IDevice* activeDevice = nullptr;
 			if( SM_RESULT_SUCCESS != session->getActiveDevice( &activeDevice ) )
 			{
 				wcout << "there is no active devices, please attach one then run the app again" << endl;
@@ -67,25 +86,42 @@ int main(int argc, const char * argv[])
 				else
 				{
 					// Register device listener callbacks
-					IDeviceListenerCallback* deviceListenerEventSink( new DeviceListenerEventSink() );
-					dm_result = dev_listener->registerCallback(deviceListenerEventSink);
+					deviceCallback = new DeviceListenerEventSink();
+					dm_result = dev_listener->registerCallback(deviceCallback);
 
 					if(dm_result != DM_RESULT_SUCCESS)
 					{
 						wcout << "failed to register device listener callback" << endl;
+                        delete deviceCallback;
+                        deviceCallback = nullptr;
 					}
 				}
 			}
-
-			wcout << "Press enter to quit..." << endl;
-			cin.ignore();
-
-			if (activeDevice != nullptr) activeDevice->Release();
-			sessionManager->unregisterSession( session );
-			session->Release();
-			sessionManager->Release();
-		    //ShutDownSpokesRuntime();
-		}
-	}
-	return 0;
+        }
+    }
 }
+
+- (void)applicationWillTerminate:(NSNotification *)notification;
+{
+    if (activeDevice != nullptr)
+    {
+        pDeviceListener dev_listener = nullptr;
+        auto dm_result = activeDevice->getDeviceListener(&dev_listener);
+        if (dm_result == DM_RESULT_SUCCESS && deviceCallback != nullptr)
+        {
+            dev_listener->unregisterCallback(deviceCallback);
+            delete deviceCallback;
+        }
+        activeDevice->Release();
+    }
+
+    if (sessionManager != nullptr && session != nullptr)
+    {
+        sessionManager->unregisterSession(session);
+        session->Release();
+    }
+
+    ShutDownSpokesRuntime();
+}
+
+@end
