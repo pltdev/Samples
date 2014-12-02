@@ -20,6 +20,14 @@ using Plantronics.EZ.API;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.2:
+ * Date: 2nd December 2014
+ * Compatible with Plantronics Hub version(s): 3.3.50862.10305 (24/11/2014 pre-release for DA Series)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding new DA Series QD events (Connected/Disconnected)
+ *     - Remove un-needed linefeeds
+ *     
  * Version 1.0.0.1:
  * Date: 26th August 2014
  * Compatible with Plantronics Hub version(s): 3.0.50718.1966
@@ -265,7 +273,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
         {
             // Example processing of incoming events/parameters to inform my app
             // what is happening with Plantronics:
-            Console.WriteLine("\r\n");
             switch (e.EventType)
             {
                 // BASIC SOFTPHONE CALL CONTROL EVENTS:
@@ -410,6 +417,14 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     Console.WriteLine("Plantronics was un-docked");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
+                case PltEventType.Connected:
+                    Console.WriteLine("Plantronics was connected to QD connector");
+                    // TODO: optional syncronise with your app's agent availability feature
+                    break;
+                case PltEventType.Disconnected:
+                    Console.WriteLine("Plantronics was disconnected from QD connector");
+                    // TODO: optional syncronise with your app's agent availability feature
+                    break;
 
                 // PLANTRONICS DEVICE INFORMATION EVENTS:
                 //
@@ -484,8 +499,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
             //        Console.WriteLine(param);
             //    }
             //}
-
-            Console.Write("\r\n ");
         }
 
         #region User input functions

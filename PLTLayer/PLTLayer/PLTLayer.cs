@@ -33,6 +33,16 @@ using Plantronics.UC.SpokesWrapper;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.1:
+ * Date: 2nd Sept 2014
+ * Compatible with Plantronics Hub version(s): 3.0.50718.1966
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding custommessage method to send custom messages to
+ *       Plantronics device, and RawMessageReceived PltEvent type
+ *       to receive custom message responses. This mechanism is to
+ *       provide for future extensibility of the API.
+ *
  * Version 1.0.0.0:
  * Date: 22nd August 2014
  * Compatible with Plantronics Hub version(s): 3.0.50718.1966
@@ -185,12 +195,19 @@ namespace Plantronics.EZ.API
                 m_spokes.Detached += new Spokes.DetachedEventHandler(m_spokes_Detached);
                 m_spokes.CapabilitiesChanged += new Spokes.CapabilitiesChangedEventHandler(m_spokes_CapabilitiesChanged);
 
+                // Headset connect/disconnect (QD):
+                m_spokes.Connected += new Spokes.ConnectedEventHandler(m_spokes_Connected);
+                m_spokes.Disconnected += new Spokes.DisconnectedEventHandler(m_spokes_Disconnected);
+
                 // Multiline:
                 m_spokes.MultiLineStateChanged += new Spokes.MultiLineStateChangedEventHandler(m_spokes_MultiLineStateChanged);
 
                 // Button presses
                 m_spokes.ButtonPress += new Spokes.ButtonPressEventHandler(m_spokes_ButtonPress);
                 m_spokes.BaseButtonPress += new Spokes.BaseButtonPressEventHandler(m_spokes_BaseButtonPress);
+
+                // Raw Data Received (custom message responses)
+                m_spokes.RawDataReceived += new Spokes.RawDataReceivedEventHandler(m_spokes_RawDataReceived);
 
                 // Connect to Plantronics SDK
                 m_IsConnected = m_spokes.Connect(AppName);
@@ -199,6 +216,27 @@ namespace Plantronics.EZ.API
             {
                 throw new Exception("Failed to connect to Plantronics SDK. See inner exception.", e);
             }
+        }
+
+        void m_spokes_Disconnected(object sender, ConnectedStateArgs e)
+        {
+            OnPltEvent(new PltEventArgs(PltEventType.Disconnected,
+                e.m_connected.ToString(),
+                e.m_isInitialStateEvent.ToString()));
+        }
+
+        void m_spokes_Connected(object sender, ConnectedStateArgs e)
+        {
+            OnPltEvent(new PltEventArgs(PltEventType.Connected,
+                e.m_connected.ToString(),
+                e.m_isInitialStateEvent.ToString()));
+        }
+
+        void m_spokes_RawDataReceived(object sender, RawDataReceivedArgs e)
+        {
+            // Args: raw message hex, typeid (int) reserved for future use, options string reserved for future use
+            OnPltEvent(new PltEventArgs(PltEventType.RawDataReceived,
+                e.m_datareporthex, "0", ""));
         }
 
         void m_spokes_BaseButtonPress(object sender, BaseButtonPressArgs e)
@@ -796,6 +834,17 @@ namespace Plantronics.EZ.API
         {
             m_spokes.EndMobileCall();
         }
+
+        /// <summary>
+        /// Send a custom message to the Plantronics device
+        /// </summary>
+        /// <param name="message">The message to send expressed in hex bytes</param>
+        /// <param name="typeid">Reserved for future use, e.g. type of protocol</param>
+        /// <param name="option">Reserved for future use, e.g. addressing info</param>
+        public void custommessage(string message, int typeid = 0, string option = "")
+        {
+            m_spokes.SendCustomMessageToHeadset(message);
+        }
     }
 
     #region Plt Event Types and Args
@@ -830,7 +879,10 @@ namespace Plantronics.EZ.API
         CallSwitched,
         CallRequested,
         CallEnded,
-        CallAnswered
+        CallAnswered,
+        RawDataReceived,
+        Connected,
+        Disconnected
     }
 
     /// <summary>
