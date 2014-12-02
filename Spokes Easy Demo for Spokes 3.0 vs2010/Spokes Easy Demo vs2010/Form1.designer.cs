@@ -102,6 +102,8 @@
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.callDirectionCombo = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.QDstatehdglbl = new System.Windows.Forms.Label();
+            this.QDstatelbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.deskLineHeldPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mobLineHeldPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcLineHeldPictureBox)).BeginInit();
@@ -798,6 +800,8 @@
             this.panel1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.panel1.BackColor = System.Drawing.Color.White;
             this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.panel1.Controls.Add(this.QDstatelbl);
+            this.panel1.Controls.Add(this.QDstatehdglbl);
             this.panel1.Controls.Add(this.deviceStatusLabel);
             this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Controls.Add(this.button1);
@@ -920,6 +924,27 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "Caller:";
             // 
+            // QDstatehdglbl
+            // 
+            this.QDstatehdglbl.AutoSize = true;
+            this.QDstatehdglbl.Font = new System.Drawing.Font("Calibri", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.QDstatehdglbl.Location = new System.Drawing.Point(37, 619);
+            this.QDstatehdglbl.Name = "QDstatehdglbl";
+            this.QDstatehdglbl.Size = new System.Drawing.Size(55, 14);
+            this.QDstatehdglbl.TabIndex = 21;
+            this.QDstatehdglbl.Text = "QD State:";
+            this.QDstatehdglbl.Visible = false;
+            // 
+            // QDstatelbl
+            // 
+            this.QDstatelbl.AutoSize = true;
+            this.QDstatelbl.Location = new System.Drawing.Point(38, 637);
+            this.QDstatelbl.Name = "QDstatelbl";
+            this.QDstatelbl.Size = new System.Drawing.Size(74, 13);
+            this.QDstatelbl.TabIndex = 22;
+            this.QDstatelbl.Text = "CONNECTED";
+            this.QDstatelbl.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1038,6 +1063,8 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.ComboBox callDirectionCombo;
+        private System.Windows.Forms.Label QDstatelbl;
+        private System.Windows.Forms.Label QDstatehdglbl;
     }
 }
 

@@ -41,6 +41,15 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.7:
+ * Date: 02th Dec 2014
+ * Compatible/tested with Spokes SDK version(s): 3.3.50862.10305 (24/11/2014 pre-release for DA Series)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added new DA Series QD Connector state into the GUI
+ *       (note, uses conditional define "doubloon" to compile in Plantronics
+ *        SDK events for QD, make sure this is defined)
+ *
  * Version 1.1.0.6:
  * Date: 14th Nov 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
@@ -129,6 +138,7 @@ namespace Spokes_Easy_Demo
         delegate void UpdateLabelCallback(Control label, string message);
         delegate void UpdatePictureBoxCallback(PictureBox picturebox, Bitmap picture);
         delegate void SetEnableCallback(Control guiitem, bool enable, Bitmap pictureBoxImage = null);
+        delegate void SetVisibleCallback(Control guiitem, bool visible);
         delegate void SetCallControlGUIEnableCallback(bool oncall);
         delegate void SetMobileCallControlGUIEnableCallback(MobileCallState state);
         delegate void UpdateMultiLineButtonTextsCallback(MultiLineStateArgs e);
@@ -338,12 +348,28 @@ namespace Spokes_Easy_Demo
                 m_spokes.ButtonPress += m_spokes_ButtonPress;
                 m_spokes.BaseButtonPress += m_spokes_BaseButtonPress;
 
+                // QD connector
+                m_spokes.Connected += new Spokes.ConnectedEventHandler(m_spokes_Connected);
+                m_spokes.Disconnected += new Spokes.DisconnectedEventHandler(m_spokes_Disconnected);
+
                 Show();
                 Update();
 
                 // Now connect to attached device, if any
                 m_spokes.Connect(APP_NAME);
             }
+        }
+
+        void m_spokes_Disconnected(object sender, ConnectedStateArgs e)
+        {
+            LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Headset QD connected state: is disconnected");
+            UpdateDeviceStatusGUIItem(QDstatelbl, "DISCONNECTED");
+        }
+
+        void m_spokes_Connected(object sender, ConnectedStateArgs e)
+        {
+            LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> Headset QD connected state: is connected");
+            UpdateDeviceStatusGUIItem(QDstatelbl, "CONNECTED");
         }
 
         void m_spokes_BaseButtonPress(object sender, BaseButtonPressArgs e)
@@ -751,6 +777,7 @@ ROMEO
             SetMobileCallControlGUIEnabled(MobileCallState.Idle);
             SetDockedGUIEnabled(m_spokes.DeviceCapabilities.HasDocking);
             SetMultiLineStateGUIEnabled(m_spokes.DeviceCapabilities.HasMultiline);
+            SetQDConnectorStateGUIEnabled(m_spokes.DeviceCapabilities.HasQDConnector);
 
             // last 2 GUI items grey out just based on whether we have a device or not
             SetCallStateGUIEnabled(m_spokes.HasDevice);
@@ -857,7 +884,7 @@ ROMEO
         // Connect Call (simulated my softphone call)...
         private void button4_Click(object sender, EventArgs e)
         {
-            if (!m_oncall)
+            if (true) // HACK (!m_oncall)
             {
                 int callid = GetNewCallId();
                 string contact = contactCombo.Items[contactCombo.SelectedIndex].ToString();
@@ -978,6 +1005,19 @@ ROMEO
             }
         }
 
+        private void SetVisible(Control guiitem, bool visible)
+        {
+            if (guiitem.InvokeRequired)
+            {
+                SetVisibleCallback d = new SetVisibleCallback(SetVisible);
+                this.Invoke(d, new object[] { guiitem, visible });
+            }
+            else
+            {
+                guiitem.Visible = visible;
+            }
+        }
+
         private void SetMuteStateGUIEnabled(bool hasDeviceConnected)
         {
             SetEnable(muteStateLbl, hasDeviceConnected);
@@ -1032,6 +1072,12 @@ ROMEO
                 !hasWearingSensor ? Properties.Resources.wearing_grey : null);
         }
 
+        private void SetQDConnectorStateGUIEnabled(bool hasQDConnector)
+        {
+            SetVisible(QDstatehdglbl, hasQDConnector);
+            SetVisible(QDstatelbl, hasQDConnector);
+        }
+
         // Enable or disable call control GUI elements depending if we are on a call or not.
         // Ensure cross-thread support, as Spokes events come in on a different thread
         private void SetCallControlGUIEnabled(bool oncall)
@@ -1045,7 +1091,7 @@ ROMEO
             {
                 m_oncall = oncall;
                 endCallBtn.Enabled = oncall;
-                connectCallBtn.Enabled = !oncall;
+                connectCallBtn.Enabled = true; // HACK !oncall;
             }
         }
 

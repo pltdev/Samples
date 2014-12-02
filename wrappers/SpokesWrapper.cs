@@ -9,6 +9,8 @@ using Interop.Plantronics;
 using System.Collections.ObjectModel;
 using System.Threading;
 
+[assembly: CLSCompliant(true)]
+
 /*******
  * 
  * SpokesWrapper.cs
@@ -39,6 +41,13 @@ using System.Threading;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.27:
+ * Date: 11th Nov 2013
+ * Compatible/tested with Spokes SDK version(s): 2.8.55399.3
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added GetMute function to request the mute state
+ *
  * Version 1.0.26:
  * Date: 29th Jan 2013
  * Compatible/tested with Spokes SDK version(s): 2.8.38701.2
@@ -3000,6 +3009,26 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: cannot set mute, no device");
             }
+        }
+
+        /// <summary>
+        /// Get the microphone mute state of the attached Plantronics device.
+        /// Note: For wireless devices mute only works when the audio/rf link is active (see also ConnectAudioLinkToDevice method).
+        /// </summary>
+        /// <returns>Boolean indicating if the headset is muted or not.</returns>
+        public bool GetMute()
+        {
+            bool retval = false;
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Getting mute");
+            if (m_activeDevice != null && m_hostCommandExt != null)
+            {
+                retval = m_hostCommand.Mute;
+            }
+            else
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: cannot get mute, no device");
+            }
+            return retval;
         }
 
         /// <summary>
