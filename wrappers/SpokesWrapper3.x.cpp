@@ -34,6 +34,13 @@ using namespace std;
  * 
  * Lewis Collins, http://developer.plantronics.com/people/lcollins
  * 
+ * ********************************************************************************
+ * USAGE NOTES:
+ * 1. There is a file DeviceCapabilities.csv that is distributed with the wrapper code. This
+ *    file should be placed in your applications working folder, as the wrapper will load it
+ *    at runtime - it tells the wrapper and your application what features the devices have
+ *    which you can access by the m_SpokesDeviceCapabilities member of Spokes instance.
+ * 
  * VERSION HISTORY:
  * ********************************************************************************
  * Version 1.5.29:
