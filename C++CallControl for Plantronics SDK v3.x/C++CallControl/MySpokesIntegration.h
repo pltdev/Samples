@@ -22,18 +22,21 @@ public:
 	virtual void Spokes_OnMobileCall(EventArgs * e);
 	virtual void Spokes_NotOnMobileCall(EventArgs * e);
 	virtual void Spokes_SerialNumber(EventArgs * e);
-	virtual void Spokes_CallAnswered(EventArgs * e);
-	virtual void Spokes_CallEnded(EventArgs * e);
+	virtual void Spokes_CallAnswered(CallAnsweredArgs * e);
+	virtual void Spokes_CallEnded(CallEndedArgs * e);
 	virtual void Spokes_CallSwitched(EventArgs * e);
-	virtual void Spokes_OnCall(EventArgs * e);
+	virtual void Spokes_OnCall(OnCallArgs * e);
 	virtual void Spokes_NotOnCall(EventArgs * e);
-	virtual void Spokes_MuteChanged(EventArgs * e);
+	virtual void Spokes_MuteChanged(MuteChangedArgs * e);
+	virtual void Spokes_LineActiveChanged(LineActiveChangedArgs * e);
 	virtual void Spokes_Attached(AttachedArgs * e);
 	virtual void Spokes_Detached(EventArgs * e);
 	virtual void Spokes_CapabilitiesChanged(EventArgs * e);
 	virtual void Spokes_MultiLineStateChanged(EventArgs * e);
-	virtual void Spokes_SystemSuspending(EventArgs * e);
-	virtual void Spokes_SystemResuming(EventArgs * e);
+	//virtual void Spokes_SystemSuspending(EventArgs * e);
+	//virtual void Spokes_SystemResuming(EventArgs * e);
+
+	virtual void Spokes_BatteryLevelChanged(EventArgs * e);
 
 	virtual void Spokes_ProximityUnknown(EventArgs * e);
 	virtual void Spokes_ProximityEnabled(EventArgs * e);

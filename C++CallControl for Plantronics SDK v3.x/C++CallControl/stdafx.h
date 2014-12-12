@@ -23,5 +23,6 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
+#include <vector>
 
 using namespace std;

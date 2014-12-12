@@ -90,13 +90,13 @@ void MySpokesIntegration::Spokes_SerialNumber(EventArgs * e)
 	delete e;
 }
 
-void MySpokesIntegration::Spokes_CallAnswered(EventArgs * e)
+void MySpokesIntegration::Spokes_CallAnswered(CallAnsweredArgs * e)
 {
 	DebugPrint(__FUNCTION__, ">>> Call Answered.");
 	delete e;
 }
 
-void MySpokesIntegration::Spokes_CallEnded(EventArgs * e)
+void MySpokesIntegration::Spokes_CallEnded(CallEndedArgs * e)
 {
 	DebugPrint(__FUNCTION__, ">>> Call Ended.");
 	delete e;
@@ -108,7 +108,7 @@ void MySpokesIntegration::Spokes_CallSwitched(EventArgs * e)
 	delete e;
 }
 
-void MySpokesIntegration::Spokes_OnCall(EventArgs * e)
+void MySpokesIntegration::Spokes_OnCall(OnCallArgs * e)
 {
 	DebugPrint(__FUNCTION__, ">>> On Call.");
 	delete e;
@@ -120,9 +120,15 @@ void MySpokesIntegration::Spokes_NotOnCall(EventArgs * e)
 	delete e;
 }
 
-void MySpokesIntegration::Spokes_MuteChanged(EventArgs * e)
+void MySpokesIntegration::Spokes_MuteChanged(MuteChangedArgs * e)
 {
 	DebugPrint(__FUNCTION__, ">>> Mute Changed.");
+	delete e;
+}
+
+void MySpokesIntegration::Spokes_LineActiveChanged(LineActiveChangedArgs * e)
+{
+	DebugPrint(__FUNCTION__, ">>> Line Active Changed.");
 	delete e;
 }
 
@@ -152,18 +158,25 @@ void MySpokesIntegration::Spokes_MultiLineStateChanged(EventArgs * e)
 	delete e;
 }
 
-void MySpokesIntegration::Spokes_SystemSuspending(EventArgs * e)
-{
-	DebugPrint(__FUNCTION__, ">>> System Suspending!");
-	delete e;
+// These are commented out - not available from the Plantronics SDK
+//void MySpokesIntegration::Spokes_SystemSuspending(EventArgs * e)
+//{
+//	DebugPrint(__FUNCTION__, ">>> System Suspending!");
+//	delete e;
+//
+//	DebugPrint(__FUNCTION__, ">>> END the call quick (if one in progress)");
+////	Spokes::GetInstance()->EndCall(mycallid);  // TODO resolved unresolved external!
+//}
+//
+//void MySpokesIntegration::Spokes_SystemResuming(EventArgs * e)
+//{
+//	DebugPrint(__FUNCTION__, ">>> System Resuming!");
+//	delete e;
+//}
 
-	DebugPrint(__FUNCTION__, ">>> END the call quick (if one in progress)");
-//	Spokes::GetInstance()->EndCall(mycallid);  // TODO resolved unresolved external!
-}
-
-void MySpokesIntegration::Spokes_SystemResuming(EventArgs * e)
+void MySpokesIntegration::Spokes_BatteryLevelChanged(EventArgs * e)
 {
-	DebugPrint(__FUNCTION__, ">>> System Resuming!");
+	DebugPrint(__FUNCTION__, ">>> Battery Level changed.");
 	delete e;
 }
 

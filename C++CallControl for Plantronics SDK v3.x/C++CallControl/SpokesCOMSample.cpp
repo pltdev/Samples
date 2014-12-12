@@ -5,10 +5,6 @@
 
 #include "MySpokesIntegration.h"
 
-// We need this as project is created as Win console app, and we are instantiating ATL COM objects that are used as Event sink's
-CComModule _Module;
-extern __declspec(selectany) CAtlModule* _pAtlModule=&_Module;
-
 
 bool quit = false;
 int mycallid = 0;
