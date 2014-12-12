@@ -47,6 +47,45 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.29:
+ * Date: 12th Dec 2014
+ * Compatible with Spokes SDK version(s): 3.3.50873.10888 (pre-release)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Initial version of C++ wrapper for Plantronics SDK v3.x, matches 2.x C++ Wrapper version 1.0.8
+ *       Also has near feature parity with C# Wrapper 1.5.29, so adopting same version number
+ *     - NOTE: define Preprocessor Definition: newDASeries if you want to use the new DA Series 
+ *       Quickdisconnect QD events (Connected/Disconnected)
+ *
+ * Version 1.0.8:
+ * Date: 29th Oct 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added new IsSpokesInstalled convenience function. You can optionally call this before
+ *       calling the Spokes Wrapper Connect function to check if Spokes is installed.
+ *
+ * Version 1.0.7:
+ * Date: 17th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added knowledge of the Plantronics device capabilities through
+ *       deployment of supplementary file: "DeviceCapabilities.csv"
+ *       This file should be placed in the working directory of the calling
+ *       application.
+ *
+ * Version 1.0.6:
+ * Date: 12th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes: (thanks Olivier for the feedback)
+ *     - Added special case to identify devices C220 and C210 to correct the device capabilities
+ *       (see UpdateOtherDeviceCapabilities function).
+ *     - Added HoldCall and ResumeCall functions so softphone can tell Spokes when these actions
+ *       have occured in the softphone
+ *     - Added placeholder code for system suspend/resume events (not currently exposed through Spokes COM)
+ *
  * Version 1.0.5:
  * Date: 25th June 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
@@ -102,11 +141,13 @@ class SpokesDeviceCaps
 {
 public:
     bool m_bHasProximity;
-    bool m_bHasCallerId;
+    bool m_bHasMobCallerId;
+	bool m_bHasMobCallState;
     bool m_bHasDocking;
     bool m_bHasWearingSensor;
     bool m_bHasMultiline;
     bool m_bIsWireless;
+	string m_strProductId;
 
 	// default constructor
 	SpokesDeviceCaps() { };
@@ -122,7 +163,7 @@ public:
     void Init(bool hasProximity, bool hasCallerId, bool hasDocking, bool hasWearingSensor, bool hasMultiline, bool isWireless)
     {
         m_bHasProximity = hasProximity;
-        m_bHasCallerId = hasCallerId;
+        m_bHasMobCallerId = hasCallerId;
         m_bHasDocking = hasDocking;
         m_bHasWearingSensor = hasWearingSensor;
         m_bHasMultiline = hasMultiline;
@@ -309,7 +350,8 @@ enum SpokesCallState
 {
     SpokesCallState_Ringing,
     SpokesCallState_OnCall,
-    SpokesCallState_Idle
+    SpokesCallState_Idle,
+	SpokesCallState_Held
 };
 
 /// <summary>
@@ -674,7 +716,7 @@ private:
 public:
 	void NotifyEvent(SpokesEventType e_type, EventArgs * e);
 
-	bool Connect(const char * appName = "COM Session");
+	bool Connect(const char * appName = "COM Session", bool forceconnect = false);
 
 	void Disconnect();
 
@@ -815,6 +857,16 @@ public:
     SpokesMultiLineStateFlags m_ActiveHeldFlags;
 
 	string m_strDeviceName;
+
+	bool IsSpokesComSessionManagerClassRegistered(int spokesMajorVersion);
+
+	bool IsSpokesInstalled(int spokesMajorVersion = 3);
+
+	vector<SpokesDeviceCaps> m_AllDeviceCapabilities;
+
+	void PreLoadAllDeviceCapabilities();
+
+	SpokesDeviceCaps GetMyDeviceCapabilities();
 
     void DebugPrint(string methodname, string message);
 

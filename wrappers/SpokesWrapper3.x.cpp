@@ -36,6 +36,45 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.29:
+ * Date: 12th Dec 2014
+ * Compatible with Spokes SDK version(s): 3.3.50873.10888 (pre-release)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Initial version of C++ wrapper for Plantronics SDK v3.x, matches 2.x C++ Wrapper version 1.0.8
+ *       Also has near feature parity with C# Wrapper 1.5.29, so adopting same version number
+ *     - NOTE: define Preprocessor Definition: newDASeries if you want to use the new DA Series 
+ *       Quickdisconnect QD events (Connected/Disconnected)
+ *
+ * Version 1.0.8:
+ * Date: 29th Oct 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added new IsSpokesInstalled convenience function. You can optionally call this before
+ *       calling the Spokes Wrapper Connect function to check if Spokes is installed.
+ *
+ * Version 1.0.7:
+ * Date: 17th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added knowledge of the Plantronics device capabilities through
+ *       deployment of supplementary file: "DeviceCapabilities.csv"
+ *       This file should be placed in the working directory of the calling
+ *       application.
+ *
+ * Version 1.0.6:
+ * Date: 12th Sept 2013
+ * Compatible with Spokes SDK version(s): 2.8.24304.0
+ * Changed by: Lewis Collins
+ *   Changes: (thanks Olivier for the feedback)
+ *     - Added special case to identify devices C220 and C210 to correct the device capabilities
+ *       (see UpdateOtherDeviceCapabilities function).
+ *     - Added HoldCall and ResumeCall functions so softphone can tell Spokes when these actions
+ *       have occured in the softphone
+ *     - Added placeholder code for system suspend/resume events (not currently exposed through Spokes COM)
+ *
  * Version 1.0.5:
  * Date: 25th June 2013
  * Compatible with Spokes SDK version(s): 2.8.24304.0
@@ -75,7 +114,11 @@ using namespace std;
  * 
  **/
 
-
+// NOTE: We need this construct here to use COM in console
+// and MFC applications, other it will error creating COM
+// object instances.
+CComModule _Module;
+extern __declspec(selectany) CAtlModule* _pAtlModule=&_Module;
 
 // *
 // ********************************************************************************
@@ -1587,6 +1630,16 @@ STDMETHODIMP SessionEventSink::onCallStateChanged( struct ICOMCallEventArgs *cal
 			Spokes::GetInstance()->NotifyEvent(Spokes_CallAnswered, caa);
             break;
         case CallState_HoldCall:
+            // Getting here indicates user is ON A CALL!
+            Spokes::GetInstance()->DebugPrint(__FUNCTION__, "Spokes: Calling activity detected!");
+			if(SUCCEEDED( callEventArgs->get_CallSource(&callsourcebstr) ) )
+			{
+				if (SysStringLen(callsourcebstr)>0)
+					callsource = ConvertBSTRToMBS(callsourcebstr);
+			}
+			oca = new OnCallArgs(callsource, Spokes::GetInstance()->m_bVoipIncoming, SpokesCallState_Held);
+			Spokes::GetInstance()->NotifyEvent(Spokes_OnCall, oca);
+            break;
         case CallState_Resumecall:
         case CallState_TransferToHeadSet:
         case CallState_TransferToSpeaker:
@@ -2458,6 +2511,136 @@ Spokes::Spokes(void)
     m_bMobileIncoming = false; // mobile call direction flag
     m_bVoipIncoming = false; // mobile call direction flag
 	m_strDeviceName = "";
+
+	PreLoadAllDeviceCapabilities();
+}
+
+SpokesDeviceCaps Spokes::GetMyDeviceCapabilities()
+{
+	SpokesDeviceCaps retval;
+	retval.m_strProductId="";
+	char prodidstr[10];
+
+	if (g_pActiveDevice!=NULL && m_AllDeviceCapabilities.size()>0)
+	{
+		unsigned short productId;
+		g_pActiveDevice->get_ProductId(&productId);
+		sprintf_s(prodidstr, "%x", productId);
+		string prodidstring = prodidstr;
+		std::transform(prodidstring.begin(), prodidstring.end(),prodidstring.begin(), ::toupper);
+
+		for (int i = 0;i<m_AllDeviceCapabilities.size();i++)
+		{
+			if (m_AllDeviceCapabilities[i].m_strProductId.compare(prodidstring)==0)
+			{
+				// we got a match of our product!
+				DebugPrint(__FUNCTION__, "INFO: Got a match of our Plantronics device in DeviceCapabilities.csv:");
+				DebugPrint(__FUNCTION__, prodidstr);
+				retval.m_strProductId = prodidstr;
+				retval.m_bHasProximity = m_AllDeviceCapabilities[i].m_bHasProximity;
+				retval.m_bHasMobCallerId = m_AllDeviceCapabilities[i].m_bHasMobCallerId;
+				retval.m_bHasMobCallState = m_AllDeviceCapabilities[i].m_bHasMobCallState;
+				retval.m_bHasDocking = m_AllDeviceCapabilities[i].m_bHasDocking;
+				retval.m_bHasWearingSensor = m_AllDeviceCapabilities[i].m_bHasWearingSensor;
+				retval.m_bHasMultiline = m_AllDeviceCapabilities[i].m_bHasMultiline;
+				retval.m_bIsWireless = m_AllDeviceCapabilities[i].m_bIsWireless;
+			}
+		}
+	}
+	return retval;
+}
+
+void Spokes::PreLoadAllDeviceCapabilities()
+{
+	ifstream in_stream;
+
+	string line;
+
+	SpokesDeviceCaps devicecaps;
+
+	try 
+	{
+		in_stream.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
+
+		in_stream.open("DeviceCapabilities.csv");
+
+		while(!in_stream.eof())
+		{
+			try
+			{
+				std::getline(in_stream, line);
+
+				if (line.length()>0)
+				{
+					if (line.substr(0,1).compare("#")!=0 && line.substr(0,1).compare(",")!=0)
+					{
+
+						// not a comment line or empty line (with only commas)
+						
+						char *next_token;
+						char *p = strtok_s((char*)line.c_str(), ",", &next_token);
+						int i = 0;
+						string token;
+						while (p) {
+							//printf ("Token: %s\n", p);
+							token = p;
+							switch(i)
+							{
+							case 0:
+								devicecaps.m_strProductId = p;
+								std::transform(devicecaps.m_strProductId.begin(), devicecaps.m_strProductId.end(),devicecaps.m_strProductId.begin(), ::toupper);
+								break;
+							case 1:
+								// no action - this is the device name we don't need
+								break;
+							case 2:
+								devicecaps.m_bHasProximity = token.compare("Yes")==0 ? true : false;
+								break;
+							case 3:
+								devicecaps.m_bHasMobCallerId = token.compare("Yes")==0 ? true : false;
+								break;
+							case 4:
+								devicecaps.m_bHasMobCallState = token.compare("Yes")==0 ? true : false;
+								break;
+							case 5:
+								devicecaps.m_bHasDocking = token.compare("Yes")==0 ? true : false;
+								break;
+							case 6:
+								devicecaps.m_bHasWearingSensor = token.compare("Yes")==0 ? true : false;
+								break;
+							case 7:
+								devicecaps.m_bHasMultiline = token.compare("Yes")==0 ? true : false;
+								break;
+							case 8:
+								devicecaps.m_bIsWireless = token.compare("Yes")==0 ? true : false;
+
+								// now, add the devicecaps to our list:
+								m_AllDeviceCapabilities.push_back(devicecaps);
+
+								break;
+							}
+
+							p = strtok_s(NULL, ",", &next_token);
+							i++;
+						}
+						
+						//DebugPrint(__FUNCTION__, "got some tokens");
+
+
+					}
+				}
+				//devicecaps
+			}
+			catch(std::ifstream::failure e) {
+				// it's ok, probably just reached end of file, see: http://stackoverflow.com/questions/11807804/stdgetline-throwing-when-it-hits-eof
+			}
+		}
+		in_stream.close();
+	}
+	catch(std::ifstream::failure e) {
+		//std::cerr << "Exception opening/reading/closing file\n";
+		DebugPrint(__FUNCTION__, "Exception reading DeviceCapabilities.csv. Does this file exist in current working directory?");
+	}
 }
 
 Spokes * Spokes::GetInstance()
@@ -2497,8 +2680,14 @@ void Spokes::SetEventHandler(ISpokesEvents * eventsHandler)
     m_pSpokesEventsHandler = eventsHandler;
 }
 
-bool Spokes::Connect(const char * appName)
+bool Spokes::Connect(const char * appName, bool forceconnect)
 {
+	if (!IsSpokesInstalled() && forceconnect==false)
+    {
+		DebugPrint(__FUNCTION__, "FATAL ERROR: cannot connect if Spokes COMSessionManager/SessionCOMManager class is not registered! Spokes not installed (or wrong major version installed for this Spokes Wrapper)!");
+        return false; // cannot connect if Spokes COM SessionManager class is not registered! Spokes not installed!
+    }
+
 	if (m_bIsConnected) return true;
 
     m_SpokesDeviceCapabilities.Init(false, false, false, false, false, false); // we don't yet know what the capabilities are
@@ -2626,34 +2815,72 @@ void Spokes::Disconnect()
 // hard coded other device caps, beside caller id
 void Spokes::UpdateOtherDeviceCapabilities()
 {
-	// LC temporarily hard-code some device capabilities
-    // e.g. fact that Blackwire C710/C720 do not support proximity, docking and is not wireless
-	string devname = m_strDeviceName;
-	std::transform(devname.begin(), devname.end(),devname.begin(), ::toupper);
-	if (devname.find("BLACKWIRE")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bIsWireless = false;
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
-    }
-    if (devname.find("C710")>-1 || devname.find("C720")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bHasProximity = false;
-        m_SpokesDeviceCapabilities.m_bHasCallerId = false;
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = true;
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-        m_SpokesDeviceCapabilities.m_bIsWireless = false;
-    }
-    // LC new - if using vpro or vlegend then disable docking feature...
-    if (devname.find("BT300")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bHasDocking = false;
-    }
-    if (devname.find("SAVI 7")>-1)
-    {
-        m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
-        m_SpokesDeviceCapabilities.m_bHasMultiline = true;
-    }
+	// NEW if DeviceCapabilities.csv file exists in your app's current working directory with a list of device
+	// features in the following format (one device per line):
+	// ProductId,DeviceName,HasProximity,HasMobCallerId,HasMobCallState,HasDocking,HasWearingSensor,HasMultiline,IsWireless
+	// Then use those capabilities for current active device
+	//
+
+	// Is the m_AllDeviceCapabilities vector populated? And is my device id in there?
+	SpokesDeviceCaps myDeviceCapabilities = GetMyDeviceCapabilities();
+
+	if (myDeviceCapabilities.m_strProductId.length()>0)
+	{
+		// we have found device in the DeviceCapabilities.csv file
+		m_SpokesDeviceCapabilities.m_bHasProximity = myDeviceCapabilities.m_bHasProximity;
+		m_SpokesDeviceCapabilities.m_bHasMobCallerId = myDeviceCapabilities.m_bHasMobCallerId;
+		m_SpokesDeviceCapabilities.m_bHasMobCallState = myDeviceCapabilities.m_bHasMobCallState;
+		m_SpokesDeviceCapabilities.m_bHasDocking = myDeviceCapabilities.m_bHasDocking;
+		m_SpokesDeviceCapabilities.m_bHasWearingSensor = myDeviceCapabilities.m_bHasWearingSensor;
+		m_SpokesDeviceCapabilities.m_bHasMultiline = myDeviceCapabilities.m_bHasMultiline;
+		m_SpokesDeviceCapabilities.m_bIsWireless = myDeviceCapabilities.m_bIsWireless;
+	}
+	else
+	{
+		// OK, the Spokes Wrapper user maybe doesn't have the DeviceCapabilities.csv file
+		// deployed in app's working directory. Falling back to old hard-coded capabilities
+		// (which don't cover the whole product range
+		DebugPrint(__FUNCTION__, "INFO: Did not find product in DeviceCapabilities.csv or DeviceCapabilities.csv not present for device:");
+		DebugPrint(__FUNCTION__, m_strDeviceName);
+		DebugPrint(__FUNCTION__, "INFO: Will assume minimum capabilities, unless overridden by hard-coded capabilities in UpdateOtherDeviceCapabilities function.");
+
+		// LC temporarily hard-code some device capabilities
+		// e.g. fact that Blackwire C710/C720 do not support proximity, docking and is not wireless
+		string devname = m_strDeviceName;
+		std::transform(devname.begin(), devname.end(),devname.begin(), ::toupper);
+		if (devname.find("BLACKWIRE")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bIsWireless = false;
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+		}
+		if (devname.find("C210")>-1 || devname.find("C220")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bIsWireless = false;
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+		}
+		if (devname.find("C710")>-1 || devname.find("C720")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bHasProximity = false;
+			m_SpokesDeviceCapabilities.m_bHasMobCallerId = true;
+			m_SpokesDeviceCapabilities.m_bHasMobCallState = true;
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = true;
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+			m_SpokesDeviceCapabilities.m_bIsWireless = false;
+		}
+		// LC new - if using vpro or vlegend then disable docking feature...
+		if (devname.find("BT300")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bHasDocking = false;
+		}
+		if (devname.find("SAVI 7")>-1)
+		{
+			m_SpokesDeviceCapabilities.m_bHasWearingSensor = false;
+			m_SpokesDeviceCapabilities.m_bHasMultiline = true;
+		}
+	}
+
 	NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 }
 
@@ -3085,26 +3312,49 @@ bool Spokes::GetActiveAndHeldStates()
 bool Spokes::GetHoldStates()
 {
 	bool success = false;
-	success = m_ActiveHeldFlags.m_bDeskphoneHeld = GetHoldState(LineType_PSTN);
+
+	// QUICK TEST does the device support multi-line?
+	if (g_pHostCommandExt != NULL)
+	{
+		VARIANT_BOOL bState = FALSE;
+		HRESULT hr = g_pHostCommandExt->GetLinkHoldState(LineType_PSTN, &bState);
+		success = SUCCEEDED(hr);
+	}
+
 	if (success)
 	{
+		m_ActiveHeldFlags.m_bDeskphoneHeld = GetHoldState(LineType_PSTN);
 		m_ActiveHeldFlags.m_bMobileHeld = GetHoldState(LineType_Mobile);
 		m_ActiveHeldFlags.m_bPCHeld = GetHoldState(LineType_VOIP);
-		string outstr;
+		string outstr; 
 		ostringstream tmpstrm;
 		tmpstrm << "Current Interface Hold States: PSTN: " << m_ActiveHeldFlags.m_bDeskphoneHeld << " Mobile: " << m_ActiveHeldFlags.m_bMobileHeld << " VOIP: " << m_ActiveHeldFlags.m_bPCHeld;
 		outstr = tmpstrm.str();
 		DebugPrint(__FUNCTION__, outstr);
 	}
+	else
+	{
+		DebugPrint(__FUNCTION__, "not a multi-line device");
+	}
+
 	return success;
 }
 
 bool Spokes::GetActiveStates()
 {
 	bool success = false;
-	success = m_ActiveHeldFlags.m_bDeskphoneActive = GetActiveState(LineType_PSTN);
+
+	// QUICK TEST does the device support multi-line?
+	if (g_pHostCommandExt != NULL)
+	{
+		VARIANT_BOOL bState = FALSE;
+		HRESULT hr = g_pHostCommandExt->IsLineActive(LineType_PSTN, &bState);
+		success = SUCCEEDED(hr);
+	}
+
 	if (success)
 	{
+		m_ActiveHeldFlags.m_bDeskphoneActive = GetActiveState(LineType_PSTN);
 		m_ActiveHeldFlags.m_bMobileActive = GetActiveState(LineType_Mobile);
 		m_ActiveHeldFlags.m_bPCActive = GetActiveState(LineType_VOIP);
 		string outstr;
@@ -3113,6 +3363,11 @@ bool Spokes::GetActiveStates()
 		outstr = tmpstrm.str();
 		DebugPrint(__FUNCTION__, outstr);
 	}
+	else
+	{
+		DebugPrint(__FUNCTION__, "not a multi-line device");
+	}
+
 	return success;
 }
 
@@ -3200,20 +3455,20 @@ void Spokes::GetInitialMobileCallStatus()
 				tmpHasCallerId = false; // Blackwire 700 range does not support caller id feature
 			}
 
-			m_SpokesDeviceCapabilities.m_bHasCallerId = tmpHasCallerId; // set whether device supports caller id feature
+			m_SpokesDeviceCapabilities.m_bHasMobCallerId = tmpHasCallerId; // set whether device supports caller id feature
 			NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 		}
 		else
 		{
 			DebugPrint(__FUNCTION__, "Spokes: INFO: Problem occured getting mobile call status");
-			m_SpokesDeviceCapabilities.m_bHasCallerId = false;
+			m_SpokesDeviceCapabilities.m_bHasMobCallerId = false;
 			NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 		}
 	}
 	else
 	{
 		DebugPrint(__FUNCTION__, "Spokes: Error, unable to get mobile status. atd command is null.");
-		m_SpokesDeviceCapabilities.m_bHasCallerId = false; // device does not support caller id feature
+		m_SpokesDeviceCapabilities.m_bHasMobCallerId = false; // device does not support caller id feature
 		NotifyEvent(Spokes_CapabilitiesChanged, EventArgs::Empty());
 	}
 }
@@ -3443,4 +3698,111 @@ void Spokes::DebugPrint(string methodname, string message)
 {
 	if (m_pDebugLog!=NULL)
 		m_pDebugLog->DebugPrint(methodname, message);
+}
+
+LONG GetStringRegKey(HKEY hKey, const std::wstring &strValueName, std::wstring &strValue, const std::wstring &strDefaultValue)
+{
+	strValue = strDefaultValue;
+	WCHAR szBuffer[512];
+	DWORD dwBufferSize = sizeof(szBuffer);
+	ULONG nError;
+	nError = RegQueryValueExW(hKey, strValueName.c_str(), 0, NULL, (LPBYTE) szBuffer, &dwBufferSize);
+	if (ERROR_SUCCESS == nError)
+	{
+		strValue = szBuffer;
+	}
+	return nError;
+}
+
+bool Spokes::IsSpokesComSessionManagerClassRegistered(int spokesMajorVersion)
+{
+	bool foundCOMSessionManagerKey = false;
+
+	//DebugPrint(MethodInfo.GetCurrentMethod().Name, "About to look see if Spokes SessionManager is in registry");
+	try
+	{
+		// reg keys of interest...
+		string Spokes2xKeyName = "Plantronics.UC.Common.SessionComManager\\CLSID";
+		string Spokes3xKeyName = "Plantronics.COMSessionManager\\CLSID";
+		wstring Spokes2xSubKeyName = L"{F9E7AE8D-31E2-4968-BA53-3CC5E5A3100A}";
+		wstring Spokes3xSubKeyName = L"{750B4A16-1338-4DB0-85BB-C6C89E4CB9AC}";
+
+		// open them all...
+		HKEY Spokes2xKey;
+		HKEY Spokes3xKey;
+		LONG lRes2x = RegOpenKeyExW(HKEY_CLASSES_ROOT, L"Plantronics.UC.Common.SessionComManager\\CLSID", 0, KEY_READ, &Spokes2xKey);
+		bool b2xExistsAndSuccess(lRes2x == ERROR_SUCCESS);
+		bool b2xDoesNotExistsSpecifically(lRes2x == ERROR_FILE_NOT_FOUND);
+		LONG lRes3x = RegOpenKeyExW(HKEY_CLASSES_ROOT, L"Plantronics.COMSessionManager\\CLSID", 0, KEY_READ, &Spokes3xKey);
+		bool b3xExistsAndSuccess(lRes3x == ERROR_SUCCESS);
+		bool b3xDoesNotExistsSpecifically(lRes3x == ERROR_FILE_NOT_FOUND);
+
+		std::wstring str2xKeyDefaultValue;
+		GetStringRegKey(Spokes2xKey, L"", str2xKeyDefaultValue, L"bad2x");
+		std::wstring str3xKeyDefaultValue;
+		GetStringRegKey(Spokes3xKey, L"", str3xKeyDefaultValue, L"bad3x");
+
+		// check if default value == Spokes2xSubKeyName / Spokes3xSubKeyName
+
+		string outstr;
+		ostringstream tmpstrm;
+		tmpstrm << "About to check if Spokes is installed, Major Version = " << spokesMajorVersion << ".x";
+		outstr = tmpstrm.str();
+		DebugPrint(__FUNCTION__, outstr);
+
+		switch (spokesMajorVersion)
+		{
+		case 2:
+			// is Spokes 2x installed?
+			if (b2xExistsAndSuccess)
+			{
+				// did we find Spokes 2x SessionCOMManager key?
+				if (str2xKeyDefaultValue.compare(Spokes2xSubKeyName)==0)
+					foundCOMSessionManagerKey = true;
+				RegCloseKey(Spokes2xKey);
+			}
+			break;
+		case 3:
+			// is Spokes 3x installed?
+			if (b3xExistsAndSuccess)
+			{
+				// did we find Spokes 3x SessionCOMManager key?
+				if (str3xKeyDefaultValue.compare(Spokes3xSubKeyName) == 0)
+					foundCOMSessionManagerKey = true;
+				RegCloseKey(Spokes3xKey);
+			}
+			break;
+		default:
+			string outstr;
+			ostringstream tmpstrm;
+			tmpstrm << "Attempt to check for unknown Spokes Major Version: " << spokesMajorVersion;
+			outstr = tmpstrm.str();
+			DebugPrint(__FUNCTION__, outstr);
+			break;
+		}
+	}
+	catch (exception& e)
+	{
+		string outstr;
+		ostringstream tmpstrm;
+		tmpstrm << "An exception was caught while looking to see if Spokes SessionManager is in registry.\r\nException = " << e.what();
+		outstr = tmpstrm.str();
+		DebugPrint(__FUNCTION__, outstr);
+	}
+
+	return foundCOMSessionManagerKey;
+}
+
+/// <summary>
+/// This method returns a boolean to indicate if the Spokes software runtime is currently installed on the system.
+/// If the return value is false then any subsequent attempt to call Spokes.Instance.Connect("My App") will fail
+/// because it means that Spokes is not installed so there is no out of proc COM Service for your app to connect to.
+/// Note: Is also called by default at start of Connect method, so it is not necessary to call this directly from
+/// your app, but you have the option.
+/// Note: current version of this function is designed for Spokes 2.x and 3.x. For future major releases would need updating
+/// in IsSpokesComSessionManagerClassRegistered private function below.
+/// </summary>
+bool Spokes::IsSpokesInstalled(int spokesMajorVersion)     // TODO: always insert the CORRECT major version for this Spokes Wrapper version here!
+{
+	return IsSpokesComSessionManagerClassRegistered(spokesMajorVersion);
 }
