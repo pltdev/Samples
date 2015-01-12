@@ -4,14 +4,9 @@ Spokes Wrapper
 Spokes Wrapper is a source code sample that presents simplified API for
 use with Plantronics Spokes Software.
 
-The C# version is fairly feature complete.
-There are Spokes 2.8 and Spokes 3.x versions available.
-
-The C++ version is not as complete and currently only Spokes 2.8
-But offers call control and mute sync functionality. Some advance
-Contextual Intelligence features are not tested yet and may not be
-fully implemented.
-(A Spokes 3.x version of C++ Spokes Wrapper is in the works)
+The C# and C++ versions are now pretty much feature complete.
+There are Plantronics SDK 3.x and older Spokes SDK 2.8 versions available 
+(the interface between both versions is the same)
 
 ** Please see the comment blocks of the source files. **
 
