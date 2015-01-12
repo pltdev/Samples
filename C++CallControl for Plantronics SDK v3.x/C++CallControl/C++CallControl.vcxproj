@@ -61,8 +61,8 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>newDASeries;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\bin\$(Configuration);C:\Program Files (x86)\Plantronics\Plantronics SDK;C:\Program Files\Plantronics\Plantronics SDK;C:\Program Files (x86)\Plantronics\PlantronicsURE;C:\Program Files\Plantronics\PlantronicsURE;C:\Program Files (x86)\Plantronics\Spokes3G SDK;C:\Program Files\Plantronics\Spokes3G SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_newDASeries;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Plantronics\Spokes3G SDK;C:\Program Files\Plantronics\Spokes3G SDK;..\..\wrappers;.\;$(SolutionDir)..\..\bin\$(Configuration);C:\Program Files (x86)\Plantronics\Plantronics SDK;C:\Program Files\Plantronics\Plantronics SDK;C:\Program Files (x86)\Plantronics\PlantronicsURE;C:\Program Files\Plantronics\PlantronicsURE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

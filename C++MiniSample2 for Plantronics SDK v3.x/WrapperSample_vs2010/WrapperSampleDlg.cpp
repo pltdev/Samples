@@ -53,7 +53,7 @@ BEGIN_MESSAGE_MAP(CWrapperSampleAppDlg, CDialog)
 END_MESSAGE_MAP()
 
 // Initialise static constants:
-string CWrapperSampleAppDlg::APP_NAME = "SpokesWrapperMiniSample";
+std::string CWrapperSampleAppDlg::APP_NAME = "SpokesWrapperMiniSample";
 
 // CWrapperSampleAppDlg message handlers
 

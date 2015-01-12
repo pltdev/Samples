@@ -10,8 +10,8 @@
 #define WM_LOG_MESSAGE    WM_APP + 0x10
 struct log_message
 {
-	string methodname;
-	string message;
+	std::string methodname;
+	std::string message;
 };
 
 // CWrapperSampleAppDlg dialog
@@ -30,11 +30,11 @@ public:
 	// The Spokes object singleton
     Spokes * m_spokes;
 
-	static string APP_NAME; // my application name string to pass to Spokes
-	string m_device; // Plantronics Product Name
+	static std::string APP_NAME; // my application name string to pass to Spokes
+	std::string m_device; // Plantronics Product Name
 
 	// Spokes IDebugLogger implementation
-    virtual void DebugPrint(string methodname, string str)
+    virtual void DebugPrint(std::string methodname, std::string str)
     {
 		// need to post message to main window thread so it can update the GUI...
 		// pass a pointer to the message structure. Note
