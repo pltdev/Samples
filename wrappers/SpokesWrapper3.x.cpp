@@ -43,6 +43,14 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.30:
+ * Date: 12th Jan 2014
+ * Compatible with Spokes SDK version(s): 3.2.50830.8480, 3.3.50873.10888 (pre-release)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Removed using namespace std; from the SpokesWrapper header (.h) file
+ *       because that is not recommended.
+ *
  * Version 1.5.29:
  * Date: 12th Dec 2014
  * Compatible with Spokes SDK version(s): 3.3.50873.10888 (pre-release)
@@ -2223,8 +2231,8 @@ void PrintDevice()
 	if( g_pActiveDevice == NULL) return;
 
 	// get basic information about device
-	BSTR internalName, manufacturerName, productName;
-	BSTR usbVersion, baseVersion, remoteFirmware;
+	BSTR internalName = nullptr, manufacturerName = nullptr, productName = nullptr;
+	BSTR usbVersion = nullptr, baseVersion = nullptr, remoteFirmware = nullptr;
 	unsigned short vendorId, productId, versionNum;
 	g_pActiveDevice->get_InternalName(&internalName);
 	g_pActiveDevice->get_ManufacturerName(&manufacturerName);
@@ -2241,15 +2249,15 @@ void PrintDevice()
 
 		// print this data on console
 		wcout << L"********************* Device Information ******************** " << endl;
-		wcout << L"Internal Name:       " << internalName << endl;
-		wcout << L"Manufacturer Name:   " << manufacturerName << endl;
-		wcout << L"Product Name:        " << productName << endl;
+		if (internalName!=nullptr) wcout << L"Internal Name:       " << internalName << endl;
+		if (manufacturerName!=nullptr) wcout << L"Manufacturer Name:   " << manufacturerName << endl;
+		if (productName!=nullptr) wcout << L"Product Name:        " << productName << endl;
 		wcout << L"Vendor ID:           " << vendorId << endl;
 		wcout << L"Product ID:          " << productId << endl;
 		wcout << L"Version Num:         " << versionNum << endl;
-		wcout << L"USB firmware:        " << usbVersion << endl;
-		wcout << L"Base firmware:       " << baseVersion << endl;
-		wcout << L"Remote firmware:     " << remoteFirmware << endl;
+		if (usbVersion!=nullptr) wcout << L"USB firmware:        " << usbVersion << endl;
+		if (baseVersion!=nullptr) wcout << L"Base firmware:       " << baseVersion << endl;
+		if (remoteFirmware!=nullptr) wcout << L"Remote firmware:     " << remoteFirmware << endl;
 		wcout << L"************************************************************* " << endl;
 
 		::SysFreeString(usbVersion);

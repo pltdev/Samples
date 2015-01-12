@@ -17,8 +17,6 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
-
 /*******
  * 
  * SpokesWrapper.cpp/.h
@@ -54,6 +52,14 @@ using namespace std;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.30:
+ * Date: 12th Jan 2014
+ * Compatible with Spokes SDK version(s): 3.2.50830.8480, 3.3.50873.10888 (pre-release)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Removed using namespace std; from the SpokesWrapper header (.h) file
+ *       because that is not recommended.
+ *
  * Version 1.5.29:
  * Date: 12th Dec 2014
  * Compatible with Spokes SDK version(s): 3.3.50873.10888 (pre-release)
@@ -138,7 +144,7 @@ using namespace std;
 class IDebugLogger
 {
 public:
-    virtual void DebugPrint(string methodname, string str) = 0;
+    virtual void DebugPrint(std::string methodname, std::string str) = 0;
 };
 
 /// <summary>
@@ -154,7 +160,7 @@ public:
     bool m_bHasWearingSensor;
     bool m_bHasMultiline;
     bool m_bIsWireless;
-	string m_strProductId;
+	std::string m_strProductId;
 
 	// default constructor
 	SpokesDeviceCaps() { };
@@ -180,7 +186,7 @@ public:
     /// <summary>
     /// Returns a nice string representation of device capabilites, e.g. for use in logs
     /// </summary>
-    string ToString();
+    std::string ToString();
 };
 
 /// <summary>
@@ -282,7 +288,7 @@ class CallRequestedArgs : public EventArgs
 {
 public:
 	ICOMContact * m_contact;
-	string m_contactName;
+	std::string m_contactName;
 
     CallRequestedArgs()
     {
@@ -290,12 +296,12 @@ public:
 		m_contactName = "";
     }
 
-	CallRequestedArgs(ICOMContact * contact, string contactName)
+	CallRequestedArgs(ICOMContact * contact, std::string contactName)
     {
         Init(contact, contactName);
     }
 
-	void Init(ICOMContact * contact, string contactName)
+	void Init(ICOMContact * contact, std::string contactName)
     {
         m_contact = contact;
 		m_contactName = contactName;
@@ -332,19 +338,19 @@ public:
 class AttachedArgs : public EventArgs
 {
 public:
-    string m_strDeviceName;
+    std::string m_strDeviceName;
 
 	AttachedArgs()
 	{
 		m_strDeviceName = "";
 	}
 
-    AttachedArgs(string aDevice)
+    AttachedArgs(std::string aDevice)
     {
 		Init(aDevice);
     }
 
-	void Init(string aDevice)
+	void Init(std::string aDevice)
 	{
         m_strDeviceName = aDevice;
 	}
@@ -367,7 +373,7 @@ enum SpokesCallState
 class OnCallArgs : public EventArgs
 {
 public:
-    string m_strCallSource;
+    std::string m_strCallSource;
     bool m_bIncoming;
     SpokesCallState m_State;
 
@@ -378,12 +384,12 @@ public:
 		m_State = SpokesCallState_Idle;
 	}
 
-    OnCallArgs(string source, bool isIncoming, SpokesCallState state)
+    OnCallArgs(std::string source, bool isIncoming, SpokesCallState state)
     {
 		Init(source, isIncoming, state);
     }
 
-	void Init(string source, bool isIncoming, SpokesCallState state)
+	void Init(std::string source, bool isIncoming, SpokesCallState state)
     {
         m_strCallSource = source;
         m_bIncoming = isIncoming;
@@ -434,19 +440,19 @@ public:
 class MobileCallerIdArgs : public EventArgs
 {
 public:
-    string m_strMobileCallerId;
+    std::string m_strMobileCallerId;
 
 	MobileCallerIdArgs()
 	{
 		m_strMobileCallerId = "";
 	}
 
-    MobileCallerIdArgs(string mobilecallerid)
+    MobileCallerIdArgs(std::string mobilecallerid)
     {
 		Init(mobilecallerid);
     }
 
-	void Init(string mobilecallerid)
+	void Init(std::string mobilecallerid)
 	{
         m_strMobileCallerId = mobilecallerid;
 	}
@@ -467,7 +473,7 @@ enum SpokesSerialNumberTypes
 class SerialNumberArgs : public EventArgs
 {
 public:
-    string m_strSerialNumber;
+    std::string m_strSerialNumber;
     SpokesSerialNumberTypes m_SerialNumberType;
 
 	SerialNumberArgs()
@@ -476,12 +482,12 @@ public:
 		m_SerialNumberType = Spokes_Base;
 	}
 
-    SerialNumberArgs(string serialnumber, SpokesSerialNumberTypes serialnumtype)
+    SerialNumberArgs(std::string serialnumber, SpokesSerialNumberTypes serialnumtype)
     {
 		Init(serialnumber, serialnumtype);
     }
 
-	void Init(string serialnumber, SpokesSerialNumberTypes serialnumtype)
+	void Init(std::string serialnumber, SpokesSerialNumberTypes serialnumtype)
 	{
         m_strSerialNumber = serialnumber;
         m_SerialNumberType = serialnumtype;
@@ -496,7 +502,7 @@ class CallAnsweredArgs : public EventArgs
 {
 public:
     int m_iCallId;
-    string m_strCallSource;
+    std::string m_strCallSource;
 
 	CallAnsweredArgs()
 	{
@@ -504,12 +510,12 @@ public:
 		m_strCallSource = "";
 	}
 
-    CallAnsweredArgs(int callid, string callsource)
+    CallAnsweredArgs(int callid, std::string callsource)
     {
 		Init(callid, callsource);
     }
 
-	void Init(int callid, string callsource)
+	void Init(int callid, std::string callsource)
 	{
 		m_iCallId = callid;
         m_strCallSource = callsource;
@@ -523,7 +529,7 @@ class CallEndedArgs : public EventArgs
 {
 	public:
     int m_iCallId;
-    string m_strCallSource;
+    std::string m_strCallSource;
 
 	CallEndedArgs()
 	{
@@ -531,12 +537,12 @@ class CallEndedArgs : public EventArgs
 		m_strCallSource = "";
 	}
 
-    CallEndedArgs(int callid, string callsource)
+    CallEndedArgs(int callid, std::string callsource)
     {
 		Init(callid, callsource);
     }
 
-	void Init(int callid, string callsource)
+	void Init(int callid, std::string callsource)
 	{
 		m_iCallId = callid;
         m_strCallSource = callsource;
@@ -748,7 +754,7 @@ public:
 	/// Instructs a mobile that is paired with Plantronics device to dial an outbound mobile call.
 	/// </summary>
 	/// <param name="numbertodial">The phone number you wish the mobile to call.</param>
-	void DialMobileCall(string numbertodial);
+	void DialMobileCall(std::string numbertodial);
 
 	/// <summary>
 	/// Instructs a mobile that is paired with Plantronics device to answer an inbound (ringing) mobile call
@@ -767,7 +773,7 @@ public:
 	/// <param name="callid">A unique numeric identifier for the call that your application and Spokes will use to identify it as.</param>
 	/// <param name="contactname">Optional caller's contact name that will display on Plantronics display devices, e.g. Calisto P800 and P240 devices.</param>
 	/// <returns>Boolean indicating if command was issued successfully or not.</returns>
-	bool IncomingCall(int callid, string contactname = "");
+	bool IncomingCall(int callid, std::string contactname = "");
 
 	/// <summary>
 	/// Informs Spokes that your softphone user has answered the ringing softphone call.
@@ -781,7 +787,7 @@ public:
 	/// <param name="callid">A unique numeric identifier for the call that your application and Spokes will use to identify it as.</param>
 	/// <param name="contactname">Optional caller's contact name that will display on Plantronics display devices, e.g. Calisto P800 and P240 devices.</param>
 	/// <returns>Boolean indicating if command was issued successfully or not.</returns>
-	bool OutgoingCall(int callid, string contactname = "");
+	bool OutgoingCall(int callid, std::string contactname = "");
 
 	/// <summary>
 	/// Instructs Spokes to end an ongoing softphone call.
@@ -863,19 +869,19 @@ public:
 
     SpokesMultiLineStateFlags m_ActiveHeldFlags;
 
-	string m_strDeviceName;
+	std::string m_strDeviceName;
 
 	bool IsSpokesComSessionManagerClassRegistered(int spokesMajorVersion);
 
 	bool IsSpokesInstalled(int spokesMajorVersion = 3);
 
-	vector<SpokesDeviceCaps> m_AllDeviceCapabilities;
+	std::vector<SpokesDeviceCaps> m_AllDeviceCapabilities;
 
 	void PreLoadAllDeviceCapabilities();
 
 	SpokesDeviceCaps GetMyDeviceCapabilities();
 
-    void DebugPrint(string methodname, string message);
+    void DebugPrint(std::string methodname, std::string message);
 
 	// battery level
 
