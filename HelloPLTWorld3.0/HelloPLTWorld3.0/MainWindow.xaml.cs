@@ -65,8 +65,23 @@ namespace HelloPLTWorld3._0
             m_spokes.Docked += new Spokes.DockedEventHandler(m_spokes_Docked);
             m_spokes.UnDocked += new Spokes.DockedEventHandler(m_spokes_UnDocked);
 
+#if doubloon
+            // NEW CC events
+            m_spokes.Connected += new Spokes.ConnectedEventHandler(m_spokes_Connected);
+            m_spokes.Disconnected += new Spokes.DisconnectedEventHandler(m_spokes_Disconnected);
+#endif
             // now connect to Spokes
             m_spokes.Connect("Hello Spokes 3.0 World");
+        }
+
+        void m_spokes_Disconnected(object sender, ConnectedStateArgs e)
+        {
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "@@@ New DA Series - Headset was Disconnected");
+        }
+
+        void m_spokes_Connected(object sender, ConnectedStateArgs e)
+        {
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "@@@ New DA Series - Headset was Connected");
         }
 
         void m_spokes_CallEnded(object sender, CallEndedArgs e)
