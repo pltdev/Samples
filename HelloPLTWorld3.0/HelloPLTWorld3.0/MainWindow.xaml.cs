@@ -78,12 +78,12 @@ namespace HelloPLTWorld3._0
         // NEW CC events
         void m_spokes_Disconnected(object sender, ConnectedStateArgs e)
         {
-            DebugPrint(MethodInfo.GetCurrentMethod().Name, "@@@ New DA Series - Headset was Disconnected");
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "@@@ New DA Series - Headset " + (e.m_isInitialStateEvent ? "INITIALLY " : "") + "Disconnected");
         }
 
         void m_spokes_Connected(object sender, ConnectedStateArgs e)
         {
-            DebugPrint(MethodInfo.GetCurrentMethod().Name, "@@@ New DA Series - Headset was Connected");
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "@@@ New DA Series - Headset " + (e.m_isInitialStateEvent ? "INITIALLY " : "") + "Connected");
         }
 #endif
 

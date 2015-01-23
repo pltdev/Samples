@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.30:
+ * Date: 23rd Jan 2015
+ * Tested with Plantronics Hub / SDK version(s): 3.4.50921.12982 (22/01/2015 pre-release for DA Series)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding get "initial" QuickDisconnect QD state from Plantronics SDK ICOMDeviceSettingsExt.
+ *      HeadsetConnnectedState method.
+ *
  * Version 1.5.29:
  * Date: 2nd Dec 2014
  * Compatible with Spokes SDK version(s): 3.3.50862.10305 (24/11/2014 pre-release for DA Series)
@@ -781,6 +789,7 @@ namespace Plantronics.UC.SpokesWrapper
         static ICOMATDCommand m_atdCommand;
         static ICOMHostCommand m_hostCommand;
         static ICOMHostCommandExt m_hostCommandExt;
+        static ICOMDeviceSettingsExt m_deviceSettingsExt;
         public static string m_devicename = "";
         #endregion
 
@@ -2062,6 +2071,9 @@ namespace Plantronics.UC.SpokesWrapper
                 m_hostCommandExt = m_activeDevice.HostCommand as ICOMHostCommandExt;
                 if (m_hostCommandExt == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain host command ext interface");
 
+                m_deviceSettingsExt = m_activeDevice.HostCommand as ICOMDeviceSettingsExt;
+                if (m_deviceSettingsExt == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain device settings ext interface");
+
                 UpdateOtherDeviceCapabilities();
 
                 // trigger user's event handler
@@ -2288,9 +2300,11 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 if (m_hostCommandExt != null)
                 {
-                    //m_lastconnected = m_hostCommandExt.HeadsetConnected;  interface not yet available!
-                    // assume it is connected for now:
-                    m_lastconnected = true;
+                    m_lastconnected = true; // if settings interface is not available, assume connected
+                    if (m_deviceSettingsExt != null)
+                    {
+                        m_lastconnected = m_deviceSettingsExt.HeadsetConnnectedState;
+                    }
                     connected = m_lastconnected;
                     if (connected) OnConnected(new ConnectedStateArgs(true, true));
                     else OnDisconnected(new ConnectedStateArgs(false, true));
