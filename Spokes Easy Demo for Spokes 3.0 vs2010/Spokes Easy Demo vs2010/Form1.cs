@@ -41,6 +41,13 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.8:
+ * Date: 09th Feb 2015
+ * Compatible/tested with Spokes SDK version(s): 3.3.50862.10305 (24/11/2014 pre-release for DA Series)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added Calisto P240 dialling support illustration
+ *
  * Version 1.1.0.7:
  * Date: 02th Dec 2014
  * Compatible/tested with Spokes SDK version(s): 3.3.50862.10305 (24/11/2014 pre-release for DA Series)
@@ -131,6 +138,9 @@ namespace Spokes_Easy_Demo
         static string APP_NAME = "Spokes Easy Demo Softphone";
         private bool m_worn;
 
+        private StringBuilder m_dialednumber = new StringBuilder();
+        private Timer m_outboundtimer;
+
         private EventsLogForm eventslog = null;
 
         #region GUI Callbacks
@@ -143,6 +153,8 @@ namespace Spokes_Easy_Demo
         delegate void SetMobileCallControlGUIEnableCallback(MobileCallState state);
         delegate void UpdateMultiLineButtonTextsCallback(MultiLineStateArgs e);
         delegate void SetPictureBoxColorCallback(Control pbox, Color col);
+        delegate void DoConnectSimulatedCallCallback(string dialedNumber);
+        delegate void StartOutboundCallTimerCallback();
         #endregion
 
         Timer wearingpicboxtimer;
@@ -194,6 +206,21 @@ namespace Spokes_Easy_Demo
             m_animtimer.Interval = 40;
             m_animtimer.Tick += m_animtimer_Tick;
             m_animtimer.Start();
+
+            m_outboundtimer = new Timer();
+            m_outboundtimer.Interval = 1000;
+            m_outboundtimer.Tick += new EventHandler(m_outboundtimer_Tick);
+        }
+
+        void m_outboundtimer_Tick(object sender, EventArgs e)
+        {
+            m_outboundtimer.Stop();
+            if (!m_oncall && m_dialednumber.Length > 0)
+            {
+                DoConnectSimulatedCall(m_dialednumber.ToString());
+            }
+            // then clear dialled number
+            m_dialednumber.Clear();
         }
 
         void m_animtimer_Tick(object sender, EventArgs e)
@@ -374,12 +401,49 @@ namespace Spokes_Easy_Demo
 
         void m_spokes_BaseButtonPress(object sender, BaseButtonPressArgs e)
         {
-            LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> App got a BASE BUTTON PRESS: " + e.baseButton.ToString());
+            LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> App got a BASE BUTTON PRESS: " 
+                + e.baseButton.ToString() +", dialed key: "
+                + e.dialedKey.ToString()
+                );
+
+            // dial pad digit?
+            if (e.baseButton == Interop.Plantronics.DeviceBaseButton.BaseButton_DialPad)
+            {
+                m_dialednumber.Append(e.dialedKey.ToString());
+            }
         }
 
         void m_spokes_ButtonPress(object sender, ButtonPressArgs e)
         {
             LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> App got a BUTTON PRESS: " + e.headsetButton.ToString());
+
+            if (e.headsetButton == Interop.Plantronics.DeviceHeadsetButton.HeadsetButton_Talk)
+            {
+                // if not on a call and we have a dialled number then initiate outbound call
+                if (!m_oncall && m_dialednumber.Length > 0)
+                {
+                    StartOutboundCallTimer();
+                    //DoConnectSimulatedCall(m_dialednumber.ToString());
+                }
+                else
+                {
+                    // then clear dialled number
+                    m_dialednumber.Clear();
+                }
+            }
+        }
+
+        private void StartOutboundCallTimer()
+        {
+            if (connectCallBtn.InvokeRequired)
+            {
+                StartOutboundCallTimerCallback d = new StartOutboundCallTimerCallback(StartOutboundCallTimer);
+                this.Invoke(d, new object[] { });
+            }
+            else
+            {
+                m_outboundtimer.Start();
+            }
         }
 
         void m_spokes_CallRequested(object sender, CallRequestedArgs e)
@@ -714,6 +778,12 @@ ROMEO
 
         void spokes_OnCall(object sender, OnCallArgs e)
         {
+            if (e.CallSource == APP_NAME)
+            {
+                m_oncall = true;
+                SetCallControlGUIEnabled(m_oncall);
+            }
+
             LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> On a call, call source: " + e.CallSource + ", incoming? :" + e.Incoming);
             UpdateDeviceStatusGUIItem(callStateLbl, e.State == OnCallCallState.Ringing ? "Ringing" : "On Call");
             UpdateDeviceStatusGUIItem(callDirectionLbl, e.Incoming ? "Incoming" : "Outgoing");
@@ -725,12 +795,14 @@ ROMEO
 
         void spokes_NotOnCall(object sender, EventArgs e)
         {
+            m_oncall = false;
+
             LogMessage(MethodInfo.GetCurrentMethod().Name, ">>> NOT on a call: " + e.ToString());
             UpdateDeviceStatusGUIItem(callStateLbl, "Not On Call");
             UpdateDeviceStatusGUIItem(callDirectionLbl, "");
             UpdateDeviceStatusGUIItem(callSourceLbl, "");
             UpdateDevicePictureBox(callStatePictureBox, Properties.Resources.call_idle);
-            SetCallControlGUIEnabled(false);
+            SetCallControlGUIEnabled(m_oncall);
 
             AnimateBackgroundColor(callStatePictureBox, Color.FromArgb(0, 51, 102));
         }
@@ -884,26 +956,45 @@ ROMEO
         // Connect Call (simulated my softphone call)...
         private void button4_Click(object sender, EventArgs e)
         {
-            if (true) // HACK (!m_oncall)
+            DoConnectSimulatedCall();
+        }
+
+        private void DoConnectSimulatedCall(string dialedNumber = "")
+        {
+            if (connectCallBtn.InvokeRequired)
             {
-                int callid = GetNewCallId();
-                string contact = contactCombo.Items[contactCombo.SelectedIndex].ToString();
-                if (callDirectionCombo.SelectedItem.ToString() == "Incoming")
-                {
-                    // simulate incoming call
-                    if (m_spokes.IncomingCall(callid, contact))
-                        SetCallControlGUIEnabled(true);
-                }
-                else
-                {
-                    // simulate outgoing call
-                    if (m_spokes.OutgoingCall(callid, contact))
-                        SetCallControlGUIEnabled(true);
-                }
+                DoConnectSimulatedCallCallback d = new DoConnectSimulatedCallCallback(DoConnectSimulatedCall);
+                this.Invoke(d, new object[] { dialedNumber });
             }
             else
             {
-                MessageBox.Show("Already on a simulated softphone call, call id = "+m_callId);
+                if (!m_oncall)
+                {
+                    int callid = GetNewCallId();
+                    if (dialedNumber != "")
+                    {
+                        contactCombo.Items.Add(dialedNumber);
+                        contactCombo.SelectedIndex = contactCombo.Items.Count - 1; // last item the dialled number
+                        callDirectionCombo.SelectedIndex = 1; // outgoing
+                    }
+                    string contact = contactCombo.Items[contactCombo.SelectedIndex].ToString();
+                    if (callDirectionCombo.SelectedItem.ToString() == "Incoming")
+                    {
+                        // simulate incoming call
+                        if (m_spokes.IncomingCall(callid, contact))
+                            SetCallControlGUIEnabled(true);
+                    }
+                    else
+                    {
+                        // simulate outgoing call
+                        if (m_spokes.OutgoingCall(callid, contact))
+                            SetCallControlGUIEnabled(true);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Already on a simulated softphone call, call id = " + m_callId);
+                }
             }
         }
 
@@ -1091,7 +1182,7 @@ ROMEO
             {
                 m_oncall = oncall;
                 endCallBtn.Enabled = oncall;
-                connectCallBtn.Enabled = true; // HACK !oncall;
+                connectCallBtn.Enabled = !oncall;
             }
         }
 

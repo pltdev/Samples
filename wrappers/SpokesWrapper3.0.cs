@@ -39,6 +39,13 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.31:
+ * Date: 9th Feb 2015
+ * Tested with Plantronics Hub / SDK version(s): 3.4.50921.12982 (22/01/2015 pre-release for DA Series)
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding Calisto P240 dial handling, via IDeviceListener.BaseButtonPressed DialedKey, etc.
+ *
  * Version 1.5.30:
  * Date: 23rd Jan 2015
  * Tested with Plantronics Hub / SDK version(s): 3.4.50921.12982 (22/01/2015 pre-release for DA Series)
@@ -562,10 +569,12 @@ namespace Plantronics.UC.SpokesWrapper
     public class BaseButtonPressArgs : EventArgs
     {
         public DeviceBaseButton baseButton;
+        public short dialedKey;
 
-        public BaseButtonPressArgs(DeviceBaseButton baseButton)
+        public BaseButtonPressArgs(DeviceBaseButton baseButton, short dialedKey)
         {
             this.baseButton = baseButton;
+            this.dialedKey = dialedKey;
         }
     }
 
@@ -1655,7 +1664,7 @@ namespace Plantronics.UC.SpokesWrapper
         private void DeviceListener_BaseButtonPressed(COMDeviceListenerEventArgs e)
         {
             DebugPrint(MethodInfo.GetCurrentMethod().Name, String.Format("BaseButtonPressed: {0}", e.BaseButton.ToString()));
-            OnBaseButtonPress(new BaseButtonPressArgs(e.BaseButton));
+            OnBaseButtonPress(new BaseButtonPressArgs(e.BaseButton, e.DialedKey));
         }
 
         // Respond to various base state changes by updating our knowledge of multiline active/held states...
