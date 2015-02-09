@@ -45,6 +45,8 @@ using Interop.Plantronics;
  * Changed by: Lewis Collins
  *   Changes:
  *     - Adding Calisto P240 dial handling, via IDeviceListener.BaseButtonPressed DialedKey, etc.
+ *     - Removed some un-needed IDeviceEvents events, relying instead on IDeviceListener versions
+ *       (Talk button, mute, etc)
  *
  * Version 1.5.30:
  * Date: 23rd Jan 2015
@@ -1653,6 +1655,8 @@ namespace Plantronics.UC.SpokesWrapper
                     break;
                 case COMDeviceEventType.DeviceEventType_HeadsetButtonPressed:
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "DeviceEventType_HeadsetButtonPressed "+e.HeadsetButton.ToString());
+                    OnButtonPress(new ButtonPressArgs(e.HeadsetButton, m_activeDevice.HostCommand.AudioState,
+                        m_activeDevice.HostCommand.mute));
                     break;
                 case COMDeviceEventType.DeviceEventType_HeadsetStateChanged:
                 default:
@@ -1966,9 +1970,9 @@ namespace Plantronics.UC.SpokesWrapper
                 case DeviceHeadsetButton.HeadsetButton_Flash:
                     OnCallSwitched(EventArgs.Empty);
                     break;
-                case DeviceHeadsetButton.HeadsetButton_Mute:
-                    OnMuteChanged(new MuteChangedArgs(e.mute));
-                    break;
+                //case DeviceHeadsetButton.HeadsetButton_Mute:  // Not needed, now relying on IDeviceListener event for mute change
+                //    OnMuteChanged(new MuteChangedArgs(e.mute));
+                //    break;
             }
     
             OnButtonPress(new ButtonPressArgs(e.ButtonPressed, e.AudioState, e.mute));
@@ -2020,12 +2024,12 @@ namespace Plantronics.UC.SpokesWrapper
                 if (m_deviceComEvents != null)
                 {
                     // Attach to device events
-                    m_deviceComEvents.onButtonPressed += m_deviceComEvents_Handler;
+                    //m_deviceComEvents.onButtonPressed += m_deviceComEvents_Handler;  // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
                     m_deviceComEvents.onAudioStateChanged += m_deviceComEvents_Handler;
                     m_deviceComEvents.onFlashButtonPressed += m_deviceComEvents_Handler;
                     m_deviceComEvents.onMuteStateChanged += m_deviceComEvents_Handler;
                     m_deviceComEvents.onSmartButtonPressed += m_deviceComEvents_Handler;
-                    m_deviceComEvents.onTalkButtonPressed += m_deviceComEvents_Handler;
+                    //m_deviceComEvents.onTalkButtonPressed += m_deviceComEvents_Handler; // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
 
                     // LC 11-7-2013 TT: 23171   Cannot receive OLMP/Bladerunner responses from headset - need to expose Device.DataReceived event to COM
                     // Try adding onDataReceived event handler
@@ -2474,12 +2478,12 @@ namespace Plantronics.UC.SpokesWrapper
                     //be.BaseEventReceived -= be_BaseEventReceived;
 
                     // unregister device event handlers
-                    m_deviceComEvents.onButtonPressed -= m_deviceComEvents_Handler;
+                    //m_deviceComEvents.onButtonPressed -= m_deviceComEvents_Handler; // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
                     m_deviceComEvents.onAudioStateChanged -= m_deviceComEvents_Handler;
                     m_deviceComEvents.onFlashButtonPressed -= m_deviceComEvents_Handler;
                     m_deviceComEvents.onMuteStateChanged -= m_deviceComEvents_Handler;
                     m_deviceComEvents.onSmartButtonPressed -= m_deviceComEvents_Handler;
-                    m_deviceComEvents.onTalkButtonPressed -= m_deviceComEvents_Handler;
+                    //m_deviceComEvents.onTalkButtonPressed -= m_deviceComEvents_Handler; // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
 
                     //m_deviceComEvents.onDataReceived -= m_deviceComEvents_onDataReceived;  // commenting out this as it locks up on exit
 

@@ -47,6 +47,7 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * Changed by: Lewis Collins
  *   Changes:
  *     - Added Calisto P240 dialling support illustration
+ *     - Removed unneeded (duplicated) Talk and Mute events
  *
  * Version 1.1.0.7:
  * Date: 02th Dec 2014
@@ -139,7 +140,6 @@ namespace Spokes_Easy_Demo
         private bool m_worn;
 
         private StringBuilder m_dialednumber = new StringBuilder();
-        private Timer m_outboundtimer;
 
         private EventsLogForm eventslog = null;
 
@@ -154,7 +154,6 @@ namespace Spokes_Easy_Demo
         delegate void UpdateMultiLineButtonTextsCallback(MultiLineStateArgs e);
         delegate void SetPictureBoxColorCallback(Control pbox, Color col);
         delegate void DoConnectSimulatedCallCallback(string dialedNumber);
-        delegate void StartOutboundCallTimerCallback();
         #endregion
 
         Timer wearingpicboxtimer;
@@ -207,20 +206,6 @@ namespace Spokes_Easy_Demo
             m_animtimer.Tick += m_animtimer_Tick;
             m_animtimer.Start();
 
-            m_outboundtimer = new Timer();
-            m_outboundtimer.Interval = 1000;
-            m_outboundtimer.Tick += new EventHandler(m_outboundtimer_Tick);
-        }
-
-        void m_outboundtimer_Tick(object sender, EventArgs e)
-        {
-            m_outboundtimer.Stop();
-            if (!m_oncall && m_dialednumber.Length > 0)
-            {
-                DoConnectSimulatedCall(m_dialednumber.ToString());
-            }
-            // then clear dialled number
-            m_dialednumber.Clear();
         }
 
         void m_animtimer_Tick(object sender, EventArgs e)
@@ -422,27 +407,14 @@ namespace Spokes_Easy_Demo
                 // if not on a call and we have a dialled number then initiate outbound call
                 if (!m_oncall && m_dialednumber.Length > 0)
                 {
-                    StartOutboundCallTimer();
-                    //DoConnectSimulatedCall(m_dialednumber.ToString());
+                    //StartOutboundCallTimer();
+                    DoConnectSimulatedCall(m_dialednumber.ToString());
                 }
                 else
                 {
                     // then clear dialled number
                     m_dialednumber.Clear();
                 }
-            }
-        }
-
-        private void StartOutboundCallTimer()
-        {
-            if (connectCallBtn.InvokeRequired)
-            {
-                StartOutboundCallTimerCallback d = new StartOutboundCallTimerCallback(StartOutboundCallTimer);
-                this.Invoke(d, new object[] { });
-            }
-            else
-            {
-                m_outboundtimer.Start();
             }
         }
 
