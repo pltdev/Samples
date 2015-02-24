@@ -55,7 +55,7 @@ using System.Speech.Synthesis; // used for simulated phone audio
  * Changed by: Lewis Collins
  *   Changes:
  *     - Added new DA Series QD Connector state into the GUI
- *       (note, uses conditional define "doubloon" to compile in Plantronics
+ *       (note, uses conditional define "doubloon" or "newDASeries" to compile in Plantronics
  *        SDK events for QD, make sure this is defined)
  *
  * Version 1.1.0.6:

@@ -39,6 +39,15 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.32:
+ * Date: 24th Feb 2015
+ * Tested with Plantronics Hub / SDK version(s): 3.2 release SDK version
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Hiding with conditional newDASeries the ICOMDeviceSettingsExt member, which is
+ *       only usable on 3.4+ SDKs and is used to get the initial connected state of new
+ *       DA Series.
+ *
  * Version 1.5.31:
  * Date: 9th Feb 2015
  * Tested with Plantronics Hub / SDK version(s): 3.4.50921.12982 (22/01/2015 pre-release for DA Series)
@@ -800,7 +809,9 @@ namespace Plantronics.UC.SpokesWrapper
         static ICOMATDCommand m_atdCommand;
         static ICOMHostCommand m_hostCommand;
         static ICOMHostCommandExt m_hostCommandExt;
+#if doubloon || newDASeries
         static ICOMDeviceSettingsExt m_deviceSettingsExt;
+#endif
         public static string m_devicename = "";
         #endregion
 
@@ -1844,7 +1855,7 @@ namespace Plantronics.UC.SpokesWrapper
                             OnLineActiveChanged(new LineActiveChangedArgs(false));
                             break;
 
-#if doubloon
+#if doubloon || newDASeries
                         // NEW CC events
                         case DeviceHeadsetStateChange.HeadsetStateChange_Connected:
                             OnConnected(new ConnectedStateArgs(true, false));
@@ -2084,8 +2095,10 @@ namespace Plantronics.UC.SpokesWrapper
                 m_hostCommandExt = m_activeDevice.HostCommand as ICOMHostCommandExt;
                 if (m_hostCommandExt == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain host command ext interface");
 
+#if doubloon || newDASeries
                 m_deviceSettingsExt = m_activeDevice.HostCommand as ICOMDeviceSettingsExt;
                 if (m_deviceSettingsExt == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain device settings ext interface");
+#endif
 
                 UpdateOtherDeviceCapabilities();
 
@@ -2314,10 +2327,12 @@ namespace Plantronics.UC.SpokesWrapper
                 if (m_hostCommandExt != null)
                 {
                     m_lastconnected = true; // if settings interface is not available, assume connected
+#if doubloon || newDASeries
                     if (m_deviceSettingsExt != null)
                     {
                         m_lastconnected = m_deviceSettingsExt.HeadsetConnnectedState;
                     }
+#endif
                     connected = m_lastconnected;
                     if (connected) OnConnected(new ConnectedStateArgs(true, true));
                     else OnDisconnected(new ConnectedStateArgs(false, true));
