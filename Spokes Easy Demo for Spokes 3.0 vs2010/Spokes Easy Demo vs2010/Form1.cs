@@ -37,10 +37,17 @@ using System.Speech.Synthesis; // used for simulated phone audio
  *     
  *   - Show a log of debug information from the method calls and events of Spokes.
  * 
- * Lewis Collins, 30th Nov 2012
+ * Lewis Collins
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.1.0.9:
+ * Date: 25th Feb 2015
+ * Compatible/tested with Spokes SDK version(s): 3.4 nightly
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Re-building for new DA series release for Mike H
+ *
  * Version 1.1.0.8:
  * Date: 09th Feb 2015
  * Compatible/tested with Spokes SDK version(s): 3.3.50862.10305 (24/11/2014 pre-release for DA Series)

@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.33:
+ * Date: 25th Feb 2015
+ * Tested with Plantronics Hub / SDK version(s): 3.4 nightly
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Fixing HeadsetConnectedState typo in SDK call
+ *       (had an extra n)
+ *
  * Version 1.5.32:
  * Date: 24th Feb 2015
  * Tested with Plantronics Hub / SDK version(s): 3.2 release SDK version
@@ -2330,7 +2338,7 @@ namespace Plantronics.UC.SpokesWrapper
 #if doubloon || newDASeries
                     if (m_deviceSettingsExt != null)
                     {
-                        m_lastconnected = m_deviceSettingsExt.HeadsetConnnectedState;
+                        m_lastconnected = m_deviceSettingsExt.HeadsetConnectedState;
                     }
 #endif
                     connected = m_lastconnected;
