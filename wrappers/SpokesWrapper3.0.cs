@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.34:
+ * Date: 7th April 2015
+ * Tested with Plantronics Hub / SDK version(s): 3.4 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added some extra exception handling for a COMException that was arising
+ *       in device listener event callback.
+ *
  * Version 1.5.33:
  * Date: 25th Feb 2015
  * Tested with Plantronics Hub / SDK version(s): 3.4 nightly
@@ -1658,28 +1666,35 @@ namespace Plantronics.UC.SpokesWrapper
         // print device listner events
         void m_deviceListenerEvents_Handler(COMDeviceListenerEventArgs e)
         {
-            switch (e.DeviceEventType)
+            try
             {
-                case COMDeviceEventType.DeviceEventType_ATDButtonPressed:
-                    break;
-                case COMDeviceEventType.DeviceEventType_ATDStateChanged:
-                    DeviceListener_ATDStateChanged(e);
-                    break;
-                case COMDeviceEventType.DeviceEventType_BaseButtonPressed:
+                switch (e.DeviceEventType)
+                {
+                    case COMDeviceEventType.DeviceEventType_ATDButtonPressed:
+                        break;
+                    case COMDeviceEventType.DeviceEventType_ATDStateChanged:
+                        DeviceListener_ATDStateChanged(e);
+                        break;
+                    case COMDeviceEventType.DeviceEventType_BaseButtonPressed:
 
-                    DeviceListener_BaseButtonPressed(e);
-                    break;
-                case COMDeviceEventType.DeviceEventType_BaseStateChanged:
-                    DeviceListener_BaseStateChanged(e);
-                    break;
-                case COMDeviceEventType.DeviceEventType_HeadsetButtonPressed:
-                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "DeviceEventType_HeadsetButtonPressed "+e.HeadsetButton.ToString());
-                    OnButtonPress(new ButtonPressArgs(e.HeadsetButton, m_activeDevice.HostCommand.AudioState,
-                        m_activeDevice.HostCommand.mute));
-                    break;
-                case COMDeviceEventType.DeviceEventType_HeadsetStateChanged:
-                default:
-                    break;
+                        DeviceListener_BaseButtonPressed(e);
+                        break;
+                    case COMDeviceEventType.DeviceEventType_BaseStateChanged:
+                        DeviceListener_BaseStateChanged(e);
+                        break;
+                    case COMDeviceEventType.DeviceEventType_HeadsetButtonPressed:
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name, "DeviceEventType_HeadsetButtonPressed " + e.HeadsetButton.ToString());
+                        OnButtonPress(new ButtonPressArgs(e.HeadsetButton, m_activeDevice.HostCommand.AudioState,
+                            m_activeDevice.HostCommand.mute));
+                        break;
+                    case COMDeviceEventType.DeviceEventType_HeadsetStateChanged:
+                    default:
+                        break;
+                }
+            }
+            catch (Exception exc)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught: " + exc.ToString());
             }
         }
 

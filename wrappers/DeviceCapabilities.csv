@@ -66,15 +66,34 @@ C01C,C500 Series,No,No,No,No,Yes,No,No,No
 C032,C435,No,No,No,No,No,No,No,No
 C033,C435,No,No,No,No,No,No,No,No
 AF00,db,No,No,No,No,No,No,No,Yes
-AF01,db,No,No,No,No,No,No,No,Yes
+AF01,Doubloon DA80,No,No,No,No,No,No,No,Yes
 AF02,db,No,No,No,No,No,No,No,Yes
 AE02,cn,No,No,No,No,No,No,No,No
 AE03,cn,No,No,No,No,No,No,No,No
-AEFF,cn,No,No,No,No,No,No,No,No
-C02F,sp,No,No,No,No,No,No,No,No
+C02F,ss,No,No,No,No,No,No,No,No
 C034,pr,No,No,No,No,No,No,No,No
-02ff,cy,No,No,No,No,No,No,No,No
-127,md,No,No,No,No,No,No,No,No
+02ff,BT300 Cydoemus,Yes,Yes,Yes,Yes,Yes,No,Yes,No
+02FA,BT600,Yes,Yes,Yes,Yes,Yes,No,Yes,No
+AF03,db,No,No,No,No,No,No,No,Yes
+AF04,db,No,No,No,No,No,No,No,Yes
+AF05,db,No,No,No,No,No,No,No,Yes
+AF06,db,No,No,No,No,No,No,No,Yes
+AF07,db,No,No,No,No,No,No,No,Yes
+AF09,db,No,No,No,No,No,No,No,Yes
+02FB,BT600,Yes,Yes,Yes,Yes,Yes,No,Yes,No
+02FC,BT600,Yes,Yes,Yes,Yes,Yes,No,Yes,No
+127,Voyager Focus,Yes,Yes,Yes,Yes,Yes,No,Yes,No
+AF0A,mt,No,No,No,No,No,No,No,No
+011A,nv,No,No,No,No,No,No,No,No
+011C,nv,No,No,No,No,No,No,No,No
+012E,em,Yes,Yes,Yes,Yes,Yes,No,Yes,No
+C035,C500 Series,No,No,No,No,Yes,No,No,No
+C036,C500 Series,No,No,No,No,Yes,No,No,No
+129,C700 Series,No,Yes,Yes,No,Yes,No,No,No
+12A,C700 Series,No,Yes,Yes,No,Yes,No,No,No
+AF08,ap,No,No,No,No,No,No,No,No
+011B,sb,No,No,No,No,No,No,No,No
+AC20,si,No,No,No,No,No,No,No,No
 AE11,Calisto P240,No,No,No,No,No,No,No,No
 AE01,Calisto P240,No,No,No,No,No,No,No,No
 AE10,Calisto P240,No,No,No,No,No,No,No,No
@@ -131,3 +150,4 @@ C01A,C510 Series,No,No,No,No,Yes,No,No,No
 C01B,C520 Series,No,No,No,No,Yes,No,No,No
 C01C,C520 Series,No,No,No,No,Yes,No,No,No
 AA05,DA45,Yes,No,No,No,No,No,Yes,No
+AEFF,cn,No,No,No,No,No,No,No,No
