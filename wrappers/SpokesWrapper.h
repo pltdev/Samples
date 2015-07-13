@@ -3,12 +3,10 @@
 #include "atlcom.h"
 
 #import "mscorlib.tlb" raw_interfaces_only, rename("ReportEvent", "MSReportEvent")
-// Spokes COM interface definition (tlb's)
-#import "Plantronics.Device.Common.tlb" raw_interfaces_only, named_guids
-#import "Plantronics.UC.Common.tlb" raw_interfaces_only, named_guids
 
-using namespace Plantronics_UC_Common;
-using namespace Plantronics_Device_Common;
+// Spokes 3.0 COM SDK is distributed as tlb file. 
+// C++ user can use #import directive that will create all proper C++ types, wrappers and interfaces for communicating with running Spokes3G.exe COM server
+#import "Plantronics.tlb" no_namespace, named_guids, raw_interfaces_only
 
 #include <string>
 #include <iostream>
@@ -568,7 +566,7 @@ enum SpokesEventType
 };
 
 // forward definitions of Spokes globals
-extern CComPtr<IDevice> g_pActiveDevice;
+extern CComPtr<ICOMDevicePtr> g_pActiveDevice;
 
 /// <summary>
 /// Defines a Spokes object which you can use to communicate with Plantronics devices.
@@ -620,8 +618,8 @@ private:
 
 	void GetInitialMuteStatus();
 
-	bool GetHoldState(Plantronics_Device_Common::LineType lineType);
-	bool GetActiveState(Plantronics_Device_Common::LineType lineType);
+	bool GetHoldState(COMLineType lineType);
+	bool GetActiveState(COMLineType lineType);
 
 public:
 	void NotifyEvent(SpokesEventType e_type, EventArgs * e);
@@ -766,5 +764,5 @@ public:
     /// Typically your app will call this after receiving a BatteryLevel headset event.
     /// </summary>
     /// <returns>A BatteryLevel structure containing information about the battery level.</returns>
-    BatteryLevel GetBatteryLevel();
+    DeviceBatteryLevel GetBatteryLevel();
 };
