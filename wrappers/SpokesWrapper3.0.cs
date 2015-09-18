@@ -39,6 +39,16 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.35:
+ * Date: 18th September 2015
+ * Tested with Plantronics Hub / SDK version(s): 3.6 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added catch of COMException affecting D100.
+ *     - Adding SetAudioSensing function to turn on/off device
+ *       audio sensing. Need to turn it off if you want to programatically
+ *       control line state via ConnectAudioLinkToDevice method.
+ *
  * Version 1.5.34:
  * Date: 7th April 2015
  * Tested with Plantronics Hub / SDK version(s): 3.4 latest
@@ -825,6 +835,8 @@ namespace Plantronics.UC.SpokesWrapper
         static ICOMATDCommand m_atdCommand;
         static ICOMHostCommand m_hostCommand;
         static ICOMHostCommandExt m_hostCommandExt;
+        static ICOMUserPreference m_userPreference;
+        static ICOMAdvanceSettings m_advanceSettings;
 #if doubloon || newDASeries
         static ICOMDeviceSettingsExt m_deviceSettingsExt;
 #endif
@@ -2117,6 +2129,10 @@ namespace Plantronics.UC.SpokesWrapper
                 if (m_atdCommand == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain atd command interface");
                 m_hostCommandExt = m_activeDevice.HostCommand as ICOMHostCommandExt;
                 if (m_hostCommandExt == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain host command ext interface");
+                m_userPreference = m_sessionComManager.UserPreference;
+                if (m_userPreference == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain user preference interface");
+                m_advanceSettings = m_activeDevice.HostCommand as ICOMAdvanceSettings;
+                if (m_advanceSettings == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain advanced settings interface");
 
 #if doubloon || newDASeries
                 m_deviceSettingsExt = m_activeDevice.HostCommand as ICOMDeviceSettingsExt;
@@ -2134,6 +2150,20 @@ namespace Plantronics.UC.SpokesWrapper
                 GetInitialDeviceState();
 
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: AttachedEventHandler to device");
+            }
+        }
+
+        /// <summary>
+        /// Set the Audio Sensing feature of the current primary device
+        /// on or off. For example, set to off if you want to programatically
+        /// control the audio state via ConnectAudioLinkToDevice method.
+        /// </summary>
+        /// <param name="enable">A boolean to say if you want it on or off</param>
+        public void SetAudioSensing(bool enable)
+        {
+            if (m_advanceSettings!=null)
+            {
+                m_advanceSettings.AudioSensing = enable;
             }
         }
 
@@ -2659,7 +2689,14 @@ namespace Plantronics.UC.SpokesWrapper
             //Get the current active state
             if (m_hostCommandExt != null)
             {
-                state = m_hostCommandExt.IsLineActive(lineType);
+                try
+                {
+                    state = m_hostCommandExt.IsLineActive(lineType);
+                }
+                catch(COMException e)
+                {
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: cannot get line active state. Note: expected on D100 which does not support mutliline.");
+                }
             }
 
             return state;
