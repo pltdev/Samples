@@ -39,6 +39,17 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.36:
+ * Date: 8th December 2015
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added catch of COMException affecting Voyager Focus because 
+ *       setting of HostCommand.AudioState is not supported.
+ *     - Adding CCLEANERFIX conditional, which if defined will prevent
+ *       certain COM uninitializing on shutdown which was causing
+ *       exceptions when shutting down application as part of a CCleaner
+ *       uninstall.
+ *
  * Version 1.5.35:
  * Date: 18th September 2015
  * Tested with Plantronics Hub / SDK version(s): 3.6 latest
@@ -1529,7 +1540,9 @@ namespace Plantronics.UC.SpokesWrapper
                         // release session events
                         m_sessionEvents.onCallRequested -= m_sessionEvents_CallRequested;
                         m_sessionEvents.onCallStateChanged -= m_sessionEvents_CallStateChanged;
+#if !CCLEANERFIX
                         Marshal.ReleaseComObject(m_sessionEvents);
+#endif
                         m_sessionEvents = null;
                     }
                     // unregister session
@@ -1538,18 +1551,22 @@ namespace Plantronics.UC.SpokesWrapper
                         m_sessionManagerEvents.onCallStateChanged -= m_sessionComManager_CallStateChanged;
                         m_sessionManagerEvents.onDeviceStateChanged -= m_sessionComManager_DeviceStateChanged;
                     }
-                    //#if DEBUG
+#if !CCLEANERFIX
                     // NOTE this is failing in Spokes 3.0
                     // TODO so for now disable it in Release version
                     // so it does not crash when exiting!
                     m_sessionComManager.Unregister((COMSession)m_comSession);
-                    //#endif
+#endif
+#if !CCLEANERFIX
                     Marshal.ReleaseComObject(m_comSession);
+#endif
                     m_comSession = null;
                 }
                 if (m_sessionComManager != null)
                 {
+#if !CCLEANERFIX
                     Marshal.ReleaseComObject(m_sessionComManager);
+#endif
                     m_sessionComManager = null;
                 }
             }
@@ -2066,7 +2083,7 @@ namespace Plantronics.UC.SpokesWrapper
                 m_lastdocked = false;
                 //m_battlevEventCount = 0;
 
-                m_deviceComEvents = m_activeDevice as ICOMDeviceEvents_Event;
+                m_deviceComEvents = (ICOMDeviceEvents_Event) m_activeDevice;
                 if (m_deviceComEvents != null)
                 {
                     // Attach to device events
@@ -2161,9 +2178,16 @@ namespace Plantronics.UC.SpokesWrapper
         /// <param name="enable">A boolean to say if you want it on or off</param>
         public void SetAudioSensing(bool enable)
         {
-            if (m_advanceSettings!=null)
+            try
             {
-                m_advanceSettings.AudioSensing = enable;
+                if (m_advanceSettings != null)
+                {
+                    m_advanceSettings.AudioSensing = enable;
+                }
+            }
+            catch (COMException e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: COMException setting audio sensing (can occur if Hub has quit first): "+e.ToString());
             }
         }
 
@@ -2554,8 +2578,9 @@ namespace Plantronics.UC.SpokesWrapper
                     //m_deviceComEvents.onTalkButtonPressed -= m_deviceComEvents_Handler; // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
 
                     //m_deviceComEvents.onDataReceived -= m_deviceComEvents_onDataReceived;  // commenting out this as it locks up on exit
-
+#if !CCLEANERFIX
                     Marshal.ReleaseComObject(m_deviceComEvents);
+#endif
                     m_deviceComEvents = null;
                 }
                 if (m_deviceListenerEvents != null)
@@ -2568,11 +2593,14 @@ namespace Plantronics.UC.SpokesWrapper
                     m_deviceListenerEvents.onHeadsetStateChanged -= m_deviceListenerEvents_HandlerMethods;
 
                     RegisterForProximity(false);
+#if !CCLEANERFIX
                     Marshal.ReleaseComObject(m_deviceListenerEvents);
+#endif
                     m_deviceListenerEvents = null;
                 }
-
+#if !CCLEANERFIX
                 Marshal.ReleaseComObject(m_activeDevice);
+#endif
                 m_activeDevice = null;
 
                 m_hostCommand = null;
@@ -3216,8 +3244,15 @@ namespace Plantronics.UC.SpokesWrapper
             DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Setting audio link active = " + connect.ToString());
             if (m_activeDevice != null)
             {
-                m_activeDevice.HostCommand.AudioState =
-                    connect ? DeviceAudioState.AudioState_MonoOn : DeviceAudioState.AudioState_MonoOff;
+                try
+                {
+                    m_activeDevice.HostCommand.AudioState =
+                        connect ? DeviceAudioState.AudioState_MonoOn : DeviceAudioState.AudioState_MonoOff;
+                }
+                catch (COMException e)
+                {
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: cannot set audio link state, exception occured: "+e.Message);
+                }
             }
             else
             {
