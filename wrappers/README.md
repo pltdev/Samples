@@ -1,19 +1,10 @@
-Spokes Wrapper
-==============
+SpokesWrapper
+-------------
+  SpokesWrapper is a wrapper around the Plantronics Spokes COM Service API for C++/C# .NET (.NET Framework 4 and higher).
 
-Spokes Wrapper is a source code sample that presents simplified API for
-use with Plantronics Spokes Software.
+  It's purpose is to make it easier and simpler to integrate support for Plantronics devices into any applications.
 
-The C# and C++ versions are now pretty much feature complete.
-There are Plantronics SDK 3.x and older Spokes SDK 2.8 versions available 
-(the interface between both versions is the same)
-
-** Please see the comment blocks of the source files. **
-
-Please provide feedback - do you find it useful?
-Any changes you would like to see? Let us know via the PDC
-website forums at 
-http://developer.plantronics.com/
-
-Have fun! :-)
-LC
+--
+*** WARNING !!! This source code is provided *As Is*! It is intented as a sample code to show ways of integrating
+with the Plantronics "COM Service API". However in case of problems please feel free to contact Lewis Collins
+directly via the PDC site at this address: http://developer.plantronics.com/users/lcollins ***
