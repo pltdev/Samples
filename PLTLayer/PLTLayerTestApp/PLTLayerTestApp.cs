@@ -78,7 +78,7 @@ namespace Plantronics.EZ.PLTLayerTestApp
         {
             // 1. Setup Plantronics
             plt = PLTLayer.Instance;
-            plt.SetConsoleLogging(true); // enable optional detailed logging info from Plantronics SDK
+            //plt.SetConsoleLogging(true); // enable optional detailed logging info from Plantronics SDK
             plt.PltEvent += new PLTLayer.PltEventHandler(plt_PltEvent);
             plt.setup(MY_APP_NAME);
 
