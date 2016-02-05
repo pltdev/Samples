@@ -226,6 +226,14 @@
             </summary>
             <param name="enable">A boolean to say if you want it on or off</param>
         </member>
+        <member name="M:Plantronics.UC.SpokesWrapper.Spokes.GetAudioSensing">
+            <summary>
+            Gets the Audio Sensing setting value of the current primary device
+            (on or off). For example, needs to be off if you want to programatically
+            control the audio state via ConnectAudioLinkToDevice method.
+            </summary>
+            <returns>A boolean to say if you want it on or off</returns>
+        </member>
         <member name="M:Plantronics.UC.SpokesWrapper.Spokes.RequestAllSerialNumbers">
             <summary>
             Instruct Spokes to tell us the serial numbers of attached Plantronics device, i.e. headset and base/usb adaptor.
@@ -621,6 +629,16 @@
             Instruct the Plantronics multiline device to activate the specified phone line.
             </summary>
             <param name="line">Integer specifying line to activate, PC=1, Mobile=2 or Desk Phone=3</param>
+        </member>
+        <member name="M:Plantronics.EZ.API.PLTLayer.audioon">
+            <summary>
+            Instruct the Plantronics device to activate the audio link (applicable to wireless products)
+            </summary>
+        </member>
+        <member name="M:Plantronics.EZ.API.PLTLayer.audiooff">
+            <summary>
+            Instruct the Plantronics device to de-activate the audio link (applicable to wireless products)
+            </summary>
         </member>
         <member name="M:Plantronics.EZ.API.PLTLayer.ring(System.Int32,System.String)">
             <summary>

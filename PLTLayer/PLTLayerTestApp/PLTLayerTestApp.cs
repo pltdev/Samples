@@ -20,6 +20,15 @@ using Plantronics.EZ.API;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.5:
+ * Date: 5th Feb 2016
+ * Compatible with Plantronics Hub version(s): 3.7.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding demonstration of audioon/audiooff to the test application
+ *       to show turning on/off the wireless link of pre-Focus UC products.
+ *     - Adding showfeatures command to avoid too much debug for user.
+ *
  * Version 1.0.0.4:
  * Date: 22nd Dec 2016
  * Compatible with Plantronics Hub version(s): 3.7.x
@@ -73,6 +82,8 @@ namespace Plantronics.EZ.PLTLayerTestApp
         static PLTLayer plt;
         static bool m_quit = false;
         static string MY_APP_NAME = "PLTLayerTestApp";
+        private static List<string> m_deviceCapabilities;
+        private static bool m_deviceAttached = false;
 
         static void Main(string[] args)
         {
@@ -90,8 +101,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
 
             // 3. Shutdown Plantronics
             plt.PltEvent -= plt_PltEvent;
-            plt.shutdown();
-            //Pause();
         }
 
         /// <summary>
@@ -218,6 +227,14 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     // de-activate the chosen line
                     plt.off((PLTLine)line);
                     break;
+                case "audioon":
+                    // activate the wireless link
+                    plt.audioon();
+                    break;
+                case "audiooff":
+                    // de-activate the wireless link
+                    plt.audiooff();
+                    break;
                 case "linehold":
                     ReadLineInfo(ref line);
                     // hold the chosen line
@@ -252,6 +269,25 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 case "getgenes":
                     // request the genes id's of base and headset devices
                     plt.getgenes();
+                    break;
+
+                case "showfeatures":
+                    // show the Plantronics device capabilities (features)
+                    if (m_deviceAttached)
+                    {
+                        Console.WriteLine("  [device features: "
+                            + "docking: " + m_deviceCapabilities[0] + ", "
+                            + "mob callid: " + m_deviceCapabilities[1] + ", "
+                            + "mob state: " + m_deviceCapabilities[2] + "\r\n"
+                            + "  multiline: " + m_deviceCapabilities[3] + ", "
+                            + "proximit: " + m_deviceCapabilities[4] + ", "
+                            + "wearstate: " + m_deviceCapabilities[5] + ", "
+                            + "wireless: " + m_deviceCapabilities[6] + "]");                        
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please attach a Plantronics device to PC first.");
+                    }
                     break;
 
                 case "help":
@@ -292,7 +328,7 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 // BASIC SOFTPHONE CALL CONTROL EVENTS:
                 //
                 case PltEventType.CallAnswered:
-                    Console.WriteLine("Plantronics answered a Softphone Call:\r\n"
+                    Console.WriteLine("> Plantronics answered a Softphone Call:\r\n"
                         + "Call Id: " + e.MyParams[0] + "\r\n"
                         + "Call Source: " + e.MyParams[1]);
                     // is the call in my app?
@@ -303,7 +339,7 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     }
                     break;
                 case PltEventType.CallEnded:
-                    Console.WriteLine("Plantronics ended a Softphone Call:\r\n"
+                    Console.WriteLine("> Plantronics ended a Softphone Call:\r\n"
                         + "Call Id: " + e.MyParams[0] + "\r\n"
                         + "Call Source: " + e.MyParams[1]);
                     // is the call in my app?
@@ -314,18 +350,18 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     }
                     break;
                 case PltEventType.Muted:
-                    Console.WriteLine("Plantronics was muted");
+                    Console.WriteLine("> Plantronics was muted");
                     // TODO: syncronise with your app's mute feature
                     break;
                 case PltEventType.UnMuted:
-                    Console.WriteLine("Plantronics was un-muted");
+                    Console.WriteLine("> Plantronics was un-muted");
                     // TODO: syncronise with your app's mute feature
                     break;
 
                 // ADVANCED SOFTPHONE CALL CONTROL EVENTS:
                 //
                 case PltEventType.OnCall:
-                    Console.WriteLine("Plantronics went on Softphone Call:\r\n"
+                    Console.WriteLine("> Plantronics went on Softphone Call:\r\n"
                         + "Call Id: " + e.MyParams[0] + "\r\n"
                         + "Call Source: " + e.MyParams[1] + "\r\n"
                         + "Is Incoming?: " + e.MyParams[2] + "\r\n"
@@ -343,7 +379,7 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     }
                     break;
                 case PltEventType.NotOnCall:
-                    Console.WriteLine("Plantronics ended a Softphone Call:\r\n"
+                    Console.WriteLine("> Plantronics ended a Softphone Call:\r\n"
                         + "Call Id: " + e.MyParams[0] + "\r\n"
                         + "Call Source: " + e.MyParams[1]);
                     // is the call in my app?
@@ -359,12 +395,12 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     }
                     break;
                 case PltEventType.CallSwitched:
-                    Console.WriteLine("Plantronics switched a Softphone Call");
+                    Console.WriteLine("> Plantronics switched a Softphone Call");
                     // this event is for information only, the callid of activated call will
                     // be available via a CallAnswered event
                     break;
                 case PltEventType.CallRequested:
-                    Console.WriteLine("Plantronics dialpad device requested (dialed) a Softphone Call to this contact:\r\n"
+                    Console.WriteLine("> Plantronics dialpad device requested (dialed) a Softphone Call to this contact:\r\n"
                         + "Email: " + e.MyParams[0] + "\r\n"
                         + "FriendlyName: " + e.MyParams[1] + "\r\n"
                         + "HomePhone: " + e.MyParams[2] + "\r\n"
@@ -380,7 +416,7 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 // PLANTRONICS MULTI-LINE DEVICE EVENTS (e.g. Savi 700 Series):
                 //
                 case PltEventType.MultiLineStateChanged:
-                    Console.WriteLine("Plantronics multiline state changed: \r\n"
+                    Console.WriteLine("> Plantronics multiline state changed: \r\n"
                         + "       PC Line: Active?: " + e.MyParams[0] + ", Held?: " + e.MyParams[1] + "\r\n"
                         + "   Mobile Line: Active?: " + e.MyParams[2] + ", Held?: " + e.MyParams[3] + "\r\n"
                         + "Deskphone Line: Active?: " + e.MyParams[4] + ", Held?: " + e.MyParams[5]);
@@ -390,9 +426,12 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 // PLANTRONICS "GENES ID" FEATURE EVENTS (DEVICE SERIAL NUMBERS):
                 //
                 case PltEventType.SerialNumber:
-                    Console.WriteLine("Plantronics Genes ID (Serial Number) was received:\r\n"
-                        + "Serial Number: " + e.MyParams[0] + "\r\n"
-                        + "Serial Type: " + e.MyParams[1]);
+                    if (e.MyParams[0] != "")
+                    {
+                        Console.WriteLine("> Plantronics Genes ID (Serial Number) was received:\r\n"
+                                          + "Serial Number: " + e.MyParams[0] + "\r\n"
+                                          + "Serial Type: " + e.MyParams[1]);
+                    }
                     // TODO: optional syncronise with your app's agent tracking system
                     // (e.g. asset tracking or used to apply user personalised settings, i.e. on shared workstation)
                     break;
@@ -400,67 +439,70 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 // PLANTRONICS "CONTEXTUAL INTELLIGENCE FEATURE EVENTS:
                 //
                 case PltEventType.PutOn:
-                    Console.WriteLine("Plantronics was put on");
+                    Console.WriteLine("> Plantronics was put on");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.TakenOff:
-                    Console.WriteLine("Plantronics was taken off");
+                    Console.WriteLine("> Plantronics was taken off");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Near:
-                    Console.WriteLine("Plantronics in wireless range: NEAR");
+                    Console.WriteLine("> Plantronics in wireless range: NEAR");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Far:
-                    Console.WriteLine("Plantronics in wireless range: FAR");
+                    Console.WriteLine("> Plantronics in wireless range: FAR");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.InRange:
-                    Console.WriteLine("Plantronics came into wireless range");
+                    Console.WriteLine("> Plantronics came into wireless range");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.OutOfRange:
-                    Console.WriteLine("Plantronics went out of wireless range");
+                    Console.WriteLine("> Plantronics went out of wireless range");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Docked:
-                    Console.WriteLine("Plantronics was docked");
+                    Console.WriteLine("> Plantronics was docked");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.UnDocked:
-                    Console.WriteLine("Plantronics was un-docked");
+                    Console.WriteLine("> Plantronics was un-docked");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Connected:
-                    Console.WriteLine("Plantronics was connected to QD connector");
+                    Console.WriteLine("> Plantronics was connected to QD connector");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Disconnected:
-                    Console.WriteLine("Plantronics was disconnected from QD connector");
+                    Console.WriteLine("> Plantronics was disconnected from QD connector");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
 
                 // PLANTRONICS DEVICE INFORMATION EVENTS:
                 //
                 case PltEventType.Attached:
-                    Console.WriteLine("Plantronics was attached: Product Name: "
-                        + e.MyParams[0] + ", Product Id: " + Int32.Parse(e.MyParams[1]).ToString("X"));
+                    m_deviceAttached = true;
+                    Console.WriteLine("\r\n> Plantronics was attached: Product Name: "
+                        + e.MyParams[0] + ", Product Id: " + Int32.Parse(e.MyParams[1]).ToString("X")+"\r\n");
                     // TODO: optional: switch your app to headset audio mode when Plantronics attached
                     break;
                 case PltEventType.Detached:
-                    Console.WriteLine("Plantronics was detached");
+                    m_deviceAttached = false;
+                    Console.WriteLine("> Plantronics was detached");
                     // TODO: optional: switch your app to non-headset audio mode when Plantronics detached
                     break;
                 case PltEventType.CapabilitiesChanged:
-                    Console.WriteLine("Plantronics device discovered capabilities have changed, as follows:\r\n"
-                        + "HasDocking: " + e.MyParams[0] + "\r\n"
-                        + "HasMobCallerId: " + e.MyParams[1] + "\r\n"
-                        + "HasMobCallState: " + e.MyParams[2] + "\r\n"
-                        + "HasMultiline: " + e.MyParams[3] + "\r\n"
-                        + "HasProximity: " + e.MyParams[4] + "\r\n"
-                        + "HasWearingSensor: " + e.MyParams[5] + "\r\n"
-                        + "IsWireless: " + e.MyParams[6] + "\r\n"
-                        + "ProductId: " + e.MyParams[7]);
+                    m_deviceCapabilities = e.MyParams;
+                // Optional: uncomment for debugging purposes
+                //    Console.WriteLine("  [device features: "
+                //        + "docking: " + e.MyParams[0] + ", "
+                //        + "mob callid: " + e.MyParams[1] + ", "
+                //        + "mob state: " + e.MyParams[2] + "\r\n"
+                //        + "  multiline: " + e.MyParams[3] + ", "
+                //        + "proximit: " + e.MyParams[4] + ", "
+                //        + "wearstate: " + e.MyParams[5] + ", "
+                //        + "wireless: " + e.MyParams[6] + "]");
                     // TODO: optional: use this information to know what features/events to expect from
                     // Plantronics device in your app
                     break;
@@ -468,32 +510,32 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 // MOBILE CALL CONTROL EVENTS (e.g. Voyager Legend, Voyager Edge, Calisto 620):
                 //
                 case PltEventType.OnMobileCall:
-                    Console.WriteLine("Plantronics went on Mobile Call:\r\n"
+                    Console.WriteLine("> Plantronics went on Mobile Call:\r\n"
                         + "Is Incoming?: " + e.MyParams[0] + "\r\n"
                         + "Call State: " + e.MyParams[1]);
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.MobileCallerId:
-                    Console.WriteLine("Plantronics reported Mobile Caller Id (remote party phone number):\r\n"
+                    Console.WriteLine("> Plantronics reported Mobile Caller Id (remote party phone number):\r\n"
                         + "Mobile Caller Id?: " + e.MyParams[0]);
                     // TODO: optional syncronise with your app's contacts database / CRM system
                     break;
                 case PltEventType.NotOnMobileCall:
-                    Console.WriteLine("Plantronics ended a Mobile Call");
+                    Console.WriteLine("> Plantronics ended a Mobile Call");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
 
                 // OTHER DEVICE EVENTS:
                 //
                 case PltEventType.BaseButtonPressed:
-                    Console.WriteLine("Plantronics base button pressed: button id: "
+                    Console.WriteLine("> Plantronics base button pressed: button id: "
                         + e.MyParams[0]);
                     // BaseButtonPressed event is for information only
                     // Note: some devices will generate button events internally even when no
                     // physical button is pressed.
                     break;
                 case PltEventType.ButtonPressed:
-                    Console.WriteLine("Plantronics button pressed: button id: "
+                    Console.WriteLine("> Plantronics button pressed: button id: "
                         + e.MyParams[0]);
                     // ButtonPressed event is for information only
                     // Note: some devices will generate button events internally even when no
@@ -567,8 +609,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
             Console.WriteLine();
             Console.WriteLine("Valid commands:");
             Console.WriteLine("--");
-            Console.WriteLine("on, ring, ans, off, muteon, muteoff, hold, resume, lineon, lineoff,\r\n"+
-                "linehold, lineresume, dialmob, ansmob, rejmob, endmob, getgenes, help, quit");
+            Console.WriteLine("on, ring, ans, off, muteon, muteoff, hold, resume, audioon, audiooff,\r\n"+
+                "lineon, lineoff, linehold, lineresume, dialmob, ansmob, rejmob, endmob,\r\n"+
+                "getgenes, showfeatures, help, quit");
         }
 
         private static void ReadCallInfo(ref int callid)

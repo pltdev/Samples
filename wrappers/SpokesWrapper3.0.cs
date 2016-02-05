@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.39:
+ * Date: 5th February 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.7 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added exception handling to SetAudioSensing function (as it will
+ *       fail with unsupported exception with Voyager Focus).
+ *
  * Version 1.5.38:
  * Date: 22nd January 2016
  * Tested with Plantronics Hub / SDK version(s): 3.7 latest
@@ -2234,10 +2242,41 @@ namespace Plantronics.UC.SpokesWrapper
         /// <param name="enable">A boolean to say if you want it on or off</param>
         public void SetAudioSensing(bool enable)
         {
-            if (m_advanceSettings!=null)
+            try
             {
-                m_advanceSettings.AudioSensing = enable;
+                if (m_advanceSettings != null)
+                {
+                    m_advanceSettings.AudioSensing = enable;
+                }
             }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught setting audio sensing: " + e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Gets the Audio Sensing setting value of the current primary device
+        /// (on or off). For example, needs to be off if you want to programatically
+        /// control the audio state via ConnectAudioLinkToDevice method.
+        /// </summary>
+        /// <returns>A boolean to say if you want it on or off</returns>
+        public bool GetAudioSensing()
+        {
+            bool retval = false;
+            try
+            {
+                if (m_advanceSettings != null)
+                {
+                    retval = m_advanceSettings.AudioSensing;
+                }
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught getting audio sensing: " + e.ToString());
+                retval = false;
+            }
+            return retval;
         }
 
         void m_deviceComEvents_onDataReceived(ref object report)
@@ -3300,15 +3339,23 @@ namespace Plantronics.UC.SpokesWrapper
         /// <param name="connect">Tells Spokes whether to open or close the audio/rf link to device</param>
         public void ConnectAudioLinkToDevice(bool connect)
         {
-            DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Setting audio link active = " + connect.ToString());
-            if (m_activeDevice != null)
+            try
             {
-                m_activeDevice.HostCommand.AudioState =
-                    connect ? DeviceAudioState.AudioState_MonoOn : DeviceAudioState.AudioState_MonoOff;
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Setting audio link active = " + connect.ToString());
+                if (m_activeDevice != null)
+                {
+                    m_activeDevice.HostCommand.AudioState =
+                        connect ? DeviceAudioState.AudioState_MonoOn : DeviceAudioState.AudioState_MonoOff;
+                }
+                else
+                {
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                        "Spokes: INFO: cannot set audio link state, no device");
+                }
             }
-            else
+            catch (Exception e)
             {
-                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: cannot set audio link state, no device");
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught setting audio link state: " + e.ToString());
             }
         }
 

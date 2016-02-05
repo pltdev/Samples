@@ -34,6 +34,15 @@ using System.Reflection;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.5:
+ * Date: 5th Feb 2016
+ * Compatible with Plantronics Hub version(s): 3.7.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding audioon/audiooff methods to enable/disable wireless device links
+ *       for pre-Focus UC devices. Also automatically disables audio sensing
+ *       for these devices on setup, and restores it to previous state on shutdown.
+ *
  * Version 1.0.0.4:
  * Date: 22nd Jan 2016
  * Compatible with Plantronics Hub version(s): 3.7.x
@@ -164,6 +173,7 @@ namespace Plantronics.EZ.API
         public event PltEventHandler PltEvent;
 
         private string m_previousSoftphone = "";
+        private bool m_previousAudioSensing;
 
         private void OnPltEvent(PltEventArgs e)
         {
@@ -241,6 +251,11 @@ namespace Plantronics.EZ.API
 
                 // Connect to Plantronics SDK
                 m_IsConnected = m_spokes.Connect(AppName);
+
+                if (m_IsConnected)
+                {
+                    setassoftphone();
+                }
             }
             catch (Exception e)
             {
@@ -416,6 +431,7 @@ namespace Plantronics.EZ.API
         public void shutdown()
         {
             restoresoftphone();
+            m_spokes.SetAudioSensing(m_previousAudioSensing);
             if (m_IsConnected) m_spokes.Disconnect();
             m_IsConnected = false;
         }
@@ -453,6 +469,9 @@ namespace Plantronics.EZ.API
             OnPltEvent(new PltEventArgs(PltEventType.Attached, 
                 e.m_device.ProductName.ToString(), 
                 e.m_device.ProductId.ToString()));
+
+            m_previousAudioSensing = m_spokes.GetAudioSensing();
+            m_spokes.SetAudioSensing(false);
         }
 
         /// <summary>
@@ -559,6 +578,22 @@ namespace Plantronics.EZ.API
         public void lineon(int line)
         {
             m_spokes.SetLineActive(ConvertLineType((PLTLine)line), true);
+        }
+
+        /// <summary>
+        /// Instruct the Plantronics device to activate the audio link (applicable to wireless products)
+        /// </summary>
+        public void audioon()
+        {
+            m_spokes.ConnectAudioLinkToDevice(true);
+        }
+
+        /// <summary>
+        /// Instruct the Plantronics device to de-activate the audio link (applicable to wireless products)
+        /// </summary>
+        public void audiooff()
+        {
+            m_spokes.ConnectAudioLinkToDevice(false);
         }
 
         /// <summary>
@@ -906,7 +941,8 @@ namespace Plantronics.EZ.API
         {
             if (m_spokes != null)
             {
-                m_spokes.SetDefaultSoftphone(m_previousSoftphone);
+                if (m_previousSoftphone!="") // only do it pltlayer user has set itself as softphone
+                    m_spokes.SetDefaultSoftphone(m_previousSoftphone);
             }
             else
             {
