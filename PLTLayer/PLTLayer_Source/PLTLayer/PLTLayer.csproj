@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\PLTLayerTestApp\</OutputPath>
-    <DefineConstants>TRACE;doubloon</DefineConstants>
+    <DefineConstants>TRACE;doubloon FocusWorkaround</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\PLTLayerTestApp\PLTLayer.XML</DocumentationFile>

@@ -541,6 +541,11 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     // Note: some devices will generate button events internally even when no
                     // physical button is pressed.
                     break;
+
+                // for debugging:
+                //case PltEventType.RawDataReceived:
+                //    Console.WriteLine("\r\n"+DateTime.Now+"r:"+e.MyParams[0]);
+                //    break;
             }
 
             // Example debug output to show ALL events/parameters (commented out)

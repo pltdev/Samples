@@ -34,6 +34,13 @@ using System.Reflection;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.6:
+ * Date: 12th Feb 2016
+ * Compatible with Plantronics Hub version(s): 3.7.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Compiling with interim support for Focus UC docking and in range/out of range
+ *
  * Version 1.0.0.5:
  * Date: 5th Feb 2016
  * Compatible with Plantronics Hub version(s): 3.7.x
@@ -144,6 +151,9 @@ namespace Plantronics.EZ.API
         bool m_muted = false;
         bool m_active = false;
         bool m_docked = true;
+        private bool m_haddockingevent = false;
+        bool m_inrange = false;
+        private bool m_hadrangeevent = false;
         int m_internalcallid = 0;
         List<PLTCallId> m_callids = new List<PLTCallId>();
         #endregion
@@ -400,12 +410,18 @@ namespace Plantronics.EZ.API
 
         void m_spokes_OutOfRange(object sender, EventArgs e)
         {
-            OnPltEvent(new PltEventArgs(PltEventType.OutOfRange));
+            if (m_inrange || !m_hadrangeevent)
+                OnPltEvent(new PltEventArgs(PltEventType.OutOfRange));
+            m_inrange = false;
+            m_hadrangeevent = true;
         }
 
         void m_spokes_InRange(object sender, EventArgs e)
         {
-            OnPltEvent(new PltEventArgs(PltEventType.InRange));
+            if (!m_inrange || !m_hadrangeevent)
+                OnPltEvent(new PltEventArgs(PltEventType.InRange));
+            m_inrange = true;
+            m_hadrangeevent = true;
         }
 
         void m_spokes_Far(object sender, EventArgs e)
@@ -452,16 +468,18 @@ namespace Plantronics.EZ.API
 
         void m_spokes_Docked(object sender, DockedStateArgs e)
         {
-            if (e.m_isInitialStateEvent || m_docked != e.m_docked)
+            if (e.m_isInitialStateEvent || m_docked != e.m_docked || !m_haddockingevent)
                 OnPltEvent(new PltEventArgs(PltEventType.Docked));
             m_docked = e.m_docked;
+            m_haddockingevent = true;
         }
 
         void m_spokes_UnDocked(object sender, DockedStateArgs e)
         {
-            if (e.m_isInitialStateEvent || m_docked != e.m_docked)
+            if (e.m_isInitialStateEvent || m_docked != e.m_docked || !m_haddockingevent)
                 OnPltEvent(new PltEventArgs(PltEventType.UnDocked));
             m_docked = e.m_docked;
+            m_haddockingevent = true;
         }
 
         void m_spokes_Attached(object sender, AttachedArgs e)

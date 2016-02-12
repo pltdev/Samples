@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.40:
+ * Date: 12th February 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.7 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added optional FocusWorkaround conditional to add interim support
+ *       for docking and inrange/outofrange for Focus UC product.
+ *
  * Version 1.5.39:
  * Date: 5th February 2016
  * Tested with Plantronics Hub / SDK version(s): 3.7 latest
@@ -2289,6 +2297,42 @@ namespace Plantronics.UC.SpokesWrapper
             byte[] reportbuf = (byte[])report;
             RawDataReceivedArgs args = new RawDataReceivedArgs(reportbuf, byteArrayToString(reportbuf));
             OnRawDataReceived(args);
+
+#if FocusWorkaround
+            // use BladeRunner data to implement Docking and In Range/Out of Range events
+            // (and maybe proximity, nice to have)
+            string bladerunnercommand = args.m_datareporthex.Substring(18, 4);
+            switch (bladerunnercommand)
+            {
+                case "0A1C":
+                    // battery status
+                    string chargingbyte = args.m_datareporthex.Substring(26, 2);
+                    if (chargingbyte == "01")
+                    {
+                        OnDocked(new DockedStateArgs(true, false));
+                    }
+                    else if (chargingbyte == "00")
+                    {
+                        OnUnDocked(new DockedStateArgs(false, false));
+                    }
+                    break;
+                case "0C00":
+                    // connection status
+                    string portnumber = args.m_datareporthex.Substring(22, 2);
+                    if (portnumber == "00")
+                    {
+                        OnOutOfRange(EventArgs.Empty);
+                    }
+                    else if (portnumber == "0C")
+                    {
+                        OnInRange(EventArgs.Empty);
+                    }
+                    else OnInRange(EventArgs.Empty); // for now assume all non-zero port means in range! TODO review later
+                    break;
+            }
+            
+
+#endif
         }
 
         //// Initialization code for Calisto devices
@@ -2839,6 +2883,10 @@ namespace Plantronics.UC.SpokesWrapper
                     //m_ignorenextbattlevevent = true;
                     m_lastdocked = DetectLegendDockedState(true);
                     docked = m_lastdocked;
+                }
+                else if (m_activeDevice.ProductName.Contains("BT600"))
+                {
+                    DeviceCapabilities.HasDocking = true; // updated, focus uc does have docking
                 }
                 else
                 {
