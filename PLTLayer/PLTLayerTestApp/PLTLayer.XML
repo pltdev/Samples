@@ -720,6 +720,13 @@
             </summary>
             <param name="mute">True to activate mute, false to de-activate it.</param>
         </member>
+        <member name="M:Plantronics.EZ.API.PLTLayer.getmute">
+            <summary>
+            This method returns the current mute status of the attached primary Plantronics
+            device.
+            </summary>
+            <returns>True or false to indicated muted or not.</returns>
+        </member>
         <member name="M:Plantronics.EZ.API.PLTLayer.hold(System.Int32,System.Boolean)">
             <summary>
             This method will inform Plantronics that user has held or resumed a 

@@ -39,6 +39,16 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.41:
+ * Date: 26th February 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.7 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added Get/SetMuteToneVolume and Get/SetMuteTone functions to
+ *       manipulate the mute tone settings of the headset.
+ *     - Added a fix to obtain DA80 initial connected state after 1 second
+ *       delay (on initial attach device it caused COM error)
+ *     
  * Version 1.5.40:
  * Date: 12th February 2016
  * Tested with Plantronics Hub / SDK version(s): 3.7 latest
@@ -709,6 +719,9 @@ namespace Plantronics.UC.SpokesWrapper
 
         private List<SpokesDeviceCaps> m_AllDeviceCapabilities;
 
+        private Timer connectedTimer;
+        private int connectedRetries = 0;
+
         /// <summary>
         /// Default constructor, cannot be called directly. To obtain singleton call Spokes.Instance.
         /// </summary>
@@ -717,6 +730,11 @@ namespace Plantronics.UC.SpokesWrapper
             m_debuglog = null;
 
             PreLoadAllDeviceCapabilities();
+        }
+
+        private void ConnectedRetryCallback(object state)
+        {
+            GetLastConnectedStatus();
         }
 
         private SpokesDeviceCaps GetMyDeviceCapabilities()
@@ -880,6 +898,8 @@ namespace Plantronics.UC.SpokesWrapper
         static ICOMHostCommandExt m_hostCommandExt;
         static ICOMUserPreference m_userPreference;
         static ICOMAdvanceSettings m_advanceSettings;
+        static ICOMDeviceSettings m_deviceSettings;
+        static ICOMDeviceListener m_deviceListener;
 #if doubloon || newDASeries
         static ICOMDeviceSettingsExt m_deviceSettingsExt;
 #endif
@@ -2178,6 +2198,10 @@ namespace Plantronics.UC.SpokesWrapper
                 if (m_userPreference == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain user preference interface");
                 m_advanceSettings = m_activeDevice.HostCommand as ICOMAdvanceSettings;
                 if (m_advanceSettings == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain advanced settings interface");
+                m_deviceSettings = m_activeDevice.HostCommand as ICOMDeviceSettings;
+                if (m_deviceSettings == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain device settings interface");
+                m_deviceListener = m_activeDevice.DeviceListener;
+                if (m_deviceListener == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain device listener interface");
 
 #if doubloon || newDASeries
                 m_deviceSettingsExt = m_activeDevice.HostCommand as ICOMDeviceSettingsExt;
@@ -2287,6 +2311,70 @@ namespace Plantronics.UC.SpokesWrapper
             return retval;
         }
 
+        public void SetMuteToneVolume(COMVolumeLevel level)
+        {
+            try
+            {
+                if (m_deviceSettings != null)
+                {
+                    m_deviceSettings.MuteToneVolume = level;
+                }
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught setting mute tone volume: " + e.ToString());
+            }
+        }
+
+        public COMVolumeLevel GetMuteToneVolume()
+        {
+            COMVolumeLevel retval = COMVolumeLevel.VolumeLevel_Standard;
+            try
+            {
+                if (m_deviceSettings != null)
+                {
+                    retval = m_deviceSettings.MuteToneVolume;
+                }
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught getting mute tone volume: " + e.ToString());
+            }
+            return retval;
+        }
+
+        public void SetMuteTone(COMRingTone tone)
+        {
+            try
+            {
+                if (m_deviceSettings != null)
+                {
+                    m_deviceSettings.MuteTone = tone;
+                }
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught setting mute tone: " + e.ToString());
+            }
+        }
+
+        public COMRingTone GetMuteTone()
+        {
+            COMRingTone retval = COMRingTone.RingTone_Type1;
+            try
+            {
+                if (m_deviceSettings != null)
+                {
+                    retval = m_deviceSettings.MuteTone;
+                }
+            }
+            catch (Exception e)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception caught getting mute tone: " + e.ToString());
+            }
+            return retval;
+        }
+
         void m_deviceComEvents_onDataReceived(ref object report)
         {
             // LC 11-7-2013 TT: 23171   Cannot receive OLMP/Bladerunner responses from headset - need to expose Device.DataReceived event to COM
@@ -2299,6 +2387,10 @@ namespace Plantronics.UC.SpokesWrapper
             OnRawDataReceived(args);
 
 #if FocusWorkaround
+
+            // uncomment for debug:
+            // Console.WriteLine(args.m_datareporthex);
+
             // use BladeRunner data to implement Docking and In Range/Out of Range events
             // (and maybe proximity, nice to have)
             string bladerunnercommand = args.m_datareporthex.Substring(18, 4);
@@ -2326,9 +2418,40 @@ namespace Plantronics.UC.SpokesWrapper
                     else if (portnumber == "0C")
                     {
                         OnInRange(EventArgs.Empty);
+                        // New, get all the device state info on inrange trigger:
+                        // now poll for current state (proximity, mobile call status, donned status, mute status)
+                        GetInitialDeviceState();
+
+                        // tell app to look again at battery level (headset in range)
+                        OnBatteryLevelChanged(EventArgs.Empty);
                     }
-                    else OnInRange(EventArgs.Empty); // for now assume all non-zero port means in range! TODO review later
+                    else
+                    {
+                        OnInRange(EventArgs.Empty);
+                        // for now assume all non-zero port means in range! TODO review later
+                        // New, get all the device state info on inrange trigger:
+                        // now poll for current state (proximity, mobile call status, donned status, mute status)
+                        GetInitialDeviceState();
+
+                        // tell app to look again at battery level (headset in range)
+                        OnBatteryLevelChanged(EventArgs.Empty);
+                    }
                     break;
+                //case "0800":
+                    // NOTE: this hack didn't work. I am now looking to turn of proximity
+                    // voice prompts in the Hub code itself.
+                    // you cannot send raw bladerunner to e.g. Focus UC via COM API
+                    // you just get an exception
+                //    // proximity was enabled?
+                //    string enabled = args.m_datareporthex.Substring(24, 2);
+                //    if (enabled == "01")
+                //    {
+                //        // proximity was enabled, now turn off voice reporting!
+                //        string bladerunnercommand2 = args.m_datareporthex.Substring(0, 30)
+                //                                    + "000000" + args.m_datareporthex.Substring(36);
+                //        SendCustomMessageToHeadset(bladerunnercommand2);
+                //    }
+                //    break;
             }
             
 
@@ -2389,6 +2512,7 @@ namespace Plantronics.UC.SpokesWrapper
             }
             try
             {
+                if (m_activeDevice != null && m_activeDevice.ProductName.Contains("BT600")) return; // LC avoid base events for serials for BT600
                 ICOMBaseEvents_Event be = m_deviceComEvents as ICOMBaseEvents_Event;
                 be.onBaseEventReceived += be_BaseEventReceived;
             }
@@ -2547,11 +2671,28 @@ namespace Plantronics.UC.SpokesWrapper
                     else OnDisconnected(new ConnectedStateArgs(false, true));
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // probably we don't have QD connector, lets inform user...
-                DeviceCapabilities.HasQDConnector = false;
-                OnCapabilitiesChanged(EventArgs.Empty);
+                DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                    "INFO: exception caught getting last QD connected state (does it have a QD?) " + e.ToString());
+                if ((m_devicename.ToUpper().Contains("DA80") 
+                    ||
+                    m_devicename.ToUpper().Contains("DA70")
+                    ||
+                    m_devicename.ToUpper().Contains("DA90")
+                    )
+                    && connectedRetries<5)
+                {
+                    // todo - reschedule a check of connected state after time delay
+                    connectedTimer = new Timer(ConnectedRetryCallback, null, 1000, 0);
+                    connectedRetries++;
+                }
+                else
+                {
+                    // probably we don't have QD connector, lets inform user...
+                    DeviceCapabilities.HasQDConnector = false;
+                    OnCapabilitiesChanged(EventArgs.Empty);
+                }
             }
             return connected;
         }
@@ -2788,13 +2929,37 @@ namespace Plantronics.UC.SpokesWrapper
             catch (System.Exception e)
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: proximity may not be supported on your device.");
+#if FocusWorkaround
+                // re-schedule register for proximity after time delay
+                ScheduleRegisterForProximity();
+#else
                 // uh-oh proximity may not be supported... disable it as option in GUI (only if we have not
                 // loaded all device capabilities database
                 if (m_AllDeviceCapabilities.Count==0)
                     DeviceCapabilities.HasProximity = false;
                 OnCapabilitiesChanged(EventArgs.Empty);
+#endif
             }
         }
+
+#if FocusWorkaround
+        Task Delay(int milliseconds)        // Asynchronous NON-BLOCKING method
+        {
+            var tcs = new TaskCompletionSource<object>();
+            new Timer(_ => tcs.SetResult(null)).Change(milliseconds, -1);
+            return tcs.Task;
+        }
+
+        // re-schedule register for proximity after time delay
+        private void ScheduleRegisterForProximity()
+        {
+            Task task = Delay(3000);
+            task.ContinueWith(_ =>
+            {
+                RegisterForProximity(true);
+            });
+        }
+#endif
 
         /// <summary>
         /// Instruct Spokes to tell us the serial numbers of attached Plantronics device, i.e. headset and base/usb adaptor.

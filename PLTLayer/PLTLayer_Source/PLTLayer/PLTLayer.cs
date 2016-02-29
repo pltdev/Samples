@@ -34,6 +34,15 @@ using System.Reflection;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.7:
+ * Date: 12th Feb 2016
+ * Compatible with Plantronics Hub version(s): 3.7.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added new isapiinstalled function so user can find if PltHub COM Service
+ *       API is available before proceeding with Plantronics device support.
+ *     - Now includes DA80 QD fix from the wrapper.
+ *
  * Version 1.0.0.6:
  * Date: 12th Feb 2016
  * Compatible with Plantronics Hub version(s): 3.7.x
@@ -273,6 +282,11 @@ namespace Plantronics.EZ.API
             }
         }
 
+        public bool isapiinstalled()
+        {
+            return Spokes.Instance.IsSpokesInstalled();
+        }
+
         void m_spokes_Disconnected(object sender, ConnectedStateArgs e)
         {
             OnPltEvent(new PltEventArgs(PltEventType.Disconnected,
@@ -297,7 +311,9 @@ namespace Plantronics.EZ.API
         void m_spokes_BaseButtonPress(object sender, BaseButtonPressArgs e)
         {
             OnPltEvent(new PltEventArgs(PltEventType.BaseButtonPressed,
-                ((int)e.baseButton).ToString()));
+                ((int)e.baseButton).ToString(), 
+                ((int)e.dialedKey).ToString())
+                );
         }
 
         void m_spokes_ButtonPress(object sender, ButtonPressArgs e)
@@ -327,6 +343,7 @@ namespace Plantronics.EZ.API
                 m_spokes.DeviceCapabilities.HasProximity.ToString(),
                 m_spokes.DeviceCapabilities.HasWearingSensor.ToString(),
                 m_spokes.DeviceCapabilities.IsWireless.ToString(),
+                m_spokes.DeviceCapabilities.HasQDConnector.ToString(),
                 m_spokes.DeviceCapabilities.ProductId));
         }
 
@@ -736,6 +753,36 @@ namespace Plantronics.EZ.API
         public void mute(bool mute)
         {
             m_spokes.SetMute(mute);
+        }
+
+        /// <summary>
+        /// This method returns the current mute status of the attached primary Plantronics
+        /// device.
+        /// </summary>
+        /// <returns>True or false to indicated muted or not.</returns>
+        public bool getmute()
+        {
+            return m_spokes.GetMute();
+        }
+
+        public void setmutetonevolume(int level = 2)
+        {
+            m_spokes.SetMuteToneVolume((COMVolumeLevel)level);
+        }
+
+        public int getmutetonevolume()
+        {
+            return (int)m_spokes.GetMuteToneVolume();
+        }
+
+        public void setmutetone(int tone = 0)
+        {
+            m_spokes.SetMuteTone((COMRingTone)tone);
+        }
+
+        public int getmutetone()
+        {
+            return (int) m_spokes.GetMuteTone();
         }
 
         // hold specified call

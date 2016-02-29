@@ -89,6 +89,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
         {
             // 1. Setup Plantronics
             plt = PLTLayer.Instance;
+
+            Console.WriteLine("Is API installed? " + (plt.isapiinstalled() ? "Yes" : "No"));
+
             //plt.SetConsoleLogging(true); // enable optional detailed logging info from Plantronics SDK
             plt.PltEvent += new PLTLayer.PltEventHandler(plt_PltEvent);
             plt.setup(MY_APP_NAME);
@@ -451,7 +454,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Far:
+                    Console.WriteLine("***************************************************************************");
                     Console.WriteLine("> Plantronics in wireless range: FAR");
+                    Console.WriteLine("***************************************************************************");
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.InRange:
@@ -471,11 +476,11 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Connected:
-                    Console.WriteLine("> Plantronics was connected to QD connector");
+                    Console.WriteLine("> Plantronics was connected to QD connector " + (Convert.ToBoolean(e.MyParams[1]) ? "(initially)" : ""));
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
                 case PltEventType.Disconnected:
-                    Console.WriteLine("> Plantronics was disconnected from QD connector");
+                    Console.WriteLine("> Plantronics was disconnected from QD connector " + (Convert.ToBoolean(e.MyParams[1]) ? "(initially)" : ""));
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
 
