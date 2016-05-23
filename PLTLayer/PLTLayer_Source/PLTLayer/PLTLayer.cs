@@ -319,7 +319,7 @@ namespace Plantronics.EZ.API
         void m_spokes_ButtonPress(object sender, ButtonPressArgs e)
         {
             OnPltEvent(new PltEventArgs(PltEventType.ButtonPressed, 
-                ((int)e.headsetButton).ToString()));
+                ((int)e.headsetButton).ToString(), e.audioType.ToString(), e.mute.ToString()));
         }
 
         void m_spokes_MultiLineStateChanged(object sender, MultiLineStateArgs e)
@@ -478,7 +478,7 @@ namespace Plantronics.EZ.API
 
         void m_spokes_LineActiveChanged(object sender, LineActiveChangedArgs e)
         {
-            if (m_muted != e.m_lineactive)
+            if (m_active != e.m_lineactive)
                 OnPltEvent(new PltEventArgs(e.m_lineactive ? PltEventType.LineActive : PltEventType.LineInactive));
             m_active = e.m_lineactive;
         }

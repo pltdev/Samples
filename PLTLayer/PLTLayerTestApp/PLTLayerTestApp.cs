@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Plantronics.EZ.API;
 
 /*******
@@ -483,6 +484,14 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     Console.WriteLine("> Plantronics was disconnected from QD connector " + (Convert.ToBoolean(e.MyParams[1]) ? "(initially)" : ""));
                     // TODO: optional syncronise with your app's agent availability feature
                     break;
+                case PltEventType.LineActive:
+                    Console.WriteLine("> Plantronics wireless link went ACTIVE.");
+                    // TODO: optional your app can know Plantronics line went active (especially for wireless products)
+                    break;
+                case PltEventType.LineInactive:
+                    Console.WriteLine("> Plantronics wireless link went in-active.");
+                    // TODO: optional your app can know Plantronics line went active (especially for wireless products)
+                    break;
 
                 // PLANTRONICS DEVICE INFORMATION EVENTS:
                 //
@@ -545,12 +554,21 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     // ButtonPressed event is for information only
                     // Note: some devices will generate button events internally even when no
                     // physical button is pressed.
+
+                    // LC try using for mute sync (mute button = 5)
+                    if (e.MyParams[0] == "5")
+                    {
+                        // mute button event was seen. re-query the mute state
+                        Console.Write("mute button detected");
+                        Thread.Sleep(200);
+                        Console.WriteLine(" mute state = "+plt.getmute());
+                    }
                     break;
 
                 // for debugging:
-                //case PltEventType.RawDataReceived:
-                //    Console.WriteLine("\r\n"+DateTime.Now+"r:"+e.MyParams[0]);
-                //    break;
+                case PltEventType.RawDataReceived:
+                    Console.WriteLine("\r\n" + DateTime.Now + "r:" + e.MyParams[0]);
+                    break;
             }
 
             // Example debug output to show ALL events/parameters (commented out)

@@ -39,6 +39,14 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.42:
+ * Date: 23rd May 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.8 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Extended FocusWorkaround conditional to support interim Far
+ *       event support.
+ *
  * Version 1.5.41:
  * Date: 26th February 2016
  * Tested with Plantronics Hub / SDK version(s): 3.7 latest
@@ -2135,11 +2143,11 @@ namespace Plantronics.UC.SpokesWrapper
                 if (m_deviceComEvents != null)
                 {
                     // Attach to device events
-                    //m_deviceComEvents.onButtonPressed += m_deviceComEvents_Handler;  // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
-                    m_deviceComEvents.onAudioStateChanged += m_deviceComEvents_Handler;
-                    m_deviceComEvents.onFlashButtonPressed += m_deviceComEvents_Handler;
+                    m_deviceComEvents.onButtonPressed += m_deviceComEvents_Handler;  // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
+                    //////m_deviceComEvents.onAudioStateChanged += m_deviceComEvents_Handler;
+                    //////m_deviceComEvents.onFlashButtonPressed += m_deviceComEvents_Handler;
                     m_deviceComEvents.onMuteStateChanged += m_deviceComEvents_Handler;
-                    m_deviceComEvents.onSmartButtonPressed += m_deviceComEvents_Handler;
+                    //////m_deviceComEvents.onSmartButtonPressed += m_deviceComEvents_Handler;
                     //m_deviceComEvents.onTalkButtonPressed += m_deviceComEvents_Handler; // not needed, instead rely on IDeviceListenerEvents.onHeadsetButtonPressed
 
                     // LC 11-7-2013 TT: 23171   Cannot receive OLMP/Bladerunner responses from headset - need to expose Device.DataReceived event to COM
@@ -2437,11 +2445,22 @@ namespace Plantronics.UC.SpokesWrapper
                         OnBatteryLevelChanged(EventArgs.Empty);
                     }
                     break;
+                case "0806":
+                    string nearfar = args.m_datareporthex.Substring(26, 2);
+                    if (nearfar == "00")    // this workaround is required with 3.8 for now as not done in Spokes SDK (will be in 3.8.1/3.9)
+                    {
+                        OnFar(EventArgs.Empty);
+                    }
+                    //else if (nearfar == "01") // this is done by Spokes SDK already
+                    //{
+                    //    OnNear(EventArgs.Empty);
+                    //}
+                    break;
                 //case "0800":
-                    // NOTE: this hack didn't work. I am now looking to turn of proximity
-                    // voice prompts in the Hub code itself.
-                    // you cannot send raw bladerunner to e.g. Focus UC via COM API
-                    // you just get an exception
+                // NOTE: this hack didn't work. I am now looking to turn of proximity
+                // voice prompts in the Hub code itself.
+                // you cannot send raw bladerunner to e.g. Focus UC via COM API
+                // you just get an exception
                 //    // proximity was enabled?
                 //    string enabled = args.m_datareporthex.Substring(24, 2);
                 //    if (enabled == "01")
@@ -2649,6 +2668,24 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: exception was caught from Spokes SDK: "+e.GetType());
             }
+        }
+
+        public void SetMuteAlert(COMMuteAlertValues muteAlert)
+        {
+            if (m_deviceSettingsExt != null)
+            {
+                m_deviceSettingsExt.MuteAlert = muteAlert;
+            }
+        }
+
+        public COMMuteAlertValues GetMuteAlert()
+        {
+            COMMuteAlertValues retval = COMMuteAlertValues.MuteAlertValue_Disabled;
+            if (m_deviceSettingsExt != null)
+            {
+                retval = m_deviceSettingsExt.MuteAlert;
+            }
+            return retval;
         }
 
         // new get last connected status of headset (QD connector) when app first runs
@@ -3602,7 +3639,11 @@ namespace Plantronics.UC.SpokesWrapper
             if (m_activeDevice != null && m_hostCommandExt != null)
             {
                 //m_hostCommand.put.mute = mute;
-                m_hostCommandExt.MuteHeadset = mute;
+                //m_hostCommandExt.MuteHeadset = mute;
+                //m_deviceListener.mute = mute; // LC now doing this with IDeviceListener interface
+                CallCOM call = new CallCOM();
+                call.SetId(1);
+                m_comSession.GetCallCommand().MuteCall(call, mute);
             }
             else
             {
@@ -3621,7 +3662,8 @@ namespace Plantronics.UC.SpokesWrapper
             DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Getting mute");
             if (m_activeDevice != null && m_hostCommandExt != null)
             {
-                retval = m_hostCommand.mute;
+                //retval = m_hostCommand.mute;
+                retval = m_deviceListener.mute;
             }
             else
             {
