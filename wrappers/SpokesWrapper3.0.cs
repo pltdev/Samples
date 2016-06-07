@@ -39,7 +39,17 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
- * Version 1.5.42:
+ * Version 1.5.43: 
+ * Date: 7th June 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.8 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Added fix suggested on TT 39171 to only use ICallEvents call id
+ *       for call control rather than ISessionManagerEvents call id.
+ *       ICallEvents call id will match what is used by the application for
+ *       call control (incomingcall/outgoingcall, etc).
+ *
+ * Version 1.5.42: 
  * Date: 23rd May 2016
  * Tested with Plantronics Hub / SDK version(s): 3.8 latest
  * Changed by: Lewis Collins
@@ -1662,6 +1672,99 @@ namespace Plantronics.UC.SpokesWrapper
         {
             DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: call state event = " + e.ToString());
 
+            if (e.CallSource != m_sessionName)
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Processing session event from source = " + e.CallSource);
+                switch (e.CallState)
+                {
+                    case CallState.CallState_CallRinging:
+                        m_voipIncoming = true;
+                        // Getting here indicates user is ON A CALL!
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                            "Spokes: Calling activity detected!" + e.ToString());
+                        OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.Ringing, e.call.Id));
+                        break;
+                    case CallState.CallState_MobileCallRinging:
+                        m_mobIncoming = true;
+                        // user incoming mobile call
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                            "Spokes: Mobile Calling activity detected!" + e.ToString());
+                        OnOnMobileCall(new OnMobileCallArgs(m_mobIncoming, MobileCallState.Ringing));
+                        break;
+                    case CallState.CallState_MobileCallInProgress:
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                            "Spokes: Mobile Calling activity detected!" + e.ToString());
+                        OnOnMobileCall(new OnMobileCallArgs(m_mobIncoming, MobileCallState.OnCall));
+                        break;
+                    case CallState.CallState_AcceptCall:
+                    case CallState.CallState_CallInProgress:
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                            "Spokes: Call was ansswered/in progress!" + e.ToString());
+                        OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall, e.call.Id));
+                        OnCallAnswered(new CallAnsweredArgs(e.call.Id, e.CallSource));
+                        break;
+                    case CallState.CallState_HoldCall:
+                    case CallState.CallState_Resumecall:
+                    case CallState.CallState_TransferToHeadSet:
+                    case CallState.CallState_TransferToSpeaker:
+                        // Getting here indicates user is ON A CALL!
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                            "Spokes: Calling activity detected!" + e.ToString());
+                        OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall, e.call.Id));
+                        break;
+                    case CallState.CallState_MobileCallEnded:
+                        m_mobIncoming = false;
+                        // Getting here indicates user HAS FINISHED A CALL!
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                            "Spokes: Mobile Calling activity ended." + e.ToString());
+                        OnNotOnMobileCall(EventArgs.Empty);
+                        break;
+                    case CallState.CallState_CallEnded:
+                    case CallState.CallState_CallIdle:
+                    case CallState.CallState_RejectCall:
+                    case CallState.CallState_TerminateCall:
+                        m_voipIncoming = false;
+                        // Getting here indicates user HAS FINISHED A CALL!
+                        DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Calling activity ended." + e.ToString());
+                        OnNotOnCall(new NotOnCallArgs(e.call.Id, e.CallSource));
+                        OnCallEnded(new CallEndedArgs(e.call.Id, e.CallSource));
+                        break;
+                    default:
+                        // ignore other call state events
+                        break;
+                }
+            }
+            else
+            {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name,
+                    "Ignoring session event from my session, as will come seperately via ICallEvents = " + e.CallSource);
+            }
+        }
+
+        // used internally to get mobile caller id when we are notified of mobile caller id
+        // event from Spokes
+        private string GetMobileCallerID()
+        {
+            string retval = "";
+            if (m_atdCommand != null)
+            {
+                try
+                {
+                    retval = m_atdCommand.CallerId;
+                }
+                catch (System.Exception e)
+                {
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: Exception occured getting mobile caller id\r\nException = " + e.ToString());
+                }
+            }
+            return retval;
+        }
+
+        // print session events
+        void m_sessionEvents_CallStateChanged(COMCallEventArgs e)
+        {
+            DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: ICallEvents call state event = " + e.ToString());
+
             switch (e.CallState)
             {
                 case CallState.CallState_CallRinging:
@@ -1681,7 +1784,7 @@ namespace Plantronics.UC.SpokesWrapper
                     OnOnMobileCall(new OnMobileCallArgs(m_mobIncoming, MobileCallState.OnCall));
                     break;
                 case CallState.CallState_AcceptCall:
-                case CallState.CallState_CallInProgress:                    
+                case CallState.CallState_CallInProgress:
                     DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Call was ansswered/in progress!" + e.ToString());
                     OnOnCall(new OnCallArgs(e.CallSource, m_voipIncoming, OnCallCallState.OnCall, e.call.Id));
                     OnCallAnswered(new CallAnsweredArgs(e.call.Id, e.CallSource));
@@ -1714,32 +1817,6 @@ namespace Plantronics.UC.SpokesWrapper
                     // ignore other call state events
                     break;
             }
-        }
-
-        // used internally to get mobile caller id when we are notified of mobile caller id
-        // event from Spokes
-        private string GetMobileCallerID()
-        {
-            string retval = "";
-            if (m_atdCommand != null)
-            {
-                try
-                {
-                    retval = m_atdCommand.CallerId;
-                }
-                catch (System.Exception e)
-                {
-                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: Exception occured getting mobile caller id\r\nException = " + e.ToString());
-                }
-            }
-            return retval;
-        }
-
-        // print session events
-        void m_sessionEvents_CallStateChanged(COMCallEventArgs e)
-        {
-            string id = e.call != null ? e.call.Id.ToString() : "none";
-
         }
         // print session events
         void m_sessionEvents_CallRequested(COMCallRequestEventArgs e)
