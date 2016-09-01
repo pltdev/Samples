@@ -39,6 +39,13 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.44: 
+ * Date: 1st Sept 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.8 latest
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Fixing the QD connector events
+ *
  * Version 1.5.43: 
  * Date: 7th June 2016
  * Tested with Plantronics Hub / SDK version(s): 3.8 latest
