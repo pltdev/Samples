@@ -2695,6 +2695,15 @@ namespace Plantronics.UC.SpokesWrapper
                     string serialStr = byteArrayToString(e.SerialNumber);
                     OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Headset));
                     break;
+#if doubloon || newDASeries
+                    // NEW CC events
+                    case DeviceHeadsetState.HeadsetState_QDConnected:
+                    OnConnected(new ConnectedStateArgs(true, false));
+                    break;
+                    case DeviceHeadsetState.HeadsetState_QDDisconnected:
+                    OnDisconnected(new ConnectedStateArgs(true, false));
+                    break;
+#endif
                 default:
                     break;
             }

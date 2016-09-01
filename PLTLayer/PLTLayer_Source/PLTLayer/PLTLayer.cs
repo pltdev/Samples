@@ -222,7 +222,7 @@ namespace Plantronics.EZ.API
                 // Wearing sensor:
                 m_spokes.PutOn += new Spokes.PutOnEventHandler(m_spokes_PutOn);
                 m_spokes.TakenOff += new Spokes.TakenOffEventHandler(m_spokes_TakenOff);
-
+                fghfgh
                 // Proximity:
                 m_spokes.Near += new Spokes.NearEventHandler(m_spokes_Near);
                 m_spokes.Far += new Spokes.FarEventHandler(m_spokes_Far);

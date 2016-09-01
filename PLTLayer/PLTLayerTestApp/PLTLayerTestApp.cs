@@ -97,6 +97,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
             plt.PltEvent += new PLTLayer.PltEventHandler(plt_PltEvent);
             plt.setup(MY_APP_NAME);
 
+            // LC test turn link active
+            //plt.audioon();
+
             // 2. Main application loop
             while (!m_quit)
             {
@@ -425,6 +428,7 @@ namespace Plantronics.EZ.PLTLayerTestApp
                         + "   Mobile Line: Active?: " + e.MyParams[2] + ", Held?: " + e.MyParams[3] + "\r\n"
                         + "Deskphone Line: Active?: " + e.MyParams[4] + ", Held?: " + e.MyParams[5]);
                     // TODO: optional syncronise with your app's agent availability feature
+
                     break;
 
                 // PLANTRONICS "GENES ID" FEATURE EVENTS (DEVICE SERIAL NUMBERS):
@@ -471,6 +475,10 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 case PltEventType.Docked:
                     Console.WriteLine("> Plantronics was docked");
                     // TODO: optional syncronise with your app's agent availability feature
+
+                    // LC test - try re-activating the PC line when it becomes inactive
+                    //plt.audioon();
+
                     break;
                 case PltEventType.UnDocked:
                     Console.WriteLine("> Plantronics was un-docked");
@@ -491,6 +499,10 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 case PltEventType.LineInactive:
                     Console.WriteLine("> Plantronics wireless link went in-active.");
                     // TODO: optional your app can know Plantronics line went active (especially for wireless products)
+
+                    // LC test - try re-activating the PC line when it becomes inactive
+                    //plt.audioon();
+
                     break;
 
                 // PLANTRONICS DEVICE INFORMATION EVENTS:
@@ -566,9 +578,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     break;
 
                 // for debugging:
-                case PltEventType.RawDataReceived:
-                    Console.WriteLine("\r\n" + DateTime.Now + "r:" + e.MyParams[0]);
-                    break;
+                //case PltEventType.RawDataReceived:
+                //    Console.WriteLine("\r\n" + DateTime.Now + "r:" + e.MyParams[0]);
+                //    break;
             }
 
             // Example debug output to show ALL events/parameters (commented out)
