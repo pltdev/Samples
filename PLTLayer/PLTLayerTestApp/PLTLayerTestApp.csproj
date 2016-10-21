@@ -53,7 +53,8 @@
       <HintPath>packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PLTLayer">
+    <Reference Include="PLTLayer, Version=1.0.0.7, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>.\PLTLayer.dll</HintPath>
     </Reference>
     <Reference Include="System" />

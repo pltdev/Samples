@@ -1550,7 +1550,7 @@ namespace Plantronics.UC.SpokesWrapper
             if (!IsSpokesInstalled())
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "FATAL ERROR: cannot connect if Spokes COMSessionManager/SessionCOMManager class is not registered! Spokes not installed (or wrong major version installed for this Spokes Wrapper)!");
-                return false; // cannot connect if Spokes COM SessionManager class is not registered! Spokes not installed!
+                throw new Exception("Cannot connect if Spokes COM SessionManager class is not registered! Plantronics Hub not installed!");
             }
             if (isConnected) return true;
             DeviceCapabilities =
@@ -1590,7 +1590,7 @@ namespace Plantronics.UC.SpokesWrapper
                     ////////////////////////////////////////////////////////////////////////////////////////
                     // Attach to active device and print all device information
                     // and registers for proximity (if supported by device)
-                    AttachDevice();
+                    AttachDevice();  // note: with latest Hub 3.9 it is hanging here is Hub was only started as a result of my COM request!!!!!
                     success = true;
                 }
             }
@@ -2829,18 +2829,26 @@ namespace Plantronics.UC.SpokesWrapper
 
         private void GetInitialSoftphoneCallStatus()
         {
-            if (m_sessionComManager.CallManagerState.HasActiveCall)
+            try
             {
-                DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: We have an ACTIVE call!");
+                if (m_sessionComManager.CallManagerState.HasActiveCall)
+                {
+                    DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: We have an ACTIVE call!");
 
-                OnOnCall(new OnCallArgs("", false, OnCallCallState.OnCall, 0)); // for now just say we are on a call
+                    OnOnCall(new OnCallArgs("", false, OnCallCallState.OnCall, 0)); // for now just say we are on a call
 
-                // TODO Raise a TT - the ICallInfo interface is NOT exposed via Spokes SDK .NET API!
-                //Collection<ICallInfo> calls = (Collection<ICall>)m_sessionComManager.CallManagerState.GetCalls;
-                //DebugPrint(MethodInfo.GetCurrentMethod().Name, "Got Calls");
+                    // TODO Raise a TT - the ICallInfo interface is NOT exposed via Spokes SDK .NET API!
+                    //Collection<ICallInfo> calls = (Collection<ICall>)m_sessionComManager.CallManagerState.GetCalls;
+                    //DebugPrint(MethodInfo.GetCurrentMethod().Name, "Got Calls");
+                }
+                else
+                {
+                    OnNotOnCall(new NotOnCallArgs(-1, "")); // we are not on a call
+                }
             }
-            else
+            catch (Exception e)
             {
+                DebugPrint(MethodInfo.GetCurrentMethod().Name, "INFO: Exception: "+e.ToString());
                 OnNotOnCall(new NotOnCallArgs(-1, "")); // we are not on a call
             }
         }
@@ -3733,10 +3741,11 @@ namespace Plantronics.UC.SpokesWrapper
             {
                 //m_hostCommand.put.mute = mute;
                 //m_hostCommandExt.MuteHeadset = mute;
-                //m_deviceListener.mute = mute; // LC now doing this with IDeviceListener interface
-                CallCOM call = new CallCOM();
-                call.SetId(1);
-                m_comSession.GetCallCommand().MuteCall(call, mute);
+                m_deviceListener.mute = mute; // LC now doing this with IDeviceListener interface
+                //alternative way to mute call by id directly:
+                //CallCOM call = new CallCOM();
+                //call.SetId(1);
+                //m_comSession.GetCallCommand().MuteCall(call, mute);
             }
             else
             {
@@ -3756,7 +3765,7 @@ namespace Plantronics.UC.SpokesWrapper
             if (m_activeDevice != null && m_hostCommandExt != null)
             {
                 //retval = m_hostCommand.mute;
-                retval = m_deviceListener.mute;
+                retval = m_deviceListener.mute; // LC now doing this with IDeviceListener interface
             }
             else
             {

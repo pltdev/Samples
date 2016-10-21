@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -88,6 +89,9 @@ namespace Plantronics.EZ.PLTLayerTestApp
 
         static void Main(string[] args)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             // 1. Setup Plantronics
             plt = PLTLayer.Instance;
 
@@ -96,6 +100,8 @@ namespace Plantronics.EZ.PLTLayerTestApp
             //plt.SetConsoleLogging(true); // enable optional detailed logging info from Plantronics SDK
             plt.PltEvent += new PLTLayer.PltEventHandler(plt_PltEvent);
             plt.setup(MY_APP_NAME);
+
+            sw.Stop();
 
             // LC test turn link active
             //plt.audioon();
