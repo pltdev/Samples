@@ -2489,15 +2489,20 @@ namespace Plantronics.UC.SpokesWrapper
             switch (bladerunnercommand)
             {
                 case "0A1C":
-                    // battery status
-                    string chargingbyte = args.m_datareporthex.Substring(26, 2);
-                    if (chargingbyte == "01")
+                    // battery status (only if device has docking feature in DeviceCapabilities.csv,
+                    // otherwise we can assume the charging state is not
+                    // reliable to be used as a docking indication)
+                    if (DeviceCapabilities.HasDocking)
                     {
-                        OnDocked(new DockedStateArgs(true, false));
-                    }
-                    else if (chargingbyte == "00")
-                    {
-                        OnUnDocked(new DockedStateArgs(false, false));
+                        string chargingbyte = args.m_datareporthex.Substring(26, 2);
+                        if (chargingbyte == "01")
+                        {
+                            OnDocked(new DockedStateArgs(true, false));
+                        }
+                        else if (chargingbyte == "00")
+                        {
+                            OnUnDocked(new DockedStateArgs(false, false));
+                        }
                     }
                     break;
                 case "0C00":
@@ -3187,10 +3192,13 @@ namespace Plantronics.UC.SpokesWrapper
                     m_lastdocked = DetectLegendDockedState(true);
                     docked = m_lastdocked;
                 }
-                else if (m_activeDevice.ProductName.Contains("BT600"))
-                {
-                    DeviceCapabilities.HasDocking = true; // updated, focus uc does have docking
-                }
+                //else if (m_activeDevice.ProductName.Contains("BT600"))
+                //{
+                //    DeviceCapabilities.HasDocking = true; // updated, focus uc does have docking
+                    // on second thought, it doesn't, it was a hack based on charging state
+                    // this is not reliable because when fully charged there is no transition from
+                    // docked to undocked (because although docked, it will not be charging).
+                //}
                 else
                 {
                     DeviceCapabilities.HasDocking = false;

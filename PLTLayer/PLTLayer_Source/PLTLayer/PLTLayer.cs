@@ -34,6 +34,13 @@ using System.Reflection;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.8:
+ * Date: 4th Nov 2016
+ * Compatible with Plantronics Hub version(s): 3.8.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Fix minor bug in line active detection
+ *
  * Version 1.0.0.7:
  * Date: 12th Feb 2016
  * Compatible with Plantronics Hub version(s): 3.7.x

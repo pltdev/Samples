@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using Plantronics.EZ.API;
 
 /*******
@@ -22,6 +18,13 @@ using Plantronics.EZ.API;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.0.0.6:
+ * Date: 4th Nov 2016
+ * Compatible with Plantronics Hub version(s): 3.8.x
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Adding line active/inactive notification event example
+ *
  * Version 1.0.0.5:
  * Date: 5th Feb 2016
  * Compatible with Plantronics Hub version(s): 3.7.x
@@ -89,9 +92,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
 
         static void Main(string[] args)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
             // 1. Setup Plantronics
             plt = PLTLayer.Instance;
 
@@ -100,11 +100,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
             //plt.SetConsoleLogging(true); // enable optional detailed logging info from Plantronics SDK
             plt.PltEvent += new PLTLayer.PltEventHandler(plt_PltEvent);
             plt.setup(MY_APP_NAME);
-
-            sw.Stop();
-
-            // LC test turn link active
-            //plt.audioon();
 
             // 2. Main application loop
             while (!m_quit)
@@ -481,10 +476,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 case PltEventType.Docked:
                     Console.WriteLine("> Plantronics was docked");
                     // TODO: optional syncronise with your app's agent availability feature
-
-                    // LC test - try re-activating the PC line when it becomes inactive
-                    //plt.audioon();
-
                     break;
                 case PltEventType.UnDocked:
                     Console.WriteLine("> Plantronics was un-docked");
@@ -505,10 +496,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
                 case PltEventType.LineInactive:
                     Console.WriteLine("> Plantronics wireless link went in-active.");
                     // TODO: optional your app can know Plantronics line went active (especially for wireless products)
-
-                    // LC test - try re-activating the PC line when it becomes inactive
-                    //plt.audioon();
-
                     break;
 
                 // PLANTRONICS DEVICE INFORMATION EVENTS:
@@ -572,15 +559,6 @@ namespace Plantronics.EZ.PLTLayerTestApp
                     // ButtonPressed event is for information only
                     // Note: some devices will generate button events internally even when no
                     // physical button is pressed.
-
-                    // LC try using for mute sync (mute button = 5)
-                    if (e.MyParams[0] == "5")
-                    {
-                        // mute button event was seen. re-query the mute state
-                        Console.Write("mute button detected");
-                        Thread.Sleep(200);
-                        Console.WriteLine(" mute state = "+plt.getmute());
-                    }
                     break;
 
                 // for debugging:

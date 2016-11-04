@@ -73,19 +73,19 @@ AE03,cn,No,No,No,No,No,No,No,No
 C02F,ss,No,No,No,No,No,No,No,No
 C034,pr,No,No,No,No,No,No,No,No
 02ff,BT300 Cydoemus,Yes,Yes,Yes,Yes,Yes,No,Yes,No
-02FA,BT600,No,No,No,Yes,Yes,No,Yes,No
-02FB,BT600,No,No,No,Yes,Yes,No,Yes,No
-02FC,BT600,No,No,No,Yes,Yes,No,Yes,No
-02F6,BT600,No,No,No,Yes,Yes,No,Yes,No
-02F7,BT600,No,No,No,Yes,Yes,No,Yes,No
+02FA,BT600,No,No,No,No,Yes,No,Yes,No
+02FB,BT600,No,No,No,No,Yes,No,Yes,No
+02FC,BT600,No,No,No,No,Yes,No,Yes,No
+02F6,BT600,No,No,No,No,Yes,No,Yes,No
+02F7,BT600,No,No,No,No,Yes,No,Yes,No
 AF03,db,No,No,No,No,No,No,No,Yes
 AF04,db,No,No,No,No,No,No,No,Yes
 AF05,db,No,No,No,No,No,No,No,Yes
 AF06,db,No,No,No,No,No,No,No,Yes
 AF07,db,No,No,No,No,No,No,No,Yes
 AF09,db,No,No,No,No,No,No,No,Yes
-02FB,BT600,No,No,No,Yes,Yes,No,Yes,No
-02FC,BT600,No,No,No,Yes,Yes,No,Yes,No
+02FB,BT600,No,No,No,No,Yes,No,Yes,No
+02FC,BT600,No,No,No,No,Yes,No,Yes,No
 127,Voyager Focus,No,No,No,Yes,Yes,No,Yes,No
 AF0A,mt,No,No,No,No,No,No,No,No
 011A,nv,No,No,No,No,No,No,No,No
