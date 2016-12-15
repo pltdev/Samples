@@ -39,6 +39,15 @@ using Interop.Plantronics;
  * 
  * VERSION HISTORY:
  * ********************************************************************************
+ * Version 1.5.45: 
+ * Date: 15th Dec 2016
+ * Tested with Plantronics Hub / SDK version(s): 3.9 nightly
+ * Changed by: Lewis Collins
+ *   Changes:
+ *     - Removing FocusWorkaround features that were breaking Hub/BT600 (TT41072)
+ *       and also removing doubloon workaround. Neither are needed any more. These
+ *       are now released features of SDK.
+ * 
  * Version 1.5.44: 
  * Date: 1st Sept 2016
  * Tested with Plantronics Hub / SDK version(s): 3.8 latest
@@ -925,9 +934,7 @@ namespace Plantronics.UC.SpokesWrapper
         static ICOMAdvanceSettings m_advanceSettings;
         static ICOMDeviceSettings m_deviceSettings;
         static ICOMDeviceListener m_deviceListener;
-#if doubloon || newDASeries
         static ICOMDeviceSettingsExt m_deviceSettingsExt;
-#endif
         public static string m_devicename = "";
         #endregion
 
@@ -2047,15 +2054,13 @@ namespace Plantronics.UC.SpokesWrapper
                             OnLineActiveChanged(new LineActiveChangedArgs(false));
                             break;
 
-#if doubloon || newDASeries
                         // NEW CC events
                         case DeviceHeadsetStateChange.HeadsetStateChange_Connected:
                             OnConnected(new ConnectedStateArgs(true, false));
                             break;
                         case DeviceHeadsetStateChange.HeadsetStateChange_Disconnected:
-                            OnDisconnected(new ConnectedStateArgs(true, false));
+                            OnDisconnected(new ConnectedStateArgs(false, false));
                             break;
-#endif
                         default:
                             break;
                     }
@@ -2295,10 +2300,8 @@ namespace Plantronics.UC.SpokesWrapper
                 m_deviceListener = m_activeDevice.DeviceListener;
                 if (m_deviceListener == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain device listener interface");
 
-#if doubloon || newDASeries
                 m_deviceSettingsExt = m_activeDevice.HostCommand as ICOMDeviceSettingsExt;
                 if (m_deviceSettingsExt == null) DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: Error: unable to obtain device settings ext interface");
-#endif
 
                 UpdateOtherDeviceCapabilities();
 
@@ -2478,92 +2481,8 @@ namespace Plantronics.UC.SpokesWrapper
             RawDataReceivedArgs args = new RawDataReceivedArgs(reportbuf, byteArrayToString(reportbuf));
             OnRawDataReceived(args);
 
-#if FocusWorkaround
-
             // uncomment for debug:
             // Console.WriteLine(args.m_datareporthex);
-
-            // use BladeRunner data to implement Docking and In Range/Out of Range events
-            // (and maybe proximity, nice to have)
-            string bladerunnercommand = args.m_datareporthex.Substring(18, 4);
-            switch (bladerunnercommand)
-            {
-                case "0A1C":
-                    // battery status (only if device has docking feature in DeviceCapabilities.csv,
-                    // otherwise we can assume the charging state is not
-                    // reliable to be used as a docking indication)
-                    if (DeviceCapabilities.HasDocking)
-                    {
-                        string chargingbyte = args.m_datareporthex.Substring(26, 2);
-                        if (chargingbyte == "01")
-                        {
-                            OnDocked(new DockedStateArgs(true, false));
-                        }
-                        else if (chargingbyte == "00")
-                        {
-                            OnUnDocked(new DockedStateArgs(false, false));
-                        }
-                    }
-                    break;
-                case "0C00":
-                    // connection status
-                    string portnumber = args.m_datareporthex.Substring(22, 2);
-                    if (portnumber == "00")
-                    {
-                        OnOutOfRange(EventArgs.Empty);
-                    }
-                    else if (portnumber == "0C")
-                    {
-                        OnInRange(EventArgs.Empty);
-                        // New, get all the device state info on inrange trigger:
-                        // now poll for current state (proximity, mobile call status, donned status, mute status)
-                        GetInitialDeviceState();
-
-                        // tell app to look again at battery level (headset in range)
-                        OnBatteryLevelChanged(EventArgs.Empty);
-                    }
-                    else
-                    {
-                        OnInRange(EventArgs.Empty);
-                        // for now assume all non-zero port means in range! TODO review later
-                        // New, get all the device state info on inrange trigger:
-                        // now poll for current state (proximity, mobile call status, donned status, mute status)
-                        GetInitialDeviceState();
-
-                        // tell app to look again at battery level (headset in range)
-                        OnBatteryLevelChanged(EventArgs.Empty);
-                    }
-                    break;
-                case "0806":
-                    string nearfar = args.m_datareporthex.Substring(26, 2);
-                    if (nearfar == "00")    // this workaround is required with 3.8 for now as not done in Spokes SDK (will be in 3.8.1/3.9)
-                    {
-                        OnFar(EventArgs.Empty);
-                    }
-                    //else if (nearfar == "01") // this is done by Spokes SDK already
-                    //{
-                    //    OnNear(EventArgs.Empty);
-                    //}
-                    break;
-                //case "0800":
-                // NOTE: this hack didn't work. I am now looking to turn of proximity
-                // voice prompts in the Hub code itself.
-                // you cannot send raw bladerunner to e.g. Focus UC via COM API
-                // you just get an exception
-                //    // proximity was enabled?
-                //    string enabled = args.m_datareporthex.Substring(24, 2);
-                //    if (enabled == "01")
-                //    {
-                //        // proximity was enabled, now turn off voice reporting!
-                //        string bladerunnercommand2 = args.m_datareporthex.Substring(0, 30)
-                //                                    + "000000" + args.m_datareporthex.Substring(36);
-                //        SendCustomMessageToHeadset(bladerunnercommand2);
-                //    }
-                //    break;
-            }
-            
-
-#endif
         }
 
         //// Initialization code for Calisto devices
@@ -2707,15 +2626,13 @@ namespace Plantronics.UC.SpokesWrapper
                     string serialStr = byteArrayToString(e.SerialNumber);
                     OnSerialNumber(new SerialNumberArgs(serialStr, SerialNumberTypes.Headset));
                     break;
-#if doubloon || newDASeries
                     // NEW CC events
                     case DeviceHeadsetState.HeadsetState_QDConnected:
                     OnConnected(new ConnectedStateArgs(true, false));
                     break;
                     case DeviceHeadsetState.HeadsetState_QDDisconnected:
-                    OnDisconnected(new ConnectedStateArgs(true, false));
+                    OnDisconnected(new ConnectedStateArgs(false, false));
                     break;
-#endif
                 default:
                     break;
             }
@@ -2795,12 +2712,10 @@ namespace Plantronics.UC.SpokesWrapper
                 if (m_hostCommandExt != null)
                 {
                     m_lastconnected = true; // if settings interface is not available, assume connected
-#if doubloon || newDASeries
                     if (m_deviceSettingsExt != null)
                     {
                         m_lastconnected = m_deviceSettingsExt.HeadsetConnectedState;
                     }
-#endif
                     connected = m_lastconnected;
                     if (connected) OnConnected(new ConnectedStateArgs(true, true));
                     else OnDisconnected(new ConnectedStateArgs(false, true));
@@ -3072,37 +2987,15 @@ namespace Plantronics.UC.SpokesWrapper
             catch (System.Exception e)
             {
                 DebugPrint(MethodInfo.GetCurrentMethod().Name, "Spokes: INFO: proximity may not be supported on your device.");
-#if FocusWorkaround
-                // re-schedule register for proximity after time delay
-                ScheduleRegisterForProximity();
-#else
-                // uh-oh proximity may not be supported... disable it as option in GUI (only if we have not
-                // loaded all device capabilities database
-                if (m_AllDeviceCapabilities.Count==0)
-                    DeviceCapabilities.HasProximity = false;
-                OnCapabilitiesChanged(EventArgs.Empty);
-#endif
+                // note, remote auto smarts that used to turn off proximity feature, it won't work with BT600
+                // this will not matter, as long as our DeviceCapabilities.csv is up to date!
+                //// uh-oh proximity may not be supported... disable it as option in GUI (only if we have not
+                //// loaded all device capabilities database
+                //if (m_AllDeviceCapabilities.Count==0)
+                //    DeviceCapabilities.HasProximity = false;
+                //OnCapabilitiesChanged(EventArgs.Empty);
             }
         }
-
-#if FocusWorkaround
-        Task Delay(int milliseconds)        // Asynchronous NON-BLOCKING method
-        {
-            var tcs = new TaskCompletionSource<object>();
-            new Timer(_ => tcs.SetResult(null)).Change(milliseconds, -1);
-            return tcs.Task;
-        }
-
-        // re-schedule register for proximity after time delay
-        private void ScheduleRegisterForProximity()
-        {
-            Task task = Delay(3000);
-            task.ContinueWith(_ =>
-            {
-                RegisterForProximity(true);
-            });
-        }
-#endif
 
         /// <summary>
         /// Instruct Spokes to tell us the serial numbers of attached Plantronics device, i.e. headset and base/usb adaptor.
