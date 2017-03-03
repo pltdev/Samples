@@ -2056,9 +2056,11 @@ namespace Plantronics.UC.SpokesWrapper
 
                         // NEW CC events
                         case DeviceHeadsetStateChange.HeadsetStateChange_Connected:
+                        case DeviceHeadsetStateChange.HeadsetStateChange_QDConnected:
                             OnConnected(new ConnectedStateArgs(true, false));
                             break;
                         case DeviceHeadsetStateChange.HeadsetStateChange_Disconnected:
+                        case DeviceHeadsetStateChange.HeadsetStateChange_QDDisconnected:
                             OnDisconnected(new ConnectedStateArgs(false, false));
                             break;
                         default:
