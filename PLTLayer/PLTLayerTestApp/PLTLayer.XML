@@ -162,9 +162,194 @@
             Default desctructor, disconnects from Spokes
             </summary>
         </member>
+        <member name="P:Plantronics.UC.SpokesWrapper.Spokes.Instance">
+            <summary>
+            Returns the single Instance of Spokes which you can use to communicate with Plantronics devices
+            </summary>
+        </member>
         <member name="F:Plantronics.UC.SpokesWrapper.Spokes.DeviceCapabilities">
             <summary>
             A property containing flags that indicate the capabilities of the attached Plantronics device (if any).
+            </summary>
+        </member>
+        <member name="P:Plantronics.UC.SpokesWrapper.Spokes.HasDevice">
+            <summary>
+            Returns boolean to indicate whether there is currently a Plantronics device attached to the PC or not.
+            </summary>
+        </member>
+        <member name="P:Plantronics.UC.SpokesWrapper.Spokes.GetDevice">
+            <summary>
+            Returns a reference to the currently active Plantronics call control device attached to the PC (if any).
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.TakenOff">
+            <summary>
+            Triggered when the user takes off the headset (with products that support wearing sensor)
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.PutOn">
+            <summary>
+            Triggered when the user puts on the headset (with products that support wearing sensor)
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Near">
+            <summary>
+            Triggered when a Plantronics device comes near to PC dongle
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Far">
+            <summary>
+            Triggered when a Plantronics device goes far from PC dongle
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ProximityEnabled">
+            <summary>
+            Triggered when a Plantronics device proximity has been enabled
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ProximityDisabled">
+            <summary>
+            Triggered when a Plantronics device proximity has been disabled
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ProximityUnknown">
+            <summary>
+            Triggered when a Plantronics device proximity is unknown
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.InRange">
+            <summary>
+            Triggered when a Plantronics device comes into range of PC dongle
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.OutOfRange">
+            <summary>
+            Triggered when a Plantronics device goes out of range of PC dongle
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Docked">
+            <summary>
+            Triggered when a Plantronics device is docked in its base or cradle
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.UnDocked">
+            <summary>
+            Triggered when a Plantronics device is undocked from its base or cradle
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Connected">
+            <summary>
+            Triggered when a CC Plantronics headset is connected to the amplifier (QD connecter)
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Disconnected">
+            <summary>
+            Triggered when a CC Plantronics headset is disconnected from the amplifier (QD connecter)
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.MobileCallerId">
+            <summary>
+            Triggered when a caller id has been received
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.OnMobileCall">
+            <summary>
+            Triggered when some mobile calling activity is detected with the device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.NotOnMobileCall">
+            <summary>
+            Triggered when mobile calling activity comes to an end with the device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.SerialNumber">
+            <summary>
+            Triggered when a serial number has been received from device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallAnswered">
+            <summary>
+            Triggered when the user answers a call using the headset device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallEnded">
+            <summary>
+            Triggered when the user answers a call using the headset device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallSwitched">
+            <summary>
+            Triggered when the user tries to switch call using the headset device by pressing switch (flash) button
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.OnCall">
+            <summary>
+            Triggered when some calling activity is detected with the device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.NotOnCall">
+            <summary>
+            Triggered when calling activity comes to an end with the device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.MuteChanged">
+            <summary>
+            Triggered when the user mutes or unmutes the headset device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.LineActiveChanged">
+            <summary>
+            Triggered when the spokes activates or deactivates the line to the headset device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Attached">
+            <summary>
+            Triggered when the user attached a Plantronics device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Detached">
+            <summary>
+            Triggered when the user detaches a Plantronics device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CapabilitiesChanged">
+            <summary>
+            Triggered when the capabilities available on the device changes, e.g. asyncronous proximity registration is completed or mobile caller id registration is completed
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.MultiLineStateChanged">
+            <summary>
+            Triggered when there is a change of the active or held states of any of the lines of multi-line device (e.g. Savi 7xx)
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ButtonPress">
+            <summary>
+            Triggered when a button press event is generated by device
+            NOTE: you are advised NOT to use headset buttons e.g. talk button for
+            call control, but rather use the IncomingCall/OutgoingCall functions
+            and CallAnswered/CallEnded event handlers. (more notes in SpokesWrapper.cs)
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.BaseButtonPress">
+            <summary>
+            Triggered when a base button press event is generated by device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallRequested">
+            <summary>
+            Triggered when a user call requested event is received from dialpad device
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.BatteryLevelChanged">
+            <summary>
+            Triggered when the battery level or battery status changes on the device.
+            In response you can call GetBatteryLevel method to
+            get the battery level.
+            </summary>
+        </member>
+        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.RawDataReceived">
+            <summary>
+            Triggered when the Plantronics device has sent a raw (ODP/BR) report to PC.
             </summary>
         </member>
         <member name="M:Plantronics.UC.SpokesWrapper.Spokes.SetLogger(Plantronics.UC.SpokesWrapper.DebugLogger)">
@@ -359,191 +544,6 @@
             </summary>
             <param name="message">The custom message to send as a string</param>
         </member>
-        <member name="P:Plantronics.UC.SpokesWrapper.Spokes.Instance">
-            <summary>
-            Returns the single Instance of Spokes which you can use to communicate with Plantronics devices
-            </summary>
-        </member>
-        <member name="P:Plantronics.UC.SpokesWrapper.Spokes.HasDevice">
-            <summary>
-            Returns boolean to indicate whether there is currently a Plantronics device attached to the PC or not.
-            </summary>
-        </member>
-        <member name="P:Plantronics.UC.SpokesWrapper.Spokes.GetDevice">
-            <summary>
-            Returns a reference to the currently active Plantronics call control device attached to the PC (if any).
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.TakenOff">
-            <summary>
-            Triggered when the user takes off the headset (with products that support wearing sensor)
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.PutOn">
-            <summary>
-            Triggered when the user puts on the headset (with products that support wearing sensor)
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Near">
-            <summary>
-            Triggered when a Plantronics device comes near to PC dongle
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Far">
-            <summary>
-            Triggered when a Plantronics device goes far from PC dongle
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ProximityEnabled">
-            <summary>
-            Triggered when a Plantronics device proximity has been enabled
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ProximityDisabled">
-            <summary>
-            Triggered when a Plantronics device proximity has been disabled
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ProximityUnknown">
-            <summary>
-            Triggered when a Plantronics device proximity is unknown
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.InRange">
-            <summary>
-            Triggered when a Plantronics device comes into range of PC dongle
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.OutOfRange">
-            <summary>
-            Triggered when a Plantronics device goes out of range of PC dongle
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Docked">
-            <summary>
-            Triggered when a Plantronics device is docked in its base or cradle
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.UnDocked">
-            <summary>
-            Triggered when a Plantronics device is undocked from its base or cradle
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Connected">
-            <summary>
-            Triggered when a CC Plantronics headset is connected to the amplifier (QD connecter)
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Disconnected">
-            <summary>
-            Triggered when a CC Plantronics headset is disconnected from the amplifier (QD connecter)
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.MobileCallerId">
-            <summary>
-            Triggered when a caller id has been received
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.OnMobileCall">
-            <summary>
-            Triggered when some mobile calling activity is detected with the device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.NotOnMobileCall">
-            <summary>
-            Triggered when mobile calling activity comes to an end with the device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.SerialNumber">
-            <summary>
-            Triggered when a serial number has been received from device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallAnswered">
-            <summary>
-            Triggered when the user answers a call using the headset device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallEnded">
-            <summary>
-            Triggered when the user answers a call using the headset device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallSwitched">
-            <summary>
-            Triggered when the user tries to switch call using the headset device by pressing switch (flash) button
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.OnCall">
-            <summary>
-            Triggered when some calling activity is detected with the device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.NotOnCall">
-            <summary>
-            Triggered when calling activity comes to an end with the device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.MuteChanged">
-            <summary>
-            Triggered when the user mutes or unmutes the headset device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.LineActiveChanged">
-            <summary>
-            Triggered when the spokes activates or deactivates the line to the headset device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Attached">
-            <summary>
-            Triggered when the user attached a Plantronics device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.Detached">
-            <summary>
-            Triggered when the user detaches a Plantronics device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CapabilitiesChanged">
-            <summary>
-            Triggered when the capabilities available on the device changes, e.g. asyncronous proximity registration is completed or mobile caller id registration is completed
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.MultiLineStateChanged">
-            <summary>
-            Triggered when there is a change of the active or held states of any of the lines of multi-line device (e.g. Savi 7xx)
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.ButtonPress">
-            <summary>
-            Triggered when a button press event is generated by device
-            NOTE: you are advised NOT to use headset buttons e.g. talk button for
-            call control, but rather use the IncomingCall/OutgoingCall functions
-            and CallAnswered/CallEnded event handlers. (more notes in SpokesWrapper.cs)
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.BaseButtonPress">
-            <summary>
-            Triggered when a base button press event is generated by device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.CallRequested">
-            <summary>
-            Triggered when a user call requested event is received from dialpad device
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.BatteryLevelChanged">
-            <summary>
-            Triggered when the battery level or battery status changes on the device.
-            In response you can call GetBatteryLevel method to
-            get the battery level.
-            </summary>
-        </member>
-        <member name="E:Plantronics.UC.SpokesWrapper.Spokes.RawDataReceived">
-            <summary>
-            Triggered when the Plantronics device has sent a raw (ODP/BR) report to PC.
-            </summary>
-        </member>
         <member name="T:Plantronics.EZ.API.PLTLayer">
             <summary>
             PLTLayer is the main class of PLTLayer API with methods
@@ -553,12 +553,29 @@
             method to obtain the singleton.
             </summary>
         </member>
+        <member name="P:Plantronics.EZ.API.PLTLayer.Instance">
+            <summary>
+            Call this method to obtain the singleton instance of PLTLayer.
+            </summary>
+        </member>
         <member name="M:Plantronics.EZ.API.PLTLayer.SetLogger(Plantronics.UC.SpokesWrapper.DebugLogger)">
             <summary>
             If your application class implements the Spokes.DebugLogger interface you can pass a reference to your application class
             to the SetLogger method. This allows your class to be responsible for debug logging of Spokes related debug trace information.
             </summary>
             <param name="aLogger">For this parameter pass the "this" reference of your class that implements Spokes.DebugLogger interface.</param>
+        </member>
+        <member name="E:Plantronics.EZ.API.PLTLayer.PltEvent">
+            <summary>
+            This event handler method is called by PLTLayer whenever a 
+            Plantronics event occurs, e.g. device events, call state events etc.
+            
+            By examining the "e.EventType" and "e.MyParams" parameters, your
+            app can see what the event was and additional information about the event.
+            For example, in the case of EventType SerialNumber, you get 2 MyParams
+            strings, the first is the Serial Number (also known as Genes id), the second 
+            contains whether it is a Base or Headset serial.
+            </summary>
         </member>
         <member name="M:Plantronics.EZ.API.PLTLayer.setup(System.String)">
             <summary>
@@ -798,23 +815,6 @@
             Call this method to set our app as the default softphone for Plantronics
             dialpad devices (Calisto P240).
             NOTE: you must call PLTLayer's setup method before calling setassoftphone()
-            </summary>
-        </member>
-        <member name="P:Plantronics.EZ.API.PLTLayer.Instance">
-            <summary>
-            Call this method to obtain the singleton instance of PLTLayer.
-            </summary>
-        </member>
-        <member name="E:Plantronics.EZ.API.PLTLayer.PltEvent">
-            <summary>
-            This event handler method is called by PLTLayer whenever a 
-            Plantronics event occurs, e.g. device events, call state events etc.
-            
-            By examining the "e.EventType" and "e.MyParams" parameters, your
-            app can see what the event was and additional information about the event.
-            For example, in the case of EventType SerialNumber, you get 2 MyParams
-            strings, the first is the Serial Number (also known as Genes id), the second 
-            contains whether it is a Base or Headset serial.
             </summary>
         </member>
         <member name="T:Plantronics.EZ.API.PltEventType">

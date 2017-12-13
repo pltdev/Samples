@@ -1,0 +1,30 @@
+﻿<Window x:Class="MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PltLayerTestAppVB"
+        mc:Ignorable="d"
+        Title="PltLayer test app in VB.NET" Height="423.559" Width="596.928" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Grid>
+        <Label Content="Attached to API?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="Plantronics Device: " HorizontalAlignment="Left" Margin="197,10,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="apiAttached_lbl" Content="n/a" HorizontalAlignment="Left" Margin="136,10,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="pltDevice_lbl" Content="n/a" HorizontalAlignment="Left" Margin="314,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="plt sample menu" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <Button x:Name="incoming_btn" Content="ring/incoming call" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="outgoing_btn" Content="outgoing call" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="answer_btn" Content="answer call" HorizontalAlignment="Left" Margin="10,122,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="hold_btn" Content="hold call" HorizontalAlignment="Left" Margin="10,147,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="resume_btn" Content="resume call" HorizontalAlignment="Left" Margin="10,172,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="mute_btn" Content="mute call" HorizontalAlignment="Left" Margin="10,197,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="unmute_btn" Content="unmute call" HorizontalAlignment="Left" Margin="10,222,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="end_btn" Content="end call" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" Width="118"/>
+        <Button x:Name="clearLog_btn" Content="Clear Log" HorizontalAlignment="Left" Margin="504,44,0,0" VerticalAlignment="Top" Width="75"/>
+        <Label Content="Log" HorizontalAlignment="Left" Margin="165,41,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <TextBox x:Name="log_textbox" Margin="165,72,10,10" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
+        <Label Content="call id:" HorizontalAlignment="Left" Margin="10,272,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <Label x:Name="callid_lbl" Content="n/a" HorizontalAlignment="Left" Margin="61,272,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
